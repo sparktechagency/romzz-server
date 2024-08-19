@@ -8,11 +8,16 @@ export interface IUser {
   avatar: string;
   phoneNumber: string;
   nidNumber: number;
+  ineNumber: number;
   gender: 'male' | 'female' | 'others';
   password: string;
+  passwordChangedAt: Date;
   permanentAddress: string;
+  presentAddress: string;
   role: 'user' | 'admin' | 'super-admin';
   status: 'in-progress' | 'blocked' | 'deleted';
+  otp: number | null;
+  otpExpiresAt: Date | null;
   isDeleted: boolean;
   isBlocked: boolean;
   isVerified: boolean;

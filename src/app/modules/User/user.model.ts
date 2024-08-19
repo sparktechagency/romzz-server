@@ -29,6 +29,9 @@ const userSchema = new Schema<IUser, UserModel>(
       type: Number,
       required: true,
     },
+    ineNumber: {
+      type: Number,
+    },
     gender: {
       type: String,
       enum: ['male', 'female', 'others'],
@@ -39,9 +42,15 @@ const userSchema = new Schema<IUser, UserModel>(
       required: true,
       select: 0,
     },
+    passwordChangedAt: {
+      type: Date,
+    },
     permanentAddress: {
       type: String,
       required: true,
+    },
+    presentAddress: {
+      type: String,
     },
     role: {
       type: String,
@@ -52,6 +61,12 @@ const userSchema = new Schema<IUser, UserModel>(
       type: String,
       enum: ['in-progress', 'blocked', 'deleted'],
       default: 'in-progress',
+    },
+    otp: {
+      type: Number,
+    },
+    otpExpiresAt: {
+      type: Date,
     },
     isVerified: {
       type: Boolean,
@@ -90,6 +105,8 @@ userSchema.methods.toJSON = function () {
   delete userObject?.isBlocked;
   delete userObject?.isDeleted;
   delete userObject?.isVerified;
+  delete userObject?.otp;
+  delete userObject?.otpExpiresAt;
 
   return userObject;
 };
@@ -99,6 +116,38 @@ userSchema.statics.isUserExistsByEmail = async function (email: string) {
   // Find a user with the given email
   const existingUser = await User.findOne({ email }).select('+password');
   return existingUser;
+};
+
+// Static method to generate and store OTP
+userSchema.statics.generateOtp = async function (userId: string) {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit OTP
+  const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
+
+  await User.findByIdAndUpdate(userId, { otp, otpExpiresAt });
+
+  // Here you would typically send the OTP to the user's email or phone number
+
+  return otp;
+};
+
+// Static method to verify the OTP
+userSchema.statics.verifyOtp = async function (userId: string, otp: number) {
+  const user = await User.findById(userId);
+
+  if (!user || !user.otpExpiresAt || user.otpExpiresAt < new Date()) {
+    throw new Error('OTP has expired.');
+  }
+
+  if (user.otp !== otp) {
+    throw new Error('Invalid OTP.');
+  }
+
+  // If the OTP is correct, you can proceed to verify the user
+  user.otp = null;
+  user.otpExpiresAt = null;
+  await user.save();
+
+  return true;
 };
 
 // Create the User model using the schema

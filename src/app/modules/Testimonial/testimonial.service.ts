@@ -4,6 +4,8 @@ import { Testimonial } from './testimonial.model';
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
 import { Types } from 'mongoose';
+import QueryBuilder from '../../builder/QueryBuilder';
+import { ReviewSearchableFields } from '../Review/review.constant';
 
 const createTestimonialIntoDB = async (
   user: JwtPayload,
@@ -20,9 +22,23 @@ const createTestimonialIntoDB = async (
   return result;
 };
 
-const getTestimonialsFromDB = async () => {
-  const result = await Testimonial.find().populate('userId');
-  return result;
+const getTestimonialsFromDB = async (query: Record<string, unknown>) => {
+  // Build the query using QueryBuilder with the given query parameters
+  const reviewsQuery = new QueryBuilder(
+    Testimonial.find().populate('userId'),
+    query,
+  )
+    .search(ReviewSearchableFields) // Apply search conditions based on searchable fields
+    .sort() // Apply sorting based on the query parameter
+    .paginate() // Apply pagination based on the query parameter
+    .fields(); // Select specific fields to include/exclude in the result
+
+  // Get the total count of matching documents and total pages for pagination
+  const meta = await reviewsQuery.countTotal();
+  // Execute the query to retrieve the reviews
+  const result = await reviewsQuery.modelQuery;
+
+  return { meta, result };
 };
 
 const getTestimonialByIdFromDB = async (testimonialId: string) => {

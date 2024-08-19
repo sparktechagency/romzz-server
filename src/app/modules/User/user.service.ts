@@ -12,17 +12,13 @@ const createUserFromDB = async (payload: IUser) => {
     throw new ApiError(httpStatus.CONFLICT, 'User already exists!');
   }
 
-  // Create userPayload with default values for certain fields
-  const userPayload: IUser = {
-    ...payload,
-    role: 'user', // Set default role
-    status: 'in-progress', // Set default status
-    isBlocked: false, // Set default blocked status
-    isDeleted: false, // Set default deleted status
-  };
+  payload.role = 'user'; // Set default role
+  payload.status = 'in-progress'; // Set default status
+  payload.isBlocked = false; // Set default blocked status
+  payload.isDeleted = false; // Set default deleted status
 
   // If user does not exist, create the new user
-  const result = User.create(userPayload);
+  const result = User.create(payload);
   return result;
 };
 
@@ -33,31 +29,30 @@ const createAdminFromDB = async (payload: IUser) => {
     throw new ApiError(httpStatus.CONFLICT, 'User already exists!');
   }
 
-  // Create userPayload with default values for certain fields
-  const userPayload: IUser = {
-    ...payload,
-    role: 'admin', // Set default role
-    status: 'in-progress', // Set default status
-    isBlocked: false, // Set default blocked status
-    isDeleted: false, // Set default deleted status
-  };
+  payload.role = 'admin'; // Set default role
+  payload.status = 'in-progress'; // Set default status
+  payload.isBlocked = false; // Set default blocked status
+  payload.isDeleted = false; // Set default deleted status
 
   // If user does not exist, create the new user
-  const result = User.create(userPayload);
+  const result = User.create(payload);
   return result;
 };
 
 const getUsersFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const usersQuery = new QueryBuilder(User.find(), query)
-    .search(UserSearchableFields)
-    .sort()
-    .paginate()
-    .fields();
+    .search(UserSearchableFields) // Apply search conditions based on searchable fields
+    .sort() // Apply sorting based on the query parameter
+    .paginate() // Apply pagination based on the query parameter
+    .fields(); // Select specific fields to include/exclude in the result
 
-  // Execute the query to get the results
-  const result = await usersQuery?.modelQuery;
-  return result;
+  // Get the total count of matching documents and total pages for pagination
+  const meta = await usersQuery.countTotal();
+  // Execute the query to retrieve the users
+  const result = await usersQuery.modelQuery;
+
+  return { meta, result };
 };
 
 export const UserServices = {

@@ -4,4 +4,4 @@ export const USER_ROLE = {
   superAdmin: 'superAdmin',
 } as const;
 
-export const UserSearchableFields = ['fullName', 'email'];
+export const UserSearchableFields = ['email', 'presentAddress'];
