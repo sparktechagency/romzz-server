@@ -4,7 +4,7 @@ import sendResponse from '../../helpers/sendResponse';
 import { UserServices } from './user.service';
 
 const createUser = catchAsync(async (req, res) => {
-  const result = await UserServices.createUserFromDB(req.body);
+  const result = await UserServices.createUserIntoDB(req.body);
 
   return sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -36,8 +36,20 @@ const getUsers = catchAsync(async (req, res) => {
   });
 });
 
+const getUserProfile = catchAsync(async (req, res) => {
+  const result = await UserServices?.getUserProfileFromDB(req?.user);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User profile retrieved successfully!',
+    data: result,
+  });
+});
+
 export const UserControllers = {
   createUser,
   createAdmin,
   getUsers,
+  getUserProfile,
 };
