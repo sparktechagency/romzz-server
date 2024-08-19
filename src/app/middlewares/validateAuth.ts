@@ -6,7 +6,7 @@ import { User } from '../modules/User/user.model';
 import catchAsync from '../helpers/catchAsync';
 import ApiError from '../errors/ApiError';
 import { TUserRole } from '../modules/User/user.interface';
-import { verifyJwtToken } from '../helpers/jwtHelper';
+import { verifyJwtToken } from '../helpers/jwtHelpers';
 
 const validateAuth = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -41,7 +41,7 @@ const validateAuth = (...requiredRoles: TUserRole[]) => {
       if (existingUser?.isBlocked) {
         throw new ApiError(
           httpStatus.FORBIDDEN,
-          'User account is blocked. Access is restricted.',
+          'User account is blocked! Access is restricted.',
         );
       }
 
@@ -49,7 +49,7 @@ const validateAuth = (...requiredRoles: TUserRole[]) => {
       if (existingUser?.isDeleted) {
         throw new ApiError(
           httpStatus.FORBIDDEN,
-          'User account is deleted. Please contact support.',
+          'User account is deleted! Please contact support.',
         );
       }
 

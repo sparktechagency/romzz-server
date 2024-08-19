@@ -6,6 +6,7 @@ import QueryBuilder from '../../builder/QueryBuilder';
 import { UserSearchableFields } from './user.constant';
 import { JwtPayload } from 'jsonwebtoken';
 import { Types } from 'mongoose';
+import { excludeKeys } from '../../helpers/objectHelpers';
 
 const createUserIntoDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
@@ -74,17 +75,50 @@ const getUserProfileFromDB = async (user: JwtPayload) => {
     );
   }
 
-  // Find the user by ID
   const result = await User.findById(user?._id);
+  return result;
+};
 
-  // Handle case where no user is found
-  if (!result) {
+const updateUserProfileIntoDB = async (
+  user: JwtPayload,
+  payload: Partial<IUser>,
+) => {
+  // Validate the ID format
+  if (!Types.ObjectId.isValid(user?._id)) {
     throw new ApiError(
-      httpStatus.NOT_FOUND,
-      `User with ID: ${user?._id} not found!`,
+      httpStatus.BAD_REQUEST,
+      'The provided user ID is invalid!',
     );
   }
 
+  // Define fields that cannot be updated by the user
+  const keysToExclude: (keyof IUser)[] = [
+    'email',
+    'password',
+    'passwordChangedAt',
+    'role',
+    'status',
+    'isBlocked',
+    'isDeleted',
+    'isVerified',
+    'otp',
+    'otpExpiresAt',
+  ];
+
+  const updatedData = excludeKeys(payload, keysToExclude);
+
+  // If no valid fields are provided for update, throw an error
+  if (Object.keys(updatedData).length === 0) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'No valid fields provided for update!',
+    );
+  }
+
+  // Proceed with the update using the filtered data
+  const result = await User.findByIdAndUpdate(user?._id, updatedData, {
+    new: true,
+  });
   return result;
 };
 
@@ -93,4 +127,5 @@ export const UserServices = {
   createAdminFromDB,
   getUsersFromDB,
   getUserProfileFromDB,
+  updateUserProfileIntoDB,
 };

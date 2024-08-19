@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-// User Registration Validation Schema
-export const userRegistrationValidationSchema = z.object({
+// User  Validation Schema
+export const userValidationSchema = z.object({
   body: z.object({
     fullName: z.string({
       required_error: 'Full name is required.',

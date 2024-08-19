@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import config from '../../config';
 import { IUser } from '../User/user.interface';
 import { User } from '../User/user.model';
-import { createJwtToken } from '../../helpers/jwtHelper';
+import { createJwtToken } from '../../helpers/jwtHelpers';
 
 const loginUserFromDB = async (payload: Partial<IUser>) => {
   // Check if a user with the provided email exists in the database
