@@ -9,11 +9,12 @@ class QueryBuilder<T> {
     this.query = query;
   }
 
-  // Method to perform a search based on given searchable fields
+  // Method to perform a search based on given searchable fields, including populated fields
   search(searchableFields: string[]) {
     const searchTerm = this?.query?.searchTerm;
+
     if (searchTerm) {
-      this.modelQuery = this?.modelQuery?.find({
+      this.modelQuery = this.modelQuery.find({
         $or: searchableFields.map(
           (field) =>
             ({

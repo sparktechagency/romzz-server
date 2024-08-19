@@ -10,6 +10,7 @@ const superUser = {
   gender: 'male',
   password: config.superAdminPassword,
   role: USER_ROLE.superAdmin,
+  isVerified: true,
 };
 
 export default superUser;
