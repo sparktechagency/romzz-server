@@ -118,6 +118,13 @@ userSchema.statics.isUserExistsByEmail = async function (email: string) {
   return existingUser;
 };
 
+userSchema.statics.isPasswordMatched = async function (
+  plainTextPassword,
+  hashedPassword,
+) {
+  return await bcrypt.compare(plainTextPassword, hashedPassword);
+};
+
 // Static method to generate and store OTP
 userSchema.statics.generateOtp = async function (userId: string) {
   const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit OTP
