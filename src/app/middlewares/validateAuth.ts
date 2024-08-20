@@ -53,6 +53,16 @@ const validateAuth = (...requiredRoles: TUserRole[]) => {
         );
       }
 
+      if (
+        existingUser.passwordChangedAt &&
+        User.isJWTIssuedBeforePasswordChanged(
+          existingUser?.passwordChangedAt,
+          verifyUser?.iat as number,
+        )
+      ) {
+        throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
+      }
+
       if (requiredRoles && !requiredRoles.includes(verifyUser?.role)) {
         throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
       }
