@@ -10,6 +10,10 @@ import { JwtPayload } from 'jsonwebtoken';
 import { Types } from 'mongoose';
 import { excludeKeys } from '../../helpers/objectHelpers';
 import deleteFile from '../../helpers/deleteFile';
+import path from 'path';
+import ejs from 'ejs';
+import generateOtp from '../../helpers/generateOtp';
+import { sendEmail } from '../../helpers/test';
 
 const createUserIntoDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
@@ -27,12 +31,45 @@ const createUserIntoDB = async (payload: IUser) => {
   payload.isBlocked = false; // Set the blocked status to false
   payload.isDeleted = false; // Set the deleted status to false
 
+  // Generate a one-time password (OTP) for email verification
+  const otp = generateOtp();
+  const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
+
+  // Add OTP and expiration time to the payload
+  payload.otp = Number(otp); // Store OTP as a number
+  payload.otpExpiresAt = otpExpiresAt;
+
+  // Define the path to the email verification template
+  const verifyEmailTemplatePath = path.join(
+    process.cwd(),
+    'src',
+    'app',
+    'templates',
+    'verifyEmailTemplate.ejs',
+  );
+
+  // Render the verify email template with provided payload data
+  const verifyEmailTemplate = await ejs.renderFile(verifyEmailTemplatePath, {
+    fullName: payload.fullName,
+    otp,
+  });
+
+  // Define the mail options for sending thank-you email to the user
+  const emailOptions = {
+    to: payload.email, // Receiver's email address (user's email)
+    subject: 'Verify Your Email - Roomz', // Subject of the email
+    html: verifyEmailTemplate, // HTML content of the email
+  };
+
+  // Send the verification email to the user
+  await sendEmail(emailOptions);
+
   // Create the new user in the database
   const result = User.create(payload);
   return result;
 };
 
-const createAdminFromDB = async (payload: IUser) => {
+const createAdminIntoDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
   if (await User.isUserExistsByEmail(payload?.email)) {
     // If user already exists, throw a CONFLICT ApiError
@@ -47,6 +84,39 @@ const createAdminFromDB = async (payload: IUser) => {
   payload.status = 'in-progress'; // Set the status to 'in-progress'
   payload.isBlocked = false; // Set the blocked status to false
   payload.isDeleted = false; // Set the deleted status to false
+
+  // Generate a one-time password (OTP) for email verification
+  const otp = generateOtp();
+  const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
+
+  // Add OTP and expiration time to the payload
+  payload.otp = Number(otp); // Store OTP as a number
+  payload.otpExpiresAt = otpExpiresAt;
+
+  // Define the path to the email verification template
+  const verifyEmailTemplatePath = path.join(
+    process.cwd(),
+    'src',
+    'app',
+    'templates',
+    'verifyEmailTemplate.ejs',
+  );
+
+  // Render the verify email template with provided payload data
+  const verifyEmailTemplate = await ejs.renderFile(verifyEmailTemplatePath, {
+    fullName: payload.fullName,
+    otp,
+  });
+
+  // Define the mail options for sending thank-you email to the user
+  const emailOptions = {
+    to: payload.email, // Receiver's email address (user's email)
+    subject: 'Verify Your Email - Roomz', // Subject of the email
+    html: verifyEmailTemplate, // HTML content of the email
+  };
+
+  // Send the verification email to the user
+  await sendEmail(emailOptions);
 
   // Create the new admin in the database
   const result = User.create(payload);
@@ -132,7 +202,7 @@ const updateUserProfileIntoDB = async (
 
 export const UserServices = {
   createUserIntoDB,
-  createAdminFromDB,
+  createAdminIntoDB,
   getUsersFromDB,
   getUserProfileFromDB,
   updateUserProfileIntoDB,

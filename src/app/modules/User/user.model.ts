@@ -133,18 +133,6 @@ userSchema.statics.isJWTIssuedBeforePasswordChanged = function (
   return passwordChangedTime > jwtIssuedTime;
 };
 
-// Static method to generate and store OTP
-userSchema.statics.generateOtp = async function (userId: string) {
-  const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit OTP
-  const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
-
-  await User.findByIdAndUpdate(userId, { otp, otpExpiresAt });
-
-  // Here you would typically send the OTP to the user's email or phone number
-
-  return otp;
-};
-
 // Static method to verify the OTP
 userSchema.statics.verifyOtp = async function (userId: string, otp: number) {
   const user = await User.findById(userId);
