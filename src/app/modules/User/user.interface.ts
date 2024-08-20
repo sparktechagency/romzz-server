@@ -37,5 +37,7 @@ export interface UserModel extends Model<IUser> {
   isJWTIssuedBeforePasswordChanged(
     passwordChangedTime: Date,
     jwtIssuedTime: number,
-  ): boolean;
+  ): Promise<boolean>;
+
+  verifyOtp(email: string, otp: number): Promise<boolean>;
 }

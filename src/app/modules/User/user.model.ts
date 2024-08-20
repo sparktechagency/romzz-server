@@ -2,6 +2,8 @@ import { Schema, model } from 'mongoose';
 import { IUser, UserModel } from './user.interface';
 import bcrypt from 'bcrypt';
 import config from '../../config';
+import ApiError from '../../errors/ApiError';
+import httpStatus from 'http-status';
 
 // Define the schema for the User model
 const userSchema = new Schema<IUser, UserModel>(
@@ -134,23 +136,51 @@ userSchema.statics.isJWTIssuedBeforePasswordChanged = function (
 };
 
 // Static method to verify the OTP
-userSchema.statics.verifyOtp = async function (userId: string, otp: number) {
-  const user = await User.findById(userId);
+userSchema.statics.verifyOtp = async function (email: string, otp: number) {
+  const existingUser = await User.findOne({ email });
 
-  if (!user || !user.otpExpiresAt || user.otpExpiresAt < new Date()) {
-    throw new Error('OTP has expired.');
+  if (!existingUser) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      'User with this email does not exist!',
+    );
   }
 
-  if (user.otp !== otp) {
-    throw new Error('Invalid OTP.');
+  if (!otp) {
+    throw new ApiError(
+      httpStatus.NOT_ACCEPTABLE,
+      'Please give the otp, check your email we send a code!',
+    );
   }
 
-  // If the OTP is correct, you can proceed to verify the user
-  user.otp = null;
-  user.otpExpiresAt = null;
-  await user.save();
+  if (
+    !existingUser ||
+    !existingUser?.otpExpiresAt ||
+    existingUser?.otpExpiresAt < new Date()
+  ) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      'Otp already expired, Please try again!',
+    );
+  }
 
-  return true;
+  if (existingUser?.otp !== otp) {
+    throw new ApiError(httpStatus.NOT_ACCEPTABLE, 'Invalid OTP!');
+  }
+
+  // If OTP is correct, update specific fields
+  await User.updateOne(
+    { email },
+    {
+      $set: {
+        otp: null, // Clear the OTP
+        otpExpiresAt: null, // Clear the expiration date
+        isVerified: true, // Set the user as verified
+      },
+    },
+  );
+
+  return null;
 };
 
 // Create the User model using the schema

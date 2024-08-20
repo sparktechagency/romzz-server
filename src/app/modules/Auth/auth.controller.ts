@@ -4,7 +4,7 @@ import sendResponse from '../../helpers/sendResponse';
 import { AuthServices } from './auth.service';
 
 const verifyEmail = catchAsync(async (req, res) => {
-  const result = await UserServices.createUserFromDB(req?.body);
+  const result = await AuthServices.verifyEmailIntoDB(req?.body);
 
   return sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -15,7 +15,7 @@ const verifyEmail = catchAsync(async (req, res) => {
 });
 
 const loginUser = catchAsync(async (req, res) => {
-  const result = await AuthServices.loginUserFromDB(req?.body);
+  const result = await AuthServices.loginUserIntoDB(req?.body);
 
   return sendResponse(res, {
     statusCode: httpStatus.OK,

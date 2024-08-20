@@ -7,7 +7,16 @@ import { User } from '../User/user.model';
 import { createJwtToken } from '../../helpers/jwtHelpers';
 import { JwtPayload } from 'jsonwebtoken';
 
-const loginUserFromDB = async (payload: Partial<IUser>) => {
+const verifyEmailIntoDB = async (payload: Partial<IUser>) => {
+  const result = await User.verifyOtp(
+    payload?.email as string,
+    payload?.otp as number,
+  );
+
+  return result;
+};
+
+const loginUserIntoDB = async (payload: Partial<IUser>) => {
   // Check if a user with the provided email exists in the database
   const existingUser = await User.isUserExistsByEmail(payload?.email as string);
 
@@ -194,6 +203,7 @@ const resetPasswordIntoDB = async (
 };
 
 export const AuthServices = {
-  loginUserFromDB,
+  verifyEmailIntoDB,
+  loginUserIntoDB,
   changePasswordIntoDB,
 };

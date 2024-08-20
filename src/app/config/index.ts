@@ -12,4 +12,6 @@ export default {
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET,
   jwtAccessExpiresIn: process.env.JWT_EXPIRES_IN,
   superAdminPassword: process.env.JWT_EXPIRES_IN,
+  smtpEmailUser: process.env.SMTP_EMAIL_USER,
+  smtpEmailPass: process.env.SMTP_EMAIL_PASS,
 };

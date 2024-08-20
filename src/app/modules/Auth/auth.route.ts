@@ -13,4 +13,6 @@ router.post(
   AuthControllers.changePassword,
 );
 
+router.post('/verify-email', AuthControllers.verifyEmail);
+
 export const AuthRoutes = router;

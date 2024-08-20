@@ -57,7 +57,7 @@ const createUserIntoDB = async (payload: IUser) => {
   // Define the mail options for sending thank-you email to the user
   const emailOptions = {
     to: payload.email, // Receiver's email address (user's email)
-    subject: 'Verify Your Email - Roomz', // Subject of the email
+    subject: 'Verify Your Email Address - Roomz', // Subject of the email
     html: verifyEmailTemplate, // HTML content of the email
   };
 
