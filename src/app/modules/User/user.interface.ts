@@ -33,4 +33,9 @@ export interface UserModel extends Model<IUser> {
     plainTextPassword: string,
     hashedPassword: string,
   ): Promise<boolean>;
+
+  isJWTIssuedBeforePasswordChanged(
+    passwordChangedTime: Date,
+    jwtIssuedTime: number,
+  ): boolean;
 }

@@ -125,6 +125,14 @@ userSchema.statics.isPasswordMatched = async function (
   return await bcrypt.compare(plainTextPassword, hashedPassword);
 };
 
+userSchema.statics.isJWTIssuedBeforePasswordChanged = function (
+  passwordChangedAt: Date,
+  jwtIssuedTime: number,
+) {
+  const passwordChangedTime = new Date(passwordChangedAt).getTime() / 1000;
+  return passwordChangedTime > jwtIssuedTime;
+};
+
 // Static method to generate and store OTP
 userSchema.statics.generateOtp = async function (userId: string) {
   const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit OTP
