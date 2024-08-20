@@ -1,10 +1,10 @@
 import httpStatus from 'http-status';
 import catchAsync from '../../helpers/catchAsync';
 import sendResponse from '../../helpers/sendResponse';
-import { UserServices } from './auth.service';
+import { AuthServices } from './auth.service';
 
 const verifyEmail = catchAsync(async (req, res) => {
-  const result = await UserServices.createUserFromDB(req.body);
+  const result = await UserServices.createUserFromDB(req?.body);
 
   return sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -15,7 +15,7 @@ const verifyEmail = catchAsync(async (req, res) => {
 });
 
 const loginUser = catchAsync(async (req, res) => {
-  const result = await UserServices.loginUserFromDB(req.body);
+  const result = await AuthServices.loginUserFromDB(req?.body);
 
   return sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -26,7 +26,7 @@ const loginUser = catchAsync(async (req, res) => {
 });
 
 const forgetPassword = catchAsync(async (req, res) => {
-  const result = await UserServices.createAdminFromDB(req.body);
+  const result = await UserServices.createAdminFromDB(req?.body);
 
   return sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -37,7 +37,7 @@ const forgetPassword = catchAsync(async (req, res) => {
 });
 
 const resetPassword = catchAsync(async (req, res) => {
-  const result = await UserServices.createAdminFromDB(req.body);
+  const result = await UserServices.createAdminFromDB(req?.body);
 
   return sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -48,7 +48,7 @@ const resetPassword = catchAsync(async (req, res) => {
 });
 
 const changePassword = catchAsync(async (req, res) => {
-  const result = await UserServices.createAdminFromDB(req.body);
+  const result = await AuthServices.changePasswordIntoDB(req?.user, req?.body);
 
   return sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -58,7 +58,7 @@ const changePassword = catchAsync(async (req, res) => {
   });
 });
 
-export const UserControllers = {
+export const AuthControllers = {
   verifyEmail,
   loginUser,
   forgetPassword,
