@@ -4,6 +4,7 @@ import validateRequest from '../../middlewares/validateRequest';
 import { userValidationSchema } from './user.validation';
 import validateAuth from '../../middlewares/validateAuth';
 import { USER_ROLE } from './user.constant';
+import { upload } from '../../helpers/multer';
 
 const router = Router();
 
@@ -28,8 +29,9 @@ router.post(
 
 router.patch(
   '/update-profile',
-  validateAuth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
-  validateRequest(userValidationSchema),
+  // validateAuth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
+  upload.single('image'),
+  // validateRequest(userValidationSchema),
   UserControllers.updateUserProfile,
 );
 
