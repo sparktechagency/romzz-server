@@ -35,7 +35,6 @@ router.patch(
     req.body = JSON.parse(req?.body?.data);
     next();
   },
-  // validateRequest(userValidationSchema),
   UserControllers.updateUserProfile,
 );
 

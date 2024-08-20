@@ -98,13 +98,14 @@ const updateUserProfileIntoDB = async (
   // Find the existing user to get the current avatar path
   const existingUser = await User.findById(user._id);
 
+  // Filter out fields that should not be updated
   const updatedData = excludeKeys(payload, keysToExclude);
 
-  // If the user uploads a new avatar, update the avatar path
+  // If a new avatar is uploaded, update the avatar path in the database
   if (file && file.path) {
     updatedData.avatar = file.path.replace(/\\/g, '/'); // Replace backslashes with forward slashes for consistency
 
-    // If the user already has an avatar, delete the old one
+    // If the user already has an existing avatar (and it's not the default avatar), delete the old avatar file
     if (
       existingUser?.avatar &&
       existingUser?.avatar !== 'https://i.ibb.co/z5YHLV9/profile.png'
