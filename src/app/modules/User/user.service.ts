@@ -1,12 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import httpStatus from 'http-status';
 import { IUser } from './user.interface';
 import ApiError from '../../errors/ApiError';
 import { User } from './user.model';
 import QueryBuilder from '../../builder/QueryBuilder';
-import { UserSearchableFields } from './user.constant';
+import { keysToExclude, UserSearchableFields } from './user.constant';
 import { JwtPayload } from 'jsonwebtoken';
 import { Types } from 'mongoose';
 import { excludeKeys } from '../../helpers/objectHelpers';
+import deleteFile from '../../helpers/deleteFile';
 
 const createUserIntoDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
@@ -81,6 +84,7 @@ const getUserProfileFromDB = async (user: JwtPayload) => {
 
 const updateUserProfileIntoDB = async (
   user: JwtPayload,
+  file: any,
   payload: Partial<IUser>,
 ) => {
   // Validate the ID format
@@ -91,21 +95,23 @@ const updateUserProfileIntoDB = async (
     );
   }
 
-  // Define fields that cannot be updated by the user
-  const keysToExclude: (keyof IUser)[] = [
-    'email',
-    'password',
-    'passwordChangedAt',
-    'role',
-    'status',
-    'isBlocked',
-    'isDeleted',
-    'isVerified',
-    'otp',
-    'otpExpiresAt',
-  ];
+  // Find the existing user to get the current avatar path
+  const existingUser = await User.findById(user._id);
 
   const updatedData = excludeKeys(payload, keysToExclude);
+
+  // If the user uploads a new avatar, update the avatar path
+  if (file && file.path) {
+    updatedData.avatar = file.path.replace(/\\/g, '/'); // Replace backslashes with forward slashes for consistency
+
+    // If the user already has an avatar, delete the old one
+    if (
+      existingUser?.avatar &&
+      existingUser?.avatar !== 'https://i.ibb.co/z5YHLV9/profile.png'
+    ) {
+      deleteFile(existingUser?.avatar);
+    }
+  }
 
   // If no valid fields are provided for update, throw an error
   if (Object.keys(updatedData).length === 0) {
@@ -119,6 +125,7 @@ const updateUserProfileIntoDB = async (
   const result = await User.findByIdAndUpdate(user?._id, updatedData, {
     new: true,
   });
+
   return result;
 };
 

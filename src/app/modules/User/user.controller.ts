@@ -48,19 +48,17 @@ const getUserProfile = catchAsync(async (req, res) => {
 });
 
 const updateUserProfile = catchAsync(async (req, res) => {
-  console.log(req?.file);
-
-  // const result = await UserServices?.updateUserProfileIntoDB(
-  //   req?.user,
-  //   req?.file,
-  //   req?.body,
-  // );
+  const result = await UserServices?.updateUserProfileIntoDB(
+    req?.user,
+    req?.file,
+    req?.body,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'User profile updated successfully!',
-    data: null,
+    data: result,
   });
 });
 

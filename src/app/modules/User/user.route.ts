@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { NextFunction, Request, Response, Router } from 'express';
 import { UserControllers } from './user.controller';
 import validateRequest from '../../middlewares/validateRequest';
 import { userValidationSchema } from './user.validation';
@@ -29,8 +29,12 @@ router.post(
 
 router.patch(
   '/update-profile',
-  // validateAuth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
   upload.single('image'),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req?.body?.data);
+    next();
+  },
   // validateRequest(userValidationSchema),
   UserControllers.updateUserProfile,
 );
