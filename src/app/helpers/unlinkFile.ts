@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-const deleteFile = (filePath: string) => {
+const unlinkFile = (filePath: string) => {
   // Check if the file exists before attempting to delete it
   if (fs.existsSync(filePath)) {
     // File exists, proceed to delete it
@@ -16,4 +16,4 @@ const deleteFile = (filePath: string) => {
   }
 };
 
-export default deleteFile;
+export default unlinkFile;

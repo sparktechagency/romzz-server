@@ -1,11 +1,12 @@
 import nodemailer from 'nodemailer';
 import config from '../config';
-import { ISendEmail } from '../interfaces';
+import { ISendEmail } from '../interfaces/sendEmail.interface';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
-  port: 465,
-  secure: true,
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false,
   auth: {
     user: config.smtpEmailUser,
     pass: config.smtpEmailPass,

@@ -1,7 +1,12 @@
 import jwt, { JwtPayload, Secret } from 'jsonwebtoken';
+import { ObjectId } from 'mongoose';
 
 export const createJwtToken = (
-  payload: object,
+  payload: {
+    userId: ObjectId;
+    email: string;
+    role: 'user' | 'admin' | 'super-admin';
+  },
   secret: Secret,
   expiresIn: string,
 ) => {
