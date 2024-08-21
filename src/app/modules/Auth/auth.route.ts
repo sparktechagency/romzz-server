@@ -6,9 +6,10 @@ import { AuthControllers } from './auth.controller';
 const router = Router();
 
 router.post('/login', AuthControllers.loginUser);
-router.post('/verify-email', AuthControllers.verifyEmail);
-
 router.post('/forget-password', AuthControllers.forgetPassword);
+router.post('/reset-password', AuthControllers.resetPassword);
+router.post('/verify-email-address', AuthControllers.verifyEmailAddress);
+router.post('/verify-reset-password', AuthControllers.verifyResetPassword);
 
 router.post(
   '/change-password',

@@ -2,22 +2,25 @@ import httpStatus from 'http-status';
 import ApiError from '../../errors/ApiError';
 import bcrypt from 'bcrypt';
 import config from '../../config';
-import { IUser } from '../User/user.interface';
 import { User } from '../User/user.model';
-import { createJwtToken } from '../../helpers/jwtHelpers';
+import { createJwtToken, verifyJwtToken } from '../../helpers/jwtHelpers';
 import { JwtPayload } from 'jsonwebtoken';
 import generateOtp from '../../helpers/generateOtp';
 import path from 'path';
-import { sendEmail } from '../../helpers/test';
+import { sendEmail } from '../../helpers/emailHelpers';
 import ejs from 'ejs';
 
-const verifyEmailIntoDB = async (payload: { email: string; otp: number }) => {
-  const result = await User.verifyOtp(payload?.email, payload?.otp);
-
-  return result;
+const verifyEmailAddressOtpIntoDB = async (payload: {
+  email: string;
+  otp: number;
+}) => {
+  await User.verifyOtp(payload?.email, payload?.otp);
 };
 
-const loginUserIntoDB = async (payload: Partial<IUser>) => {
+const loginUserIntoDB = async (payload: {
+  email: string;
+  password: string;
+}) => {
   // Check if a user with the provided email exists in the database
   const existingUser = await User.isUserExistsByEmail(payload?.email as string);
 
@@ -58,7 +61,7 @@ const loginUserIntoDB = async (payload: Partial<IUser>) => {
 
   // Prepare the payload for JWT token generation
   const jwtPayload = {
-    id: existingUser?._id,
+    userId: existingUser?._id,
     email: existingUser?.email,
     role: existingUser?.role,
   };
@@ -118,10 +121,7 @@ const changePasswordIntoDB = async (
     passwordChangedAt: new Date(), // Update the password change timestamp
   };
 
-  const result = await User.findByIdAndUpdate({ _id: user?.id }, updatedData, {
-    new: true,
-  });
-  return result;
+  await User.findByIdAndUpdate(user?.userId, updatedData);
 };
 
 const forgetPasswordIntoDB = async (payload: { email: string }) => {
@@ -188,10 +188,28 @@ const forgetPasswordIntoDB = async (payload: { email: string }) => {
     { email: payload?.email },
     { $set: { otp, otpExpiresAt } },
   );
+};
+
+const verifyResetPasswordOtpIntoDB = async (payload: {
+  email: string;
+  otp: number;
+}) => {
+  // Check if a user with the provided email exists in the database
+  const existingUser = await User.isUserExistsByEmail(payload?.email as string);
+
+  if (!existingUser) {
+    // If no user is found with the given email, throw a NOT_FOUND error
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      'User with this email does not exist!',
+    );
+  }
+
+  await User.verifyOtp(payload?.email, payload?.otp);
 
   // Prepare the payload for JWT token generation
   const jwtPayload = {
-    id: existingUser?._id,
+    userId: existingUser?._id,
     email: existingUser?.email,
     role: existingUser?.role,
   };
@@ -200,7 +218,7 @@ const forgetPasswordIntoDB = async (payload: { email: string }) => {
   const accessToken = createJwtToken(
     jwtPayload,
     config.jwtAccessSecret as string,
-    config.jwtAccessExpiresIn as string,
+    '10m',
   );
 
   return {
@@ -210,63 +228,78 @@ const forgetPasswordIntoDB = async (payload: { email: string }) => {
 
 const resetPasswordIntoDB = async (
   token: string,
-  payload: IAuthResetPassword,
+  payload: { userId: string; newPassword: string },
 ) => {
-  const { newPassword, confirmPassword } = payload;
-  //isExist token
-  const isExistToken = await ResetToken.isExistToken(token);
-  if (!isExistToken) {
-    throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are not authorized');
+  if (!token) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'This user is deleted !');
   }
 
-  //user permission check
-  const isExistUser = await User.findById(isExistToken.user).select(
-    '+authentication',
+  const decoded = verifyJwtToken(
+    token,
+    config.jwtAccessSecret as string,
+  ) as JwtPayload;
+
+  // checking if the user is exist
+  const existingUser = await User.isUserExistsByEmail(decoded?.email);
+
+  if (!existingUser) {
+    // If no user is found with the given email, throw a NOT_FOUND error
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      'User with this email does not exist!',
+    );
+  }
+
+  // Check if the user is blocked
+  if (existingUser?.isBlocked) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      'User account is blocked! Access is restricted.',
+    );
+  }
+
+  // Check if the user is deleted
+  if (existingUser?.isDeleted) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      'User account is deleted! Please contact support.',
+    );
+  }
+
+  if (payload?.userId !== decoded?.userId) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'You are forbidden!');
+  }
+
+  // Ensure the new password is different from the current password
+  const isSamePassword = await User.isPasswordMatched(
+    payload?.newPassword,
+    existingUser?.password,
   );
-  if (!isExistUser?.authentication?.isResetPassword) {
+
+  if (isSamePassword) {
     throw new ApiError(
-      StatusCodes.UNAUTHORIZED,
-      "You don't have permission to change the password. Please click again to 'Forgot Password'",
+      httpStatus.NOT_ACCEPTABLE,
+      'The new password must be different from the current password!',
     );
   }
 
-  //validity check
-  const isValid = await ResetToken.isExpireToken(token);
-  if (!isValid) {
-    throw new ApiError(
-      StatusCodes.BAD_REQUEST,
-      'Token expired, Please click again to the forget password',
-    );
-  }
-
-  //check password
-  if (newPassword !== confirmPassword) {
-    throw new ApiError(
-      StatusCodes.BAD_REQUEST,
-      "New password and Confirm password doesn't match!",
-    );
-  }
-
+  // Hash the new password using bcrypt with the configured salt rounds
   const hashPassword = await bcrypt.hash(
-    newPassword,
-    Number(config.bcrypt_salt_rounds),
+    payload?.newPassword,
+    Number(config.bcryptSaltRounds),
   );
 
-  const updateData = {
+  await User.findByIdAndUpdate(decoded?.userId, {
     password: hashPassword,
-    authentication: {
-      isResetPassword: false,
-    },
-  };
-
-  await User.findOneAndUpdate({ _id: isExistToken.user }, updateData, {
-    new: true,
+    passwordChangedAt: new Date(),
   });
 };
 
 export const AuthServices = {
-  verifyEmailIntoDB,
   loginUserIntoDB,
+  resetPasswordIntoDB,
   changePasswordIntoDB,
   forgetPasswordIntoDB,
+  verifyEmailAddressOtpIntoDB,
+  verifyResetPasswordOtpIntoDB,
 };
