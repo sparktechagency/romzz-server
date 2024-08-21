@@ -16,8 +16,8 @@ export interface IUser {
   presentAddress: string;
   role: 'user' | 'admin' | 'super-admin';
   status: 'in-progress' | 'blocked' | 'deleted';
-  otp: number | null;
-  otpExpiresAt: Date | null;
+  otp: number;
+  otpExpiresAt: Date;
   isDeleted: boolean;
   isBlocked: boolean;
   isVerified: boolean;

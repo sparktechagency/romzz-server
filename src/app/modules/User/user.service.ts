@@ -8,11 +8,11 @@ import QueryBuilder from '../../builder/QueryBuilder';
 import { keysToExclude, UserSearchableFields } from './user.constant';
 import { JwtPayload } from 'jsonwebtoken';
 import { excludeKeys } from '../../helpers/objectHelpers';
-import deleteFile from '../../helpers/deleteFile';
+import deleteFile from '../../helpers/unlinkFile';
 import path from 'path';
 import ejs from 'ejs';
 import generateOtp from '../../helpers/generateOtp';
-import { sendEmail } from '../../helpers/test';
+import { sendEmail } from '../../helpers/emailHelpers';
 
 const createUserIntoDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
@@ -139,7 +139,7 @@ const getUsersFromDB = async (query: Record<string, unknown>) => {
 };
 
 const getUserProfileFromDB = async (user: JwtPayload) => {
-  const result = await User.findById(user?.id);
+  const result = await User.findById(user?.userId);
   return result;
 };
 
@@ -149,7 +149,7 @@ const updateUserProfileIntoDB = async (
   payload: Partial<IUser>,
 ) => {
   // Find the existing user to get the current avatar path
-  const existingUser = await User.findById(user.id);
+  const existingUser = await User.findById(user?.userId);
 
   // Filter out fields that should not be updated
   const updatedData = excludeKeys(payload, keysToExclude);
@@ -176,7 +176,7 @@ const updateUserProfileIntoDB = async (
   }
 
   // Proceed with the update using the filtered data
-  const result = await User.findByIdAndUpdate(user?.id, updatedData, {
+  const result = await User.findByIdAndUpdate(user?.userId, updatedData, {
     new: true,
   });
 
