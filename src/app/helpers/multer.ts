@@ -1,42 +1,51 @@
 import multer from 'multer';
-import fs from 'fs';
 import path from 'path';
 import formatDate from './formatDate';
 import ApiError from '../errors/ApiError';
 import httpStatus from 'http-status';
 import createDirectory from './createDirectory';
+import {
+  AUDIO_FIELD_NAMES,
+  FIELD_NAME_TO_FORMATS,
+  IMAGE_FIELD_NAMES,
+  PDF_FIELD_NAMES,
+  VIDEO_FIELD_NAMES,
+} from '../constants/file.constant';
 
 // Define the base directory for uploads
 const baseUploadDirectory = path.join(process.cwd(), 'uploads');
-
-// Create the base upload directory if it doesn't exist
-if (!fs.existsSync(baseUploadDirectory)) {
-  fs.mkdirSync(baseUploadDirectory);
-}
 
 // Multer storage configuration with readable filenames
 const storage = multer.diskStorage({
   // Determine the destination folder based on the file's fieldname
   destination: (req, file, cb) => {
+    const { fieldname } = file;
     let uploadDirectory;
 
-    // Choose the appropriate folder based on the file type
-    switch (file?.fieldname) {
-      case 'image':
-        uploadDirectory = path.join(baseUploadDirectory, 'images');
-        break;
-      case 'video':
-        uploadDirectory = path.join(baseUploadDirectory, 'videos');
-        break;
-      case 'audio':
-        uploadDirectory = path.join(baseUploadDirectory, 'audios');
-        break;
-      case 'pdf':
-        uploadDirectory = path.join(baseUploadDirectory, 'pdfs');
-        break;
-      default:
-        // If the file type is unsupported, throw an error
-        throw new ApiError(httpStatus.NOT_ACCEPTABLE, 'File is not supported');
+    // Choose the appropriate folder based on the file fieldname
+    // Check if the fieldname is in IMAGE_FIELD_NAMES
+    if (IMAGE_FIELD_NAMES?.includes(fieldname)) {
+      uploadDirectory = path.join(baseUploadDirectory, 'images'); // Set directory for image files
+
+      // Check if the fieldname is in VIDEO_FIELD_NAMES
+    } else if (VIDEO_FIELD_NAMES?.includes(fieldname)) {
+      uploadDirectory = path.join(baseUploadDirectory, 'videos'); // Set directory for video files
+
+      // Check if the fieldname is in AUDIO_FIELD_NAMES
+    } else if (AUDIO_FIELD_NAMES?.includes(fieldname)) {
+      uploadDirectory = path.join(baseUploadDirectory, 'audios'); // Set directory for audio files
+
+      // Check if the fieldname is in PDF_FIELD_NAMES
+    } else if (PDF_FIELD_NAMES?.includes(fieldname)) {
+      uploadDirectory = path.join(baseUploadDirectory, 'pdfs'); // Set directory for PDF files
+
+      // If the fieldname does not match any known type
+    } else {
+      // Throw an error if the file type is not supported
+      throw new ApiError(
+        httpStatus.NOT_ACCEPTABLE,
+        'File type is not supported!',
+      );
     }
 
     // Ensure the chosen directory exists
@@ -60,63 +69,28 @@ const upload = multer({
 
   // Filter files based on their mimetype and fieldname
   fileFilter: function (req, file, cb) {
-    // Validate image files
-    if (file.fieldname === 'image') {
-      if (
-        file.mimetype === 'image/jpg' ||
-        file.mimetype === 'image/jpeg' ||
-        file.mimetype === 'image/png'
-      ) {
-        cb(null, true);
+    const { fieldname, mimetype } = file;
+
+    // Retrieve the list of supported formats for the given fieldname
+    const supportedFormats = FIELD_NAME_TO_FORMATS[fieldname];
+
+    // Check if the fieldname is valid and has supported formats
+    if (supportedFormats) {
+      // Check if the file's mimetype is in the list of supported formats
+      if (supportedFormats?.includes(mimetype)) {
+        return cb(null, true); // Allow the file
       } else {
+        // Reject the file if its mimetype is not supported
         throw new ApiError(
           httpStatus.NOT_ACCEPTABLE,
-          'Only .jpeg, .png, .jpg format is supported!',
+          `Unsupported file format for field '${fieldname}'`,
         );
       }
-    }
-
-    // Validate video files
-    else if (file.fieldname === 'video') {
-      if (file.mimetype === 'video/mp4') {
-        cb(null, true);
-      } else {
-        throw new ApiError(
-          httpStatus.NOT_ACCEPTABLE,
-          'Only .mp4 format is supported!',
-        );
-      }
-    }
-
-    // Validate audio files
-    else if (file.fieldname === 'audio') {
-      if (file.mimetype === 'audio/mpeg') {
-        cb(null, true);
-      } else {
-        throw new ApiError(
-          httpStatus.NOT_ACCEPTABLE,
-          'Only .mp3 format is supported!',
-        );
-      }
-    }
-
-    // Validate pdf files
-    else if (file.fieldname === 'pdf') {
-      if (file.mimetype === 'application/pdf') {
-        cb(null, true);
-      } else {
-        throw new ApiError(
-          httpStatus.NOT_ACCEPTABLE,
-          'Only .pdf format is supported!',
-        );
-      }
-    }
-
-    // Reject any other file types
-    else {
+    } else {
+      // Reject the file if the fieldname is not recognized
       throw new ApiError(
         httpStatus.NOT_ACCEPTABLE,
-        'This file is not supported',
+        `Unsupported field name '${fieldname}'`,
       );
     }
   },
