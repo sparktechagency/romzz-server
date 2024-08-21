@@ -13,7 +13,7 @@ const propertySchema = new Schema<IProperty>(
       enum: ['own-property', 'others-property'],
       required: true,
     },
-    ownershipProof: {
+    proofOfOwnership: {
       type: [String], // Array of strings for ownership proof documents
       required: true,
     },
@@ -123,13 +123,18 @@ const propertySchema = new Schema<IProperty>(
       type: [String], // Array of strings for facilities
       required: true,
     },
-    isApproved: {},
+    isApproved: {
+      type: Boolean, // Array of strings for facilities
+      default: false,
+    },
     status: {
       type: String,
-      enum: ['all', 'student', 'professional'],
+      enum: ['pending', 'approved', 'rejected'],
       default: 'pending',
     },
-    propertyVideo: {},
+    propertyVideo: {
+      type: String,
+    },
   },
   { timestamps: true },
 );

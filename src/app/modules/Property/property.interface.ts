@@ -3,7 +3,7 @@ import { ObjectId } from 'mongoose';
 export interface IProperty {
   createdBy: ObjectId;
   ownerType: 'own-property' | 'others-property';
-  ownershipProof: string[];
+  proofOfOwnership: string[];
   ownerNumber: string;
   propertyTitle: string;
   propertyImages: string[];
