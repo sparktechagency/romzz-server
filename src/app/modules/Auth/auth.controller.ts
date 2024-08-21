@@ -26,7 +26,7 @@ const loginUser = catchAsync(async (req, res) => {
 });
 
 const forgetPassword = catchAsync(async (req, res) => {
-  const result = await UserServices.createAdminFromDB(req?.body);
+  const result = await AuthServices.forgetPasswordIntoDB(req?.body);
 
   return sendResponse(res, {
     statusCode: httpStatus.CREATED,

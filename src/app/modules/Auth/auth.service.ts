@@ -6,12 +6,13 @@ import { IUser } from '../User/user.interface';
 import { User } from '../User/user.model';
 import { createJwtToken } from '../../helpers/jwtHelpers';
 import { JwtPayload } from 'jsonwebtoken';
+import generateOtp from '../../helpers/generateOtp';
+import path from 'path';
+import { sendEmail } from '../../helpers/test';
+import ejs from 'ejs';
 
-const verifyEmailIntoDB = async (payload: Partial<IUser>) => {
-  const result = await User.verifyOtp(
-    payload?.email as string,
-    payload?.otp as number,
-  );
+const verifyEmailIntoDB = async (payload: { email: string; otp: number }) => {
+  const result = await User.verifyOtp(payload?.email, payload?.otp);
 
   return result;
 };
@@ -123,27 +124,88 @@ const changePasswordIntoDB = async (
   return result;
 };
 
-const forgetPasswordIntoDB = async (email: string) => {
-  const isExistUser = await User.isExistUserByEmail(email);
-  if (!isExistUser) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
+const forgetPasswordIntoDB = async (payload: { email: string }) => {
+  // Check if a user with the provided email exists in the database
+  const existingUser = await User.isUserExistsByEmail(payload?.email);
+
+  if (!existingUser) {
+    // If no user is found with the given email, throw a NOT_FOUND error
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      'User with this email does not exist!',
+    );
   }
 
-  //send mail
-  const otp = generateOTP();
-  const value = {
-    otp,
-    email: isExistUser.email,
-  };
-  const forgetPassword = emailTemplate.resetPassword(value);
-  emailHelper.sendEmail(forgetPassword);
+  // Check if the user is blocked
+  if (existingUser?.isBlocked) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      'User account is blocked! Access is restricted.',
+    );
+  }
 
-  //save to DB
-  const authentication = {
-    oneTimeCode: otp,
-    expireAt: new Date(Date.now() + 3 * 60000),
+  // Check if the user is deleted
+  if (existingUser?.isDeleted) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      'User account is deleted! Please contact support.',
+    );
+  }
+
+  // Generate a one-time password (OTP) for email verification
+  const otp = generateOtp();
+  const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
+
+  // Define the path to the email verification template
+  const forgetPasswordTemplatePath = path.join(
+    process.cwd(),
+    'src',
+    'app',
+    'templates',
+    'forgetPasswordTemplate.ejs',
+  );
+
+  // Render the verify email template with provided payload data
+  const forgetPasswordTemplate = await ejs.renderFile(
+    forgetPasswordTemplatePath,
+    {
+      fullName: existingUser.fullName,
+      otp,
+    },
+  );
+
+  // Define the mail options for sending thank-you email to the user
+  const emailOptions = {
+    to: payload.email, // Receiver's email address (user's email)
+    subject: 'Reset Your Password - Roomz', // Subject of the email
+    html: forgetPasswordTemplate, // HTML content of the email
   };
-  await User.findOneAndUpdate({ email }, { $set: { authentication } });
+
+  // Send the verification email to the user
+  await sendEmail(emailOptions);
+
+  await User.findOneAndUpdate(
+    { email: payload?.email },
+    { $set: { otp, otpExpiresAt } },
+  );
+
+  // Prepare the payload for JWT token generation
+  const jwtPayload = {
+    id: existingUser?._id,
+    email: existingUser?.email,
+    role: existingUser?.role,
+  };
+
+  // Generate a JWT access token for the authenticated user
+  const accessToken = createJwtToken(
+    jwtPayload,
+    config.jwtAccessSecret as string,
+    config.jwtAccessExpiresIn as string,
+  );
+
+  return {
+    accessToken,
+  };
 };
 
 const resetPasswordIntoDB = async (
@@ -206,4 +268,5 @@ export const AuthServices = {
   verifyEmailIntoDB,
   loginUserIntoDB,
   changePasswordIntoDB,
+  forgetPasswordIntoDB,
 };
