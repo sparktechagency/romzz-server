@@ -7,7 +7,6 @@ import { User } from './user.model';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { keysToExclude, UserSearchableFields } from './user.constant';
 import { JwtPayload } from 'jsonwebtoken';
-import { Types } from 'mongoose';
 import { excludeKeys } from '../../helpers/objectHelpers';
 import deleteFile from '../../helpers/deleteFile';
 import path from 'path';
@@ -140,15 +139,7 @@ const getUsersFromDB = async (query: Record<string, unknown>) => {
 };
 
 const getUserProfileFromDB = async (user: JwtPayload) => {
-  // Validate the ID format
-  if (!Types.ObjectId.isValid(user?._id)) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      'The provided user ID is invalid!',
-    );
-  }
-
-  const result = await User.findById(user?._id);
+  const result = await User.findById(user?.id);
   return result;
 };
 
@@ -157,16 +148,8 @@ const updateUserProfileIntoDB = async (
   file: any,
   payload: Partial<IUser>,
 ) => {
-  // Validate the ID format
-  if (!Types.ObjectId.isValid(user?._id)) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      'The provided user ID is invalid!',
-    );
-  }
-
   // Find the existing user to get the current avatar path
-  const existingUser = await User.findById(user._id);
+  const existingUser = await User.findById(user.id);
 
   // Filter out fields that should not be updated
   const updatedData = excludeKeys(payload, keysToExclude);
@@ -193,7 +176,7 @@ const updateUserProfileIntoDB = async (
   }
 
   // Proceed with the update using the filtered data
-  const result = await User.findByIdAndUpdate(user?._id, updatedData, {
+  const result = await User.findByIdAndUpdate(user?.id, updatedData, {
     new: true,
   });
 
