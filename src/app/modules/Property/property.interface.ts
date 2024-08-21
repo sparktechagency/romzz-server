@@ -7,6 +7,7 @@ export interface IProperty {
   ownerNumber: string;
   propertyTitle: string;
   propertyImages: string[];
+  propertyVideo: string;
   address: string;
   category: 'whole-unit' | 'room-mate' | 'flat-mate' | 'house';
   price: string;
@@ -29,4 +30,6 @@ export interface IProperty {
   guestType: 'all' | 'single' | 'couple' | 'family';
   occupation: 'all' | 'student' | 'professional';
   facilities: string[];
+  status: 'pending' | 'approved' | 'rejected';
+  isApproved: boolean;
 }

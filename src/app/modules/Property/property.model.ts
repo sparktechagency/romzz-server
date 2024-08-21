@@ -123,6 +123,13 @@ const propertySchema = new Schema<IProperty>(
       type: [String], // Array of strings for facilities
       required: true,
     },
+    isApproved: {},
+    status: {
+      type: String,
+      enum: ['all', 'student', 'professional'],
+      default: 'pending',
+    },
+    propertyVideo: {},
   },
   { timestamps: true },
 );
