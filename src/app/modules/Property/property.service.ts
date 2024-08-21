@@ -6,6 +6,8 @@ import { Property } from './property.model';
 import QueryBuilder from '../../builder/QueryBuilder';
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
+import { excludeKeys } from '../../helpers/objectHelpers';
+import { keysToExclude } from './property.constant';
 
 const createPropertyIntoDB = async (
   user: JwtPayload,
@@ -108,9 +110,37 @@ const getPropertyByIdFromDB = async (propertyId: string) => {
   return result;
 };
 
+const updatePropertyByIdIntoDB = async (
+  user: JwtPayload,
+  propertyId: string,
+  files: any,
+  payload: Partial<IProperty>,
+) => {
+  // Find the existing property
+  const existingProperty = await Property.findById(propertyId);
+
+  // Handle case where property is not found
+  if (!existingProperty) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Property with ID: ${propertyId} not found!`,
+    );
+  }
+
+  // Filter out fields that should not be updated
+  const updatedData = excludeKeys(payload, keysToExclude);
+
+  const result = await Property.findByIdAndUpdate(propertyId, updatedData, {
+    new: true,
+  });
+
+  return result;
+};
+
 export const PropertyServices = {
   createPropertyIntoDB,
   getAllPropertiesFromDB,
   getApprovedPropertiesFromDB,
   getPropertyByIdFromDB,
+  updatePropertyByIdIntoDB,
 };
