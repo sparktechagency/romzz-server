@@ -40,8 +40,20 @@ const getApprovedProperties = catchAsync(async (req, res) => {
   });
 });
 
+const getPropertyById = catchAsync(async (req, res) => {
+  const result = await PropertyServices.getPropertyByIdFromDB(req?.params?.id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Property retrieved successfully!',
+    data: result,
+  });
+});
+
 export const PropertyControllers = {
   createProperty,
   getAllProperties,
   getApprovedProperties,
+  getPropertyById,
 };

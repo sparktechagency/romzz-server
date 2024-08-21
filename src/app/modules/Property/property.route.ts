@@ -23,5 +23,6 @@ router.post(
 
 router.get('/', PropertyControllers.getAllProperties);
 router.get('/approved-properties', PropertyControllers.getApprovedProperties);
+router.get('/:id', PropertyControllers.getPropertyById);
 
 export const PropertyRoutes = router;

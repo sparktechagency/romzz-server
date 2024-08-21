@@ -4,6 +4,8 @@ import { JwtPayload } from 'jsonwebtoken';
 import { IProperty } from './property.interface';
 import { Property } from './property.model';
 import QueryBuilder from '../../builder/QueryBuilder';
+import ApiError from '../../errors/ApiError';
+import httpStatus from 'http-status';
 
 const createPropertyIntoDB = async (
   user: JwtPayload,
@@ -70,7 +72,7 @@ const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
   const propertiesQuery = new QueryBuilder(
     Property.find({ isApproved: true }).populate({
       path: 'createdBy',
-      select: 'fullName email avatar',
+      select: 'avatar',
     }),
     query,
   )
@@ -88,8 +90,27 @@ const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
   return { meta, result };
 };
 
+const getPropertyByIdFromDB = async (propertyId: string) => {
+  // Find the Review by ID and populate the userId field
+  const result = await Property.findById(propertyId).populate({
+    path: 'createdBy',
+    select: 'fullName avatar',
+  });
+
+  // Handle the case where the review is not found
+  if (!result) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Property with ID: ${propertyId} not found!`,
+    );
+  }
+
+  return result;
+};
+
 export const PropertyServices = {
   createPropertyIntoDB,
   getAllPropertiesFromDB,
   getApprovedPropertiesFromDB,
+  getPropertyByIdFromDB,
 };
