@@ -29,6 +29,9 @@ const propertySchema = new Schema<IProperty>(
       type: [String], // Array of strings for image URLs
       required: true,
     },
+    propertyVideo: {
+      type: String,
+    },
     address: {
       type: String,
       required: true,
@@ -99,7 +102,6 @@ const propertySchema = new Schema<IProperty>(
     },
     moveOn: {
       type: Date,
-      required: true,
     },
     unavailableDay: {
       type: Date,
@@ -107,24 +109,21 @@ const propertySchema = new Schema<IProperty>(
     allowedGender: {
       type: String,
       enum: ['all', 'male', 'female', 'others'],
-      required: true,
     },
     guestType: {
       type: String,
       enum: ['all', 'single', 'couple', 'family'],
-      required: true,
     },
     occupation: {
       type: String,
       enum: ['all', 'student', 'professional'],
-      required: true,
     },
     facilities: {
       type: [String], // Array of strings for facilities
       required: true,
     },
     isApproved: {
-      type: Boolean, // Array of strings for facilities
+      type: Boolean,
       default: false,
     },
     status: {
@@ -132,8 +131,9 @@ const propertySchema = new Schema<IProperty>(
       enum: ['pending', 'approved', 'rejected'],
       default: 'pending',
     },
-    propertyVideo: {
-      type: String,
+    isBooked: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true },
@@ -142,6 +142,11 @@ const propertySchema = new Schema<IProperty>(
 // Method to remove sensitive fields before returning property object as JSON
 propertySchema.methods.toJSON = function () {
   const propertyObject = this.toObject();
+
+  // Remove password and role fields from the user object
+  delete propertyObject?.status;
+  delete propertyObject?.isApproved;
+  delete propertyObject?.isBooked;
 
   return propertyObject;
 };

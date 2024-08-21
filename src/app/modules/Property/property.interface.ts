@@ -32,4 +32,5 @@ export interface IProperty {
   facilities: string[];
   status: 'pending' | 'approved' | 'rejected';
   isApproved: boolean;
+  isBooked: boolean;
 }
