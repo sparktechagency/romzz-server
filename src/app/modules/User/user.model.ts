@@ -173,9 +173,11 @@ userSchema.statics.verifyOtp = async function (email: string, otp: number) {
   await User.updateOne(
     { email },
     {
+      $unset: {
+        otp: '', // Remove the OTP field
+        otpExpiresAt: '', // Remove the OTP expiration date field
+      },
       $set: {
-        otp: null, // Clear the OTP
-        otpExpiresAt: null, // Clear the expiration date
         isVerified: true, // Set the user as verified
       },
     },
