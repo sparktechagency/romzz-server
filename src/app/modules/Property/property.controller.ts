@@ -18,6 +18,17 @@ const createProperty = catchAsync(async (req, res) => {
   });
 });
 
+const getAllProperties = catchAsync(async (req, res) => {
+  const result = await PropertyServices.getAllPropertiesFromDB(req?.query);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Properties retrieved successfully!',
+    data: result,
+  });
+});
+
 const getApprovedProperties = catchAsync(async (req, res) => {
   const result = await PropertyServices.getApprovedPropertiesFromDB(req?.query);
 
@@ -31,5 +42,6 @@ const getApprovedProperties = catchAsync(async (req, res) => {
 
 export const PropertyControllers = {
   createProperty,
+  getAllProperties,
   getApprovedProperties,
 };

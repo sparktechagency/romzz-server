@@ -21,6 +21,7 @@ router.post(
   PropertyControllers.createProperty,
 );
 
-router.get('/', PropertyControllers.getApprovedProperties);
+router.get('/', PropertyControllers.getAllProperties);
+router.get('/approved-properties', PropertyControllers.getApprovedProperties);
 
 export const PropertyRoutes = router;

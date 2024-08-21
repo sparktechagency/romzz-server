@@ -42,6 +42,29 @@ const createPropertyIntoDB = async (
   return result;
 };
 
+const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
+  // Build the query using QueryBuilder with the given query parameters
+  const propertiesQuery = new QueryBuilder(
+    Property.find().populate({
+      path: 'createdBy',
+      select: 'fullName email phoneNumber avatar',
+    }),
+    query,
+  )
+    .search(['address']) // Apply search conditions based on searchable fields
+    .sort() // Apply sorting based on the query parameter
+    .paginate() // Apply pagination based on the query parameter
+    .fields(); // Select specific fields to include/exclude in the result
+
+  // Get the total count of matching documents and total pages for pagination
+  const meta = await propertiesQuery.countTotal();
+
+  // Execute the query to retrieve the reviews
+  const result = await propertiesQuery.modelQuery;
+
+  return { meta, result };
+};
+
 const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const propertiesQuery = new QueryBuilder(
@@ -51,13 +74,14 @@ const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
     }),
     query,
   )
-    // .search() // Apply search conditions based on searchable fields
+    .search(['address']) // Apply search conditions based on searchable fields
     .sort() // Apply sorting based on the query parameter
     .paginate() // Apply pagination based on the query parameter
     .fields(); // Select specific fields to include/exclude in the result
 
   // Get the total count of matching documents and total pages for pagination
   const meta = await propertiesQuery.countTotal();
+
   // Execute the query to retrieve the reviews
   const result = await propertiesQuery.modelQuery;
 
@@ -66,5 +90,6 @@ const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
 
 export const PropertyServices = {
   createPropertyIntoDB,
+  getAllPropertiesFromDB,
   getApprovedPropertiesFromDB,
 };
