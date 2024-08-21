@@ -3,12 +3,14 @@ import { UserRoutes } from '../modules/User/user.route';
 import { AuthRoutes } from '../modules/Auth/auth.route';
 import { TestimonialRoutes } from '../modules/Testimonial/testimonial.route';
 import { ReviewRoutes } from '../modules/Review/review.route';
+import { PropertyRoutes } from '../modules/Property/property.route';
 
 const router = Router();
 
 const routes = [
   { path: '/users', route: UserRoutes },
   { path: '/auth', route: AuthRoutes },
+  { path: '/properties', route: PropertyRoutes },
   { path: '/reviews', route: ReviewRoutes },
   { path: '/testimonials', route: TestimonialRoutes },
 ];
