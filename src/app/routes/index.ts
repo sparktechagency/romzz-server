@@ -9,7 +9,7 @@ import { FaqRoutes } from '../modules/FAQ/faq.route';
 import { TermsRoutes } from '../modules/TermsAndConditions/terms.route';
 import { FeedbackRoutes } from '../modules/Feedback/feedback.route';
 import { ContactRoutes } from '../modules/GetInTouch/contact.route';
-import { MediaRoutes } from '../modules/Media/media.route';
+import { MediaRoutes } from '../modules/SocialMedia/media.route';
 
 const router = Router();
 

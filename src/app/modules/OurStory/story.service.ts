@@ -8,7 +8,7 @@ const createStoryIntoDB = async (user: JwtPayload, payload: IStory) => {
   // Check the total number of Storys in the database
   const storyCount = await Story.countDocuments();
 
-  // Enforce the global limit of 5 Storys
+  // Enforce the global limit of 1 Story
   if (storyCount >= 1) {
     throw new ApiError(httpStatus.CONFLICT, 'Story creation limit reached!');
   }

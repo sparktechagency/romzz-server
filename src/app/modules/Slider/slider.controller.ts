@@ -4,7 +4,11 @@ import sendResponse from '../../helpers/sendResponse';
 import { SliderServices } from './slider.service';
 
 const createSlider = catchAsync(async (req, res) => {
-  const result = await SliderServices.createSliderIntoDB(req?.user, req?.body);
+  const result = await SliderServices.createSliderIntoDB(
+    req?.user,
+    req?.body,
+    req?.file,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -29,6 +33,7 @@ const updateSliderById = catchAsync(async (req, res) => {
   const result = await SliderServices.updateSliderByIdFromDB(
     req?.params?.id,
     req?.body,
+    req?.file,
   );
 
   sendResponse(res, {
