@@ -4,7 +4,7 @@ import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
 import { Faq } from './faq.model';
 
-const createFaqIntoDB = async (user: JwtPayload, payload: IFaq) => {
+const createFaqToDB = async (user: JwtPayload, payload: IFaq) => {
   payload.createdBy = user?.userId;
 
   const result = await Faq.create(payload);
@@ -34,7 +34,7 @@ const updateFaqByIdFromDB = async (faqId: string, payload: Partial<IFaq>) => {
 };
 
 export const FaqServices = {
-  createFaqIntoDB,
+  createFaqToDB,
   getFaqsFromDB,
   updateFaqByIdFromDB,
 };

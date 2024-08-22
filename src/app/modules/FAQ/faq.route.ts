@@ -14,12 +14,10 @@ router
     FaqControllers.createFaq,
   );
 
-router
-  .route('/:id')
-
-  .patch(
-    validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
-    FaqControllers.updateFaqById,
-  );
+router.patch(
+  '/:id',
+  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  FaqControllers.updateFaqById,
+);
 
 export const FaqRoutes = router;

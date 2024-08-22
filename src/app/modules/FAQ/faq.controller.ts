@@ -4,7 +4,7 @@ import sendResponse from '../../helpers/sendResponse';
 import { FaqServices } from './faq.service';
 
 const createFaq = catchAsync(async (req, res) => {
-  const result = await FaqServices.createFaqIntoDB(req?.user, req?.body);
+  const result = await FaqServices.createFaqToDB(req?.user, req?.body);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
