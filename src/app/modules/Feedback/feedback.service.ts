@@ -54,7 +54,10 @@ const updateFeedbackStatusToShowFromDB = async (feedbackId: string) => {
 
   // Handle case where no Feedback is found
   if (!result) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Feedback not found.');
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Feedback with ID: ${feedbackId} not found!`,
+    );
   }
 
   return result;
@@ -70,7 +73,10 @@ const updateFeedbackStatusToHideFromDB = async (feedbackId: string) => {
 
   // Handle case where no Feedback is found
   if (!result) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Feedback not found.');
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Feedback with ID: ${feedbackId} not found!`,
+    );
   }
 
   return result;

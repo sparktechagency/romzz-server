@@ -22,4 +22,4 @@ router
     TermsControllers.updateTermsById,
   );
 
-export const StoryRoutes = router;
+export const TermsRoutes = router;

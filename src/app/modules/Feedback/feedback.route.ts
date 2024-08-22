@@ -1,32 +1,37 @@
 import { Router } from 'express';
 import { USER_ROLE } from '../User/user.constant';
-import auth from '../../middlewares/validateAuth';
 import { FeedbackControllers } from './feedback.controller';
+import validateAuth from '../../middlewares/validateAuth';
 
 const router = Router();
 
+// Route to get all feedbacks or create a new feedback
 router
   .route('/')
 
   .get(
-    auth(USER_ROLE.admin, USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
     FeedbackControllers.getAllFeedbacks,
   )
   .post(
-    auth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
     FeedbackControllers.createFeedback,
   );
 
+// Route to get only visible feedbacks
 router.get('/visible', FeedbackControllers.getVisibleFeedbacks);
 
+// Route to update feedback visibility to "show"
 router.patch(
-  'show/:id',
-  auth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  '/show/:id',
+  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
   FeedbackControllers.updateFeedbackStatusToShow,
 );
+
+// Route to update feedback visibility to "hide"
 router.patch(
-  'hide/:id',
-  auth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  '/hide/:id',
+  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
   FeedbackControllers.updateFeedbackStatusToHide,
 );
 

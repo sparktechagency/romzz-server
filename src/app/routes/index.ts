@@ -1,12 +1,14 @@
 import { Router } from 'express';
 import { UserRoutes } from '../modules/User/user.route';
 import { AuthRoutes } from '../modules/Auth/auth.route';
-import { TestimonialRoutes } from '../modules/Testimonial/testimonial.route';
-import { ReviewRoutes } from '../modules/Review/review.route';
 import { PropertyRoutes } from '../modules/Property/property.route';
 import { BlogRoutes } from '../modules/Blog/blog.route';
 import { SliderRoutes } from '../modules/Slider/slider.route';
 import { StoryRoutes } from '../modules/Our Story/story.route';
+import { FaqRoutes } from '../modules/FAQ/faq.route';
+import { TermsRoutes } from '../modules/TermsAndConditions/terms.route';
+import { FeedbackRoutes } from '../modules/Feedback/feedback.route';
+import { ContactRoutes } from '../modules/GetInTouch/contact.route';
 
 const router = Router();
 
@@ -14,13 +16,15 @@ const routes = [
   { path: '/users', route: UserRoutes },
   { path: '/auth', route: AuthRoutes },
   { path: '/properties', route: PropertyRoutes },
-  { path: '/reviews', route: ReviewRoutes },
-  { path: '/testimonials', route: TestimonialRoutes },
 
   // Dashboard settings
   { path: '/sliders', route: SliderRoutes },
   { path: '/stories', route: StoryRoutes },
+  { path: '/terms', route: TermsRoutes },
+  { path: '/faqs', route: FaqRoutes },
   { path: '/blogs', route: BlogRoutes },
+  { path: '/feedbacks', route: FeedbackRoutes },
+  { path: '/contacts', route: ContactRoutes },
 ];
 
 routes.forEach((route) => router.use(route.path, route.route));
