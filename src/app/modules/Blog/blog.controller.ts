@@ -25,7 +25,19 @@ const getBlogs = catchAsync(async (req, res) => {
   });
 });
 
+const getBlogById = catchAsync(async (req, res) => {
+  const result = await BlogServices.getBlogByIdFromDB(req?.params?.id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Blog retrieved successfully!',
+    data: result,
+  });
+});
+
 export const BlogControllers = {
   createBlog,
   getBlogs,
+  getBlogById,
 };

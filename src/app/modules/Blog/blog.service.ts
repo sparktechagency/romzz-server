@@ -2,6 +2,8 @@ import { JwtPayload } from 'jsonwebtoken';
 import { IBlog } from './blog.interface';
 import { Blog } from './blog.model';
 import QueryBuilder from '../../builder/QueryBuilder';
+import ApiError from '../../errors/ApiError';
+import httpStatus from 'http-status';
 
 const createBlogIntoDB = async (user: JwtPayload, payload: IBlog) => {
   payload.createdBy = user?.userId;
@@ -23,7 +25,23 @@ const getBlgosFromDB = async (query: Record<string, unknown>) => {
   return { meta, result };
 };
 
+const getBlogByIdFromDB = async (blogId: string) => {
+  // Find the Blog by ID
+  const result = await Blog.findById(blogId);
+
+  // Handle case where no Blog is found
+  if (!result) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Blog with ID: ${blogId} not found!`,
+    );
+  }
+
+  return result;
+};
+
 export const BlogServices = {
   createBlogIntoDB,
   getBlgosFromDB,
+  getBlogByIdFromDB,
 };
