@@ -12,7 +12,7 @@ const createBlogIntoDB = async (user: JwtPayload, payload: IBlog) => {
   return result;
 };
 
-const getBlgosFromDB = async (query: Record<string, unknown>) => {
+const getBlogsFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const blogsQuery = new QueryBuilder(Blog.find(), query)
     .sort() // Apply sorting based on the query parameter
@@ -75,7 +75,7 @@ const deleteBlogByIdFromDB = async (blogId: string) => {
 
 export const BlogServices = {
   createBlogIntoDB,
-  getBlgosFromDB,
+  getBlogsFromDB,
   getBlogByIdFromDB,
   updateBlogByIdFromDB,
   deleteBlogByIdFromDB,
