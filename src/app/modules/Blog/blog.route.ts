@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { BlogControllers } from './blog.controller';
 import { USER_ROLE } from '../User/user.constant';
-import auth from '../../middlewares/validateAuth';
+import validateAuth from '../../middlewares/validateAuth';
 
 const router = Router();
 
@@ -10,7 +10,7 @@ router
 
   .get(BlogControllers.getBlogs)
   .post(
-    auth(USER_ROLE.admin, USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
     BlogControllers.createBlog,
   );
 
@@ -19,11 +19,11 @@ router
 
   .get(BlogControllers.getBlogById)
   .patch(
-    auth(USER_ROLE.admin, USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
     BlogControllers.updateBlogById,
   )
   .delete(
-    auth(USER_ROLE.admin, USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
     BlogControllers.deleteBlogById,
   );
 

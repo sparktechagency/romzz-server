@@ -26,11 +26,11 @@ const getSlidersFromDB = async () => {
 };
 
 const updateSliderByIdFromDB = async (
-  SliderId: string,
+  sliderId: string,
   payload: Partial<ISlider>,
 ) => {
   // Update the Slider with the provided status
-  const result = await Slider.findByIdAndUpdate(SliderId, payload, {
+  const result = await Slider.findByIdAndUpdate(sliderId, payload, {
     new: true, // Return the updated document
   });
 
@@ -38,22 +38,22 @@ const updateSliderByIdFromDB = async (
   if (!result) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
-      `Slider with ID: ${SliderId} not found!`,
+      `Slider with ID: ${sliderId} not found!`,
     );
   }
 
   return result;
 };
 
-const deleteSliderByIdFromDB = async (SliderId: string) => {
+const deleteSliderByIdFromDB = async (sliderId: string) => {
   // Find the Slider by ID
-  const result = await Slider.findByIdAndDelete(SliderId);
+  const result = await Slider.findByIdAndDelete(sliderId);
 
   // Handle case where no Slider is found
   if (!result) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
-      `Slider with ID: ${SliderId} not found!`,
+      `Slider with ID: ${sliderId} not found!`,
     );
   }
 };

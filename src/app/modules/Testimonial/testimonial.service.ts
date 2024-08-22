@@ -3,7 +3,6 @@ import { ITestimonial } from './testimonial.interface';
 import { Testimonial } from './testimonial.model';
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
-import { Types } from 'mongoose';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { ReviewSearchableFields } from '../Review/review.constant';
 
@@ -42,14 +41,6 @@ const getTestimonialsFromDB = async (query: Record<string, unknown>) => {
 };
 
 const getTestimonialByIdFromDB = async (testimonialId: string) => {
-  // Validate the ID format
-  if (!Types.ObjectId.isValid(testimonialId)) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      'Invalid testimonial ID format.',
-    );
-  }
-
   // Find the testimonial by ID and populate the userId field
   const result = await Testimonial.findById(testimonialId).populate('userId');
 
@@ -65,14 +56,6 @@ const updateTestimonialStatusByIdFromDB = async (
   testimonialId: string,
   status: 'show' | 'hide',
 ) => {
-  // Validate the ID format
-  if (!Types.ObjectId.isValid(testimonialId)) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      'Invalid testimonial ID format.',
-    );
-  }
-
   // Validate the status value
   if (status !== 'show' && status !== 'hide') {
     throw new ApiError(
