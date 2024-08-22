@@ -9,6 +9,7 @@ import { FaqRoutes } from '../modules/FAQ/faq.route';
 import { TermsRoutes } from '../modules/TermsAndConditions/terms.route';
 import { FeedbackRoutes } from '../modules/Feedback/feedback.route';
 import { ContactRoutes } from '../modules/GetInTouch/contact.route';
+import { MediaRoutes } from '../modules/Media/media.route';
 
 const router = Router();
 
@@ -25,6 +26,7 @@ const routes = [
   { path: '/blogs', route: BlogRoutes },
   { path: '/feedbacks', route: FeedbackRoutes },
   { path: '/contacts', route: ContactRoutes },
+  { path: '/medias', route: MediaRoutes },
 ];
 
 routes.forEach((route) => router.use(route.path, route.route));
