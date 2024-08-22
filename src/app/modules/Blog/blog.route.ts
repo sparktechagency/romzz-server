@@ -13,6 +13,11 @@ router.post(
   auth(USER_ROLE.admin, USER_ROLE.superAdmin),
   BlogControllers.createBlog,
 );
+router.patch(
+  '/:id',
+  auth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  BlogControllers.updateBlogById,
+);
 router.delete(
   '/:id',
   auth(USER_ROLE.admin, USER_ROLE.superAdmin),
