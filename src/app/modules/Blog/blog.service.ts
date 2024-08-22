@@ -40,8 +40,22 @@ const getBlogByIdFromDB = async (blogId: string) => {
   return result;
 };
 
+const deleteBlogByIdFromDB = async (blogId: string) => {
+  // Find the Blog by ID
+  const result = await Blog.findByIdAndDelete(blogId);
+
+  // Handle case where no Blog is found
+  if (!result) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Blog with ID: ${blogId} not found!`,
+    );
+  }
+};
+
 export const BlogServices = {
   createBlogIntoDB,
   getBlgosFromDB,
   getBlogByIdFromDB,
+  deleteBlogByIdFromDB,
 };
