@@ -8,7 +8,7 @@ const termsSchema = new Schema<ITerms>(
       ref: 'User', // Reference to the 'User' model
       required: true,
     },
-    details: {
+    termsContent: {
       type: String,
       required: true,
     },

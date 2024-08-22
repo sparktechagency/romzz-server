@@ -14,12 +14,10 @@ router
     TermsControllers.createTerms,
   );
 
-router
-  .route('/:id')
-
-  .patch(
-    validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
-    TermsControllers.updateTermsById,
-  );
+router.patch(
+  '/:id',
+  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  TermsControllers.updateTermsById,
+);
 
 export const TermsRoutes = router;
