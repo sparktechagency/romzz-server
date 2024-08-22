@@ -17,6 +17,9 @@ const getFaqsFromDB = async () => {
 };
 
 const updateFaqByIdFromDB = async (faqId: string, payload: Partial<IFaq>) => {
+  // Remove the createdBy field from the payload
+  delete payload.createdBy;
+
   // Update the Faq with the provided status
   const result = await Faq.findByIdAndUpdate(faqId, payload, {
     new: true, // Return the updated document

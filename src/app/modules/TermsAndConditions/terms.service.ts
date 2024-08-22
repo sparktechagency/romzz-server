@@ -28,14 +28,13 @@ const updateTermsByIdFromDB = async (
   termsId: string,
   payload: Partial<ITerms>,
 ) => {
+  // Remove the createdBy field from the payload
+  delete payload.createdBy;
+
   // Update the Terms with the provided status
-  const result = await Terms.findByIdAndUpdate(
-    termsId,
-    { termsContent: payload.termsContent },
-    {
-      new: true, // Return the updated document
-    },
-  );
+  const result = await Terms.findByIdAndUpdate(termsId, payload, {
+    new: true, // Return the updated document
+  });
 
   // Handle case where no Terms is found
   if (!result) {
