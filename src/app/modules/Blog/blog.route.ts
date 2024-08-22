@@ -5,23 +5,26 @@ import auth from '../../middlewares/validateAuth';
 
 const router = Router();
 
-router.get('/', BlogControllers.getBlogs);
-router.get('/:id', BlogControllers.getBlogById);
+router
+  .route('/')
 
-router.post(
-  '/',
-  auth(USER_ROLE.admin, USER_ROLE.superAdmin),
-  BlogControllers.createBlog,
-);
-router.patch(
-  '/:id',
-  auth(USER_ROLE.admin, USER_ROLE.superAdmin),
-  BlogControllers.updateBlogById,
-);
-router.delete(
-  '/:id',
-  auth(USER_ROLE.admin, USER_ROLE.superAdmin),
-  BlogControllers.deleteBlogById,
-);
+  .get(BlogControllers.getBlogs)
+  .post(
+    auth(USER_ROLE.admin, USER_ROLE.superAdmin),
+    BlogControllers.createBlog,
+  );
+
+router
+  .route('/:id')
+
+  .get(BlogControllers.getBlogById)
+  .patch(
+    auth(USER_ROLE.admin, USER_ROLE.superAdmin),
+    BlogControllers.updateBlogById,
+  )
+  .delete(
+    auth(USER_ROLE.admin, USER_ROLE.superAdmin),
+    BlogControllers.deleteBlogById,
+  );
 
 export const BlogRoutes = router;
