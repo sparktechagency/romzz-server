@@ -39,8 +39,20 @@ const updateFaqById = catchAsync(async (req, res) => {
   });
 });
 
+const deleteFaqById = catchAsync(async (req, res) => {
+  const result = await FaqServices.deleteFaqByIdFromDB(req?.params?.id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Faq deleted successfully!',
+    data: result,
+  });
+});
+
 export const FaqControllers = {
   createFaq,
   getFaqs,
   updateFaqById,
+  deleteFaqById,
 };

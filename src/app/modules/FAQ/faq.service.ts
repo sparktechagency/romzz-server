@@ -33,8 +33,21 @@ const updateFaqByIdFromDB = async (faqId: string, payload: Partial<IFaq>) => {
   return result;
 };
 
+const deleteFaqByIdFromDB = async (faqId: string) => {
+  const result = await Faq.findByIdAndDelete(faqId);
+
+  // Handle case where no Faq is found
+  if (!result) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Faq with ID: ${faqId} not found!`,
+    );
+  }
+};
+
 export const FaqServices = {
   createFaqToDB,
   getFaqsFromDB,
   updateFaqByIdFromDB,
+  deleteFaqByIdFromDB,
 };
