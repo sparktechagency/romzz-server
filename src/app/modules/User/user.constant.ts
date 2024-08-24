@@ -1,7 +1,7 @@
 import { IUser } from './user.interface';
 
 // Fields that can be searched in the user model
-export const SearchableFields = ['email', 'presentAddress'];
+export const UserSearchableFields = ['email', 'presentAddress'];
 
 // Fields that are not allowed to be updated by the user
 export const fieldsToExclude: (keyof IUser)[] = [

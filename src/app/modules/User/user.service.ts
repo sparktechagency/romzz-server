@@ -5,7 +5,7 @@ import { IUser } from './user.interface';
 import ApiError from '../../errors/ApiError';
 import { User } from './user.model';
 import QueryBuilder from '../../builder/QueryBuilder';
-import { fieldsToExclude, SearchableFields } from './user.constant';
+import { fieldsToExclude, UserSearchableFields } from './user.constant';
 import { JwtPayload } from 'jsonwebtoken';
 import path from 'path';
 import ejs from 'ejs';
@@ -125,7 +125,7 @@ const createAdminIntoDB = async (payload: IUser) => {
 const getUsersFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const usersQuery = new QueryBuilder(User.find(), query)
-    .search(SearchableFields) // Apply search conditions based on searchable fields
+    .search(UserSearchableFields) // Apply search conditions based on searchable fields
     .sort() // Apply sorting based on the query parameter
     .paginate() // Apply pagination based on the query parameter
     .fields(); // Select specific fields to include/exclude in the result

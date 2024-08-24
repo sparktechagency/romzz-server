@@ -133,21 +133,6 @@ const forgetPasswordToDB = async (payload: { email: string }) => {
     );
   }
 
-  // If the user is not verified, throw a FORBIDDEN error
-  if (!existingUser?.isVerified) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'User account is not verified!');
-  }
-
-  // If the user is blocked, throw a FORBIDDEN error.
-  if (existingUser?.isBlocked) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
-  }
-
-  // If the user is deleted, throw a FORBIDDEN error.
-  if (existingUser?.isDeleted) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted.');
-  }
-
   // Generate a one-time password (OTP) for email verification
   const otp = generateOtp();
   const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
@@ -180,10 +165,9 @@ const forgetPasswordToDB = async (payload: { email: string }) => {
   // Send the OTP email to the user.
   await sendEmail(emailOptions);
 
-  await User.findByIdAndUpdate(
-    { _id: existingUser?._id },
-    { $set: { otp, otpExpiresAt } },
-  );
+  await User.findByIdAndUpdate(existingUser?._id, {
+    $set: { otp, otpExpiresAt },
+  });
 };
 
 const verifyResetPasswordOtpToDB = async (payload: {
@@ -199,11 +183,6 @@ const verifyResetPasswordOtpToDB = async (payload: {
       httpStatus.NOT_FOUND,
       'User with this email does not exist!',
     );
-  }
-
-  // If the user is not verified, throw a FORBIDDEN error
-  if (!existingUser?.isVerified) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'User account is not verified!');
   }
 
   await User.verifyOtp(payload?.email, payload?.otp);
@@ -251,11 +230,6 @@ const resetPasswordToDB = async (
     );
   }
 
-  // If the user is not verified, throw a FORBIDDEN error
-  if (!existingUser?.isVerified) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'User account is not verified!');
-  }
-
   if (payload?.userId !== decoded?.userId) {
     throw new ApiError(httpStatus.FORBIDDEN, 'You are forbidden!');
   }
@@ -279,7 +253,7 @@ const resetPasswordToDB = async (
     Number(config.bcryptSaltRounds),
   );
 
-  await User.findByIdAndUpdate(decoded?.userId, {
+  await User.findByIdAndUpdate(existingUser?._id, {
     password: hashPassword,
     passwordChangedAt: new Date(),
   });
