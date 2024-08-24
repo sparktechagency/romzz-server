@@ -16,13 +16,10 @@ export default {
 
   superAdminFullName: process.env.SUPER_ADMIN_FULLNAME,
   superAdminEmail: process.env.SUPER_ADMIN_EMAIL,
-  superAdminPhoneNumber: process.env.SUPER_ADMIN_PHONE_NUMBER,
-  superAdminNidNumber: process.env.SUPER_ADMIN_NID_NUMBER,
-  superAdminPermanentAddress: process.env.SUPER_ADMIN_PERMANENT_ADDRESS,
-  superAdminGender: process.env.SUPER_ADMIN_GENDER,
   superAdminPassword: process.env.SUPER_ADMIN_PASSWORD,
   superAdminRole: process.env.SUPER_ADMIN_ROLE,
   superAdminIsVerified: process.env.SUPER_ADMIN_IS_VERIFIED,
+  superAdminStatus: process.env.SUPER_ADMIN_STATUS,
 
   smtpEmailUser: process.env.SMTP_EMAIL_USER,
   smtpEmailPass: process.env.SMTP_EMAIL_PASS,

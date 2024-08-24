@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import config from '../../config';
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
+import { GENDER, USER_ROLE, USER_STATUS } from './user.constant';
 
 // Define the schema for the User model
 const userSchema = new Schema<IUser, UserModel>(
@@ -37,7 +38,7 @@ const userSchema = new Schema<IUser, UserModel>(
     },
     gender: {
       type: String,
-      enum: ['male', 'female', 'others'],
+      enum: Object.values(GENDER),
     },
     password: {
       type: String,
@@ -55,12 +56,12 @@ const userSchema = new Schema<IUser, UserModel>(
     },
     role: {
       type: String,
-      enum: ['user', 'admin', 'superAdmin'],
+      enum: Object.values(USER_ROLE),
       default: 'user',
     },
     status: {
       type: String,
-      enum: ['in-progress', 'active', 'blocked', 'deleted'],
+      enum: Object.values(USER_STATUS),
       default: 'in-progress',
     },
     otp: {
@@ -142,17 +143,17 @@ userSchema.statics.isJWTIssuedBeforePasswordChanged = function (
 userSchema.statics.verifyOtp = async function (email: string, otp: number) {
   const existingUser = await User.findOne({ email });
 
-  if (!existingUser) {
-    throw new ApiError(
-      httpStatus.NOT_FOUND,
-      'User with this email does not exist!',
-    );
-  }
-
   if (!otp) {
     throw new ApiError(
       httpStatus.NOT_ACCEPTABLE,
       'Please give the otp, check your email we send a code!',
+    );
+  }
+
+  if (!existingUser) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      'User with this email does not exist!',
     );
   }
 
@@ -172,18 +173,16 @@ userSchema.statics.verifyOtp = async function (email: string, otp: number) {
   }
 
   // If OTP is correct, update specific fields
-  await User.findByIdAndUpdate(
-    { _id: existingUser?._id },
-    {
-      $unset: {
-        otp: '', // Remove the OTP field
-        otpExpiresAt: '', // Remove the OTP expiration date field
-      },
-      $set: {
-        isVerified: true, // Set the user as verified
-      },
+  await User.findByIdAndUpdate(existingUser?._id, {
+    $unset: {
+      otp: '', // Remove the OTP field
+      otpExpiresAt: '', // Remove the OTP expiration date field
     },
-  );
+    $set: {
+      isVerified: true, // Set the user as verified
+      status: 'active',
+    },
+  });
 
   return null;
 };

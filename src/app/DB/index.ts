@@ -1,16 +1,13 @@
 import config from '../config';
 import { User } from '../modules/User/user.model';
 
-const superUser = {
+const superAdmin = {
   fullName: config.superAdminFullName,
   email: config.superAdminEmail,
-  phoneNumber: config.superAdminPhoneNumber,
-  nidNumber: config.superAdminNidNumber,
-  permanentAddress: config.superAdminPermanentAddress,
-  gender: config.superAdminGender,
   password: config.superAdminPassword,
   role: config.superAdminRole,
   isVerified: config.superAdminIsVerified,
+  status: config.superAdminStatus,
 };
 
 const seedSuperAdmin = async () => {
@@ -18,7 +15,7 @@ const seedSuperAdmin = async () => {
   const isSuperAdminExits = await User.findOne({ role: config.superAdminRole });
 
   if (!isSuperAdminExits) {
-    await User.create(superUser);
+    await User.create(superAdmin);
   }
 };
 

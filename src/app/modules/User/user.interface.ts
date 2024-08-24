@@ -1,5 +1,9 @@
+import { GENDER, USER_ROLE, USER_STATUS } from './user.constant';
 import { Model, ObjectId } from 'mongoose';
-import { USER_ROLE } from './user.constant';
+
+export type TUserRole = keyof typeof USER_ROLE;
+export type TGender = keyof typeof GENDER;
+export type TUserStatus = keyof typeof USER_STATUS;
 
 export interface IUser {
   _id: ObjectId;
@@ -15,7 +19,7 @@ export interface IUser {
   passwordChangedAt: Date;
   permanentAddress: string;
   presentAddress: string;
-  role: 'user' | 'admin' | 'super-admin';
+  role: TUserRole;
   status: 'in-progress' | 'active' | 'blocked' | 'deleted';
   otp: number;
   otpExpiresAt: Date;
@@ -24,8 +28,6 @@ export interface IUser {
   isVerified: boolean;
   toJSON(options?: { includeRole?: boolean }): IUser;
 }
-
-export type TUserRole = keyof typeof USER_ROLE;
 
 // for creating a static
 export interface UserModel extends Model<IUser> {
