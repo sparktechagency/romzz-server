@@ -5,14 +5,13 @@ import { IUser } from './user.interface';
 import ApiError from '../../errors/ApiError';
 import { User } from './user.model';
 import QueryBuilder from '../../builder/QueryBuilder';
-import { keysToExclude, UserSearchableFields } from './user.constant';
+import { fieldsToExclude, UserSearchableFields } from './user.constant';
 import { JwtPayload } from 'jsonwebtoken';
-import { excludeKeys } from '../../helpers/objectHelpers';
-import deleteFile from '../../helpers/unlinkFile';
 import path from 'path';
 import ejs from 'ejs';
 import generateOtp from '../../helpers/generateOtp';
 import { sendEmail } from '../../helpers/emailHelpers';
+import unlinkFile from '../../helpers/unlinkFile';
 
 const createUserIntoDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
@@ -139,44 +138,60 @@ const getUsersFromDB = async (query: Record<string, unknown>) => {
 };
 
 const getUserProfileFromDB = async (user: JwtPayload) => {
+  const options = { includeRole: true };
+
   const result = await User.findById(user?.userId);
-  return result;
+
+  // Ensure result is not null or undefined before calling toJSON
+  if (result) {
+    return result.toJSON(options);
+  }
+
+  return null;
 };
 
 const updateUserProfileIntoDB = async (
   user: JwtPayload,
-  file: any,
   payload: Partial<IUser>,
+  files: any,
 ) => {
   // Find the existing user to get the current avatar path
   const existingUser = await User.findById(user?.userId);
 
-  // Filter out fields that should not be updated
-  const updatedData = excludeKeys(payload, keysToExclude);
-
   // If a new avatar is uploaded, update the avatar path in the database
-  if (file && file.path) {
-    updatedData.avatar = file.path.replace(/\\/g, '/'); // Replace backslashes with forward slashes for consistency
+  if (files?.avatar && files?.avatar?.length > 0) {
+    const newAvatarPath = files?.avatar[0]?.path.replace(/\\/g, '/'); // Replace backslashes with forward slashes for consistency
+    payload.avatar = newAvatarPath;
 
     // If the user already has an existing avatar (and it's not the default avatar), delete the old avatar file
     if (
       existingUser?.avatar &&
       existingUser?.avatar !== 'https://i.ibb.co/z5YHLV9/profile.png'
     ) {
-      deleteFile(existingUser?.avatar);
+      unlinkFile(existingUser?.avatar);
     }
   }
 
-  // If no valid fields are provided for update, throw an error
-  if (Object.keys(updatedData).length === 0) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      'No valid fields provided for update!',
-    );
+  // If a new cover image is uploaded, update the coverImage path in the database
+  if (files?.coverImage && files?.coverImage?.length > 0) {
+    const newCoverImagePath = files?.coverImage[0]?.path.replace(/\\/g, '/'); // Replace backslashes with forward slashes for consistency
+    payload.coverImage = newCoverImagePath;
+
+    // If the user already has an existing avatar (and it's not the default avatar), delete the old avatar file
+    if (
+      existingUser?.coverImage &&
+      existingUser?.coverImage !== 'https://i.ibb.co/z5YHLV9/profile.png'
+    ) {
+      unlinkFile(existingUser?.coverImage);
+    }
   }
 
+  // Filter out these fields from the payload
+  fieldsToExclude.forEach((field) => delete payload[field]);
+
+  console.log(payload);
   // Proceed with the update using the filtered data
-  const result = await User.findByIdAndUpdate(user?.userId, updatedData, {
+  const result = await User.findByIdAndUpdate(user?.userId, payload, {
     new: true,
   });
 

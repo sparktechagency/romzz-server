@@ -28,11 +28,9 @@ const userSchema = new Schema<IUser, UserModel>(
     },
     phoneNumber: {
       type: String,
-      required: true,
     },
     nidNumber: {
       type: Number,
-      required: true,
     },
     ineNumber: {
       type: Number,
@@ -40,7 +38,6 @@ const userSchema = new Schema<IUser, UserModel>(
     gender: {
       type: String,
       enum: ['male', 'female', 'others'],
-      required: true,
     },
     password: {
       type: String,
@@ -52,7 +49,6 @@ const userSchema = new Schema<IUser, UserModel>(
     },
     permanentAddress: {
       type: String,
-      required: true,
     },
     presentAddress: {
       type: String,
@@ -64,7 +60,7 @@ const userSchema = new Schema<IUser, UserModel>(
     },
     status: {
       type: String,
-      enum: ['in-progress', 'blocked', 'deleted'],
+      enum: ['in-progress', 'active', 'blocked', 'deleted'],
       default: 'in-progress',
     },
     otp: {
@@ -100,19 +96,22 @@ userSchema.pre('save', async function (next) {
 });
 
 // Method to remove sensitive fields before returning user object as JSON
-userSchema.methods.toJSON = function () {
+userSchema.methods.toJSON = function (options?: { includeRole?: boolean }) {
   const userObject = this.toObject();
 
   // Remove password and role fields from the user object
   delete userObject?.password;
   delete userObject?.passwordChangedAt;
-  delete userObject?.role;
   delete userObject?.status;
   delete userObject?.isBlocked;
   delete userObject?.isDeleted;
   delete userObject?.isVerified;
   delete userObject?.otp;
   delete userObject?.otpExpiresAt;
+
+  if (!options?.includeRole) {
+    delete userObject?.role; // Remove the role property from the object if not required
+  }
 
   return userObject;
 };
@@ -173,8 +172,8 @@ userSchema.statics.verifyOtp = async function (email: string, otp: number) {
   }
 
   // If OTP is correct, update specific fields
-  await User.updateOne(
-    { email },
+  await User.findByIdAndUpdate(
+    { _id: existingUser?._id },
     {
       $unset: {
         otp: '', // Remove the OTP field

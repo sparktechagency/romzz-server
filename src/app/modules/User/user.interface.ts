@@ -16,12 +16,13 @@ export interface IUser {
   permanentAddress: string;
   presentAddress: string;
   role: 'user' | 'admin' | 'super-admin';
-  status: 'in-progress' | 'blocked' | 'deleted';
+  status: 'in-progress' | 'active' | 'blocked' | 'deleted';
   otp: number;
   otpExpiresAt: Date;
   isDeleted: boolean;
   isBlocked: boolean;
   isVerified: boolean;
+  toJSON(options?: { includeRole?: boolean }): IUser;
 }
 
 export type TUserRole = keyof typeof USER_ROLE;

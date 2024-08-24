@@ -4,7 +4,11 @@ import sendResponse from '../../helpers/sendResponse';
 import { BlogServices } from './blog.service';
 
 const createBlog = catchAsync(async (req, res) => {
-  const result = await BlogServices.createBlogIntoDB(req?.user, req?.body);
+  const result = await BlogServices.createBlogIntoDB(
+    req?.user,
+    req?.body,
+    req?.file,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -40,6 +44,7 @@ const updateBlogById = catchAsync(async (req, res) => {
   const result = await BlogServices.updateBlogByIdFromDB(
     req?.params?.id,
     req?.body,
+    req?.file,
   );
 
   sendResponse(res, {

@@ -4,29 +4,18 @@ import sendResponse from '../../helpers/sendResponse';
 import { AuthServices } from './auth.service';
 
 const verifyEmailAddress = catchAsync(async (req, res) => {
-  const result = await AuthServices.verifyEmailAddressOtpIntoDB(req?.body);
+  const result = await AuthServices.verifyEmailAddressOtpToDB(req?.body);
 
   return sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
-    message: 'Thanks for registering!',
-    data: result,
-  });
-});
-
-const verifyResetPassword = catchAsync(async (req, res) => {
-  const result = await AuthServices.verifyResetPasswordOtpIntoDB(req?.body);
-
-  return sendResponse(res, {
-    statusCode: httpStatus.CREATED,
-    success: true,
-    message: 'Thanks for registering 1!',
+    message: 'Email address verified successfully!',
     data: result,
   });
 });
 
 const loginUser = catchAsync(async (req, res) => {
-  const result = await AuthServices.loginUserIntoDB(req?.body);
+  const result = await AuthServices.loginUserToDB(req?.body);
 
   return sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -37,29 +26,40 @@ const loginUser = catchAsync(async (req, res) => {
 });
 
 const changePassword = catchAsync(async (req, res) => {
-  const result = await AuthServices.changePasswordIntoDB(req?.user, req?.body);
+  const result = await AuthServices.changePasswordToDB(req?.user, req?.body);
 
   return sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
-    message: 'Password changed successfully!',
+    message: 'Password has been updated successfully!',
     data: result,
   });
 });
 
 const forgetPassword = catchAsync(async (req, res) => {
-  const result = await AuthServices.forgetPasswordIntoDB(req?.body);
+  const result = await AuthServices.forgetPasswordToDB(req?.body);
 
   return sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
-    message: 'Password reset request received!',
+    message: 'Password reset instructions sent successfully!',
+    data: result,
+  });
+});
+
+const verifyResetPassword = catchAsync(async (req, res) => {
+  const result = await AuthServices.verifyResetPasswordOtpToDB(req?.body);
+
+  return sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: 'OTP verified successfully for password reset!',
     data: result,
   });
 });
 
 const resetPassword = catchAsync(async (req, res) => {
-  const result = await AuthServices.resetPasswordIntoDB(
+  const result = await AuthServices.resetPasswordToDB(
     req?.headers?.authorization as string,
     req?.body,
   );
@@ -67,7 +67,7 @@ const resetPassword = catchAsync(async (req, res) => {
   return sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
-    message: 'Password reset successfully!',
+    message: 'Password reset successfully completed!',
     data: result,
   });
 });

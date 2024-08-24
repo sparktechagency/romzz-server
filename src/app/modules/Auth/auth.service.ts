@@ -10,42 +10,38 @@ import path from 'path';
 import { sendEmail } from '../../helpers/emailHelpers';
 import ejs from 'ejs';
 
-const verifyEmailAddressOtpIntoDB = async (payload: {
+const verifyEmailAddressOtpToDB = async (payload: {
   email: string;
   otp: number;
 }) => {
   await User.verifyOtp(payload?.email, payload?.otp);
 };
 
-const loginUserIntoDB = async (payload: {
-  email: string;
-  password: string;
-}) => {
+const loginUserToDB = async (payload: { email: string; password: string }) => {
   // Check if a user with the provided email exists in the database
   const existingUser = await User.isUserExistsByEmail(payload?.email as string);
 
+  // If no user is found with the given email, throw a NOT_FOUND error
   if (!existingUser) {
-    // If no user is found with the given email, throw a NOT_FOUND error
     throw new ApiError(
       httpStatus.NOT_FOUND,
       'User with this email does not exist!',
     );
   }
 
-  // Check if the user is blocked
-  if (existingUser?.isBlocked) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      'User account is blocked! Access is restricted.',
-    );
+  // If the user is not verified, throw a FORBIDDEN error
+  if (!existingUser?.isVerified) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is not verified!');
   }
 
-  // Check if the user is deleted
+  // If the user is blocked, throw a FORBIDDEN error.
+  if (existingUser?.isBlocked) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
+  }
+
+  // If the user is deleted, throw a FORBIDDEN error.
   if (existingUser?.isDeleted) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      'User account is deleted! Please contact support.',
-    );
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted.');
   }
 
   // Verify the provided password against the stored hashed password
@@ -54,8 +50,8 @@ const loginUserIntoDB = async (payload: {
     existingUser?.password,
   );
 
+  // If the password does not match, throw a FORBIDDEN error
   if (!isPasswordValid) {
-    // If the password does not match, throw a FORBIDDEN error
     throw new ApiError(httpStatus.FORBIDDEN, 'Invalid password provided!');
   }
 
@@ -78,7 +74,7 @@ const loginUserIntoDB = async (payload: {
   };
 };
 
-const changePasswordIntoDB = async (
+const changePasswordToDB = async (
   user: JwtPayload,
   payload: { currentPassword: string; newPassword: string },
 ) => {
@@ -91,21 +87,21 @@ const changePasswordIntoDB = async (
     existingUser?.password,
   );
 
+  // If the password does not match, throw a FORBIDDEN error
   if (!isPasswordValid) {
-    // If the password does not match, throw a FORBIDDEN error
     throw new ApiError(httpStatus.FORBIDDEN, 'Invalid password provided!');
   }
 
-  // Ensure the new password is different from the current password
   const isSamePassword = await User.isPasswordMatched(
     payload?.newPassword,
     existingUser?.password,
   );
 
+  // If the new password is the same as the current one, throw a NOT_ACCEPTABLE error.
   if (isSamePassword) {
     throw new ApiError(
       httpStatus.NOT_ACCEPTABLE,
-      'The new password must be different from the current password!',
+      'New password must differ from the current one!',
     );
   }
 
@@ -121,42 +117,42 @@ const changePasswordIntoDB = async (
     passwordChangedAt: new Date(), // Update the password change timestamp
   };
 
+  // Update the user's password in the database.
   await User.findByIdAndUpdate(user?.userId, updatedData);
 };
 
-const forgetPasswordIntoDB = async (payload: { email: string }) => {
+const forgetPasswordToDB = async (payload: { email: string }) => {
   // Check if a user with the provided email exists in the database
   const existingUser = await User.isUserExistsByEmail(payload?.email);
 
+  // If no user is found with the given email, throw a NOT_FOUND error
   if (!existingUser) {
-    // If no user is found with the given email, throw a NOT_FOUND error
     throw new ApiError(
       httpStatus.NOT_FOUND,
       'User with this email does not exist!',
     );
   }
 
-  // Check if the user is blocked
-  if (existingUser?.isBlocked) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      'User account is blocked! Access is restricted.',
-    );
+  // If the user is not verified, throw a FORBIDDEN error
+  if (!existingUser?.isVerified) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is not verified!');
   }
 
-  // Check if the user is deleted
+  // If the user is blocked, throw a FORBIDDEN error.
+  if (existingUser?.isBlocked) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
+  }
+
+  // If the user is deleted, throw a FORBIDDEN error.
   if (existingUser?.isDeleted) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      'User account is deleted! Please contact support.',
-    );
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted.');
   }
 
   // Generate a one-time password (OTP) for email verification
   const otp = generateOtp();
   const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
 
-  // Define the path to the email verification template
+  // Define the path to the email template for password reset.
   const forgetPasswordTemplatePath = path.join(
     process.cwd(),
     'src',
@@ -165,7 +161,7 @@ const forgetPasswordIntoDB = async (payload: { email: string }) => {
     'forgetPasswordTemplate.ejs',
   );
 
-  // Render the verify email template with provided payload data
+  // Render the email template with the OTP and user details.
   const forgetPasswordTemplate = await ejs.renderFile(
     forgetPasswordTemplatePath,
     {
@@ -174,35 +170,50 @@ const forgetPasswordIntoDB = async (payload: { email: string }) => {
     },
   );
 
-  // Define the mail options for sending thank-you email to the user
+  // Define the mail options for sending the OTP email.
   const emailOptions = {
-    to: payload.email, // Receiver's email address (user's email)
-    subject: 'Reset Your Password - Roomz', // Subject of the email
+    to: payload.email,
+    subject: 'Reset Your Password - Roomz',
     html: forgetPasswordTemplate, // HTML content of the email
   };
 
-  // Send the verification email to the user
+  // Send the OTP email to the user.
   await sendEmail(emailOptions);
 
-  await User.findOneAndUpdate(
-    { email: payload?.email },
+  await User.findByIdAndUpdate(
+    { _id: existingUser?._id },
     { $set: { otp, otpExpiresAt } },
   );
 };
 
-const verifyResetPasswordOtpIntoDB = async (payload: {
+const verifyResetPasswordOtpToDB = async (payload: {
   email: string;
   otp: number;
 }) => {
   // Check if a user with the provided email exists in the database
   const existingUser = await User.isUserExistsByEmail(payload?.email as string);
 
+  // If no user is found with the given email, throw a NOT_FOUND error
   if (!existingUser) {
-    // If no user is found with the given email, throw a NOT_FOUND error
     throw new ApiError(
       httpStatus.NOT_FOUND,
       'User with this email does not exist!',
     );
+  }
+
+  // If the user is not verified, throw a FORBIDDEN error
+  if (!existingUser?.isVerified) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is not verified!');
+  }
+
+  // If the user is blocked, throw a FORBIDDEN error.
+  if (existingUser?.isBlocked) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
+  }
+
+  // If the user is deleted, throw a FORBIDDEN error.
+  if (existingUser?.isDeleted) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted.');
   }
 
   await User.verifyOtp(payload?.email, payload?.otp);
@@ -226,7 +237,7 @@ const verifyResetPasswordOtpIntoDB = async (payload: {
   };
 };
 
-const resetPasswordIntoDB = async (
+const resetPasswordToDB = async (
   token: string,
   payload: { userId: string; newPassword: string },
 ) => {
@@ -242,28 +253,27 @@ const resetPasswordIntoDB = async (
   // checking if the user is exist
   const existingUser = await User.isUserExistsByEmail(decoded?.email);
 
+  // If no user is found with the given email, throw a NOT_FOUND error
   if (!existingUser) {
-    // If no user is found with the given email, throw a NOT_FOUND error
     throw new ApiError(
       httpStatus.NOT_FOUND,
       'User with this email does not exist!',
     );
   }
 
-  // Check if the user is blocked
-  if (existingUser?.isBlocked) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      'User account is blocked! Access is restricted.',
-    );
+  // If the user is not verified, throw a FORBIDDEN error
+  if (!existingUser?.isVerified) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is not verified!');
   }
 
-  // Check if the user is deleted
+  // If the user is blocked, throw a FORBIDDEN error.
+  if (existingUser?.isBlocked) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
+  }
+
+  // If the user is deleted, throw a FORBIDDEN error.
   if (existingUser?.isDeleted) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      'User account is deleted! Please contact support.',
-    );
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted.');
   }
 
   if (payload?.userId !== decoded?.userId) {
@@ -296,10 +306,10 @@ const resetPasswordIntoDB = async (
 };
 
 export const AuthServices = {
-  loginUserIntoDB,
-  resetPasswordIntoDB,
-  changePasswordIntoDB,
-  forgetPasswordIntoDB,
-  verifyEmailAddressOtpIntoDB,
-  verifyResetPasswordOtpIntoDB,
+  loginUserToDB,
+  resetPasswordToDB,
+  changePasswordToDB,
+  forgetPasswordToDB,
+  verifyEmailAddressOtpToDB,
+  verifyResetPasswordOtpToDB,
 };

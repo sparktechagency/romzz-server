@@ -5,6 +5,7 @@ dotenv.config({ path: path.join((process.cwd(), '.env')) });
 
 export default {
   port: process.env.PORT,
+  ipAddress: process.env.IP_ADDRESS,
   nodeEnv: process.env.NODE_ENV,
   dbURL: process.env.DATABASE_URL,
   collectionName: process.env.COLLECTION_NAME,

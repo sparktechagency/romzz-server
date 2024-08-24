@@ -1,6 +1,7 @@
 export const IMAGE_FIELD_NAMES = [
   'image',
   'avatar',
+  'coverImage',
   'propertyImages',
   'proofOfOwnership',
 ];
@@ -17,6 +18,7 @@ export const SUPPORTED_PDF_FORMATS = ['application/pdf'];
 export const FIELD_NAME_TO_FORMATS: { [key: string]: string[] } = {
   image: SUPPORTED_IMAGE_FORMATS,
   avatar: SUPPORTED_IMAGE_FORMATS,
+  coverImage: SUPPORTED_IMAGE_FORMATS,
   propertyImages: SUPPORTED_IMAGE_FORMATS,
   proofOfOwnership: SUPPORTED_IMAGE_FORMATS,
   propertyVideo: SUPPORTED_VIDEO_FORMATS,

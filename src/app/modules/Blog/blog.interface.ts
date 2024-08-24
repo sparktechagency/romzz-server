@@ -4,5 +4,5 @@ export interface IBlog {
   createdBy: ObjectId; // Reference to the User
   title: string;
   description: string;
-  blogImage: string;
+  image: string;
 }

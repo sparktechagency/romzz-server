@@ -30,7 +30,10 @@ router.post(
 router.patch(
   '/update-profile',
   validateAuth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
-  upload.single('avatar'),
+  upload.fields([
+    { name: 'avatar', maxCount: 1 }, // Single avatar image
+    { name: 'coverImage', maxCount: 1 }, // Single cover image
+  ]),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = JSON.parse(req?.body?.data);
     next();

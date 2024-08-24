@@ -17,7 +17,7 @@ async function main() {
       `MongoDB Connected! DB Host: ${connectionInstance.connection.host}`,
     );
 
-    server = app.listen(config.port, () => {
+    server = app.listen(Number(config.port), config.ipAddress as string, () => {
       console.log(`App is listening on port ${config.port}`);
     });
   } catch (error) {

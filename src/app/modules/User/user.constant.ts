@@ -9,7 +9,7 @@ export const USER_ROLE = {
 export const UserSearchableFields = ['email', 'presentAddress'];
 
 // Define fields that cannot be updated by the user
-export const keysToExclude: (keyof IUser)[] = [
+export const fieldsToExclude: (keyof IUser)[] = [
   'email',
   'password',
   'passwordChangedAt',

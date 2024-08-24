@@ -29,28 +29,30 @@ const validateAuth = (...requiredRoles: TUserRole[]) => {
       // Check if a user with the provided email exists in the database
       const existingUser = await User.isUserExistsByEmail(verifyUser?.email);
 
+      // If no user is found with the given email, throw a NOT_FOUND error
       if (!existingUser) {
-        // If no user is found with the given email, throw a NOT_FOUND error
         throw new ApiError(
           httpStatus.NOT_FOUND,
           'User with this email does not exist!',
         );
       }
 
-      // Check if the user is blocked
-      if (existingUser?.isBlocked) {
+      // If the user is not verified, throw a FORBIDDEN error
+      if (!existingUser?.isVerified) {
         throw new ApiError(
           httpStatus.FORBIDDEN,
-          'User account is blocked! Access is restricted.',
+          'User account is not verified!',
         );
       }
 
-      // Check if the user is deleted
+      // If the user is blocked, throw a FORBIDDEN error.
+      if (existingUser?.isBlocked) {
+        throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
+      }
+
+      // If the user is deleted, throw a FORBIDDEN error.
       if (existingUser?.isDeleted) {
-        throw new ApiError(
-          httpStatus.FORBIDDEN,
-          'User account is deleted! Please contact support.',
-        );
+        throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted.');
       }
 
       if (
