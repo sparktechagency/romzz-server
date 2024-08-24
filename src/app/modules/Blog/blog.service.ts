@@ -104,8 +104,6 @@ const deleteBlogByIdFromDB = async (blogId: string) => {
     );
   }
 
-  console.log(result);
-
   // If the slider entry has an associated image, remove the image file
   if (result?.image) {
     unlinkFile(result?.image);

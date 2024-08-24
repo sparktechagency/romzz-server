@@ -6,13 +6,12 @@ import { Property } from './property.model';
 import QueryBuilder from '../../builder/QueryBuilder';
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
-import { excludeKeys } from '../../helpers/objectHelpers';
-import { keysToExclude } from './property.constant';
+import { propertyFieldsToExclude } from './property.constant';
 
 const createPropertyIntoDB = async (
   user: JwtPayload,
-  files: any,
   payload: IProperty,
+  files: any,
 ) => {
   // Assign the user ID who is creating the property
   payload.createdBy = user?.userId;
@@ -24,21 +23,21 @@ const createPropertyIntoDB = async (
 
   // Extract and map the image file paths
   if (files['proofOfOwnership']) {
-    payload.proofOfOwnership = files['proofOfOwnership'].map(
+    payload.proofOfOwnership = files['proofOfOwnership']?.map(
       (file: any) => file?.path,
     );
   }
 
   // Extract and map the image file paths
   if (files['propertyImages']) {
-    payload.propertyImages = files['propertyImages'].map(
+    payload.propertyImages = files['propertyImages']?.map(
       (file: any) => file?.path,
     );
   }
 
   // Extract and set the video file path
   if (files['propertyVideo'] && files['propertyVideo'][0]) {
-    payload.propertyVideo = files['propertyVideo'][0].path;
+    payload.propertyVideo = files['propertyVideo'][0]?.path;
   }
 
   // Create the property in the database
@@ -127,10 +126,18 @@ const updatePropertyByIdIntoDB = async (
     );
   }
 
-  // Filter out fields that should not be updated
-  const updatedData = excludeKeys(payload, keysToExclude);
+  // Ensure the user trying to update the property is the creator
+  if (existingProperty?.createdBy !== user?.userId) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      'You do not have permission to update this property!',
+    );
+  }
 
-  const result = await Property.findByIdAndUpdate(propertyId, updatedData, {
+  // Filter out these fields from the payload
+  propertyFieldsToExclude.forEach((field) => delete payload[field]);
+
+  const result = await Property.findByIdAndUpdate(propertyId, payload, {
     new: true,
   });
 

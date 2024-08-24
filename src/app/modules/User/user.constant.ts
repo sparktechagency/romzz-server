@@ -4,7 +4,7 @@ import { IUser } from './user.interface';
 export const UserSearchableFields = ['email', 'presentAddress'];
 
 // Fields that are not allowed to be updated by the user
-export const fieldsToExclude: (keyof IUser)[] = [
+export const userFieldsToExclude: (keyof IUser)[] = [
   'email',
   'password',
   'passwordChangedAt',

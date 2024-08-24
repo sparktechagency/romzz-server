@@ -5,14 +5,14 @@ import { IUser } from './user.interface';
 import ApiError from '../../errors/ApiError';
 import { User } from './user.model';
 import QueryBuilder from '../../builder/QueryBuilder';
-import { fieldsToExclude, UserSearchableFields } from './user.constant';
+import { userFieldsToExclude, UserSearchableFields } from './user.constant';
 import { JwtPayload } from 'jsonwebtoken';
 import path from 'path';
 import ejs from 'ejs';
-import generateOtp from '../../helpers/generateOtp';
+import cron from 'node-cron';
+import generateRandomNumber from '../../helpers/generateRandomNumber';
 import { sendEmail } from '../../helpers/emailHelpers';
 import unlinkFile from '../../helpers/unlinkFile';
-import cron from 'node-cron';
 
 const createUserIntoDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
@@ -31,7 +31,7 @@ const createUserIntoDB = async (payload: IUser) => {
   payload.isDeleted = false; // Set the deleted status to false
 
   // Generate a one-time password (OTP) for email verification
-  const otp = generateOtp();
+  const otp = generateRandomNumber();
   const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
 
   // Add OTP and expiration time to the payload
@@ -85,7 +85,7 @@ const createAdminIntoDB = async (payload: IUser) => {
   payload.isDeleted = false; // Set the deleted status to false
 
   // Generate a one-time password (OTP) for email verification
-  const otp = generateOtp();
+  const otp = generateRandomNumber();
   const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
 
   // Add OTP and expiration time to the payload
@@ -188,7 +188,7 @@ const updateUserProfileIntoDB = async (
   }
 
   // Filter out these fields from the payload
-  fieldsToExclude.forEach((field) => delete payload[field]);
+  userFieldsToExclude.forEach((field) => delete payload[field]);
 
   // Proceed with the update using the filtered data
   const result = await User.findByIdAndUpdate(user?.userId, payload, {

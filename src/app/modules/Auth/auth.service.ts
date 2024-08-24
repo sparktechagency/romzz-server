@@ -5,7 +5,7 @@ import config from '../../config';
 import { User } from '../User/user.model';
 import { createJwtToken, verifyJwtToken } from '../../helpers/jwtHelpers';
 import { JwtPayload } from 'jsonwebtoken';
-import generateOtp from '../../helpers/generateOtp';
+import generateOtp from '../../helpers/generateRandomNumber';
 import path from 'path';
 import { sendEmail } from '../../helpers/emailHelpers';
 import ejs from 'ejs';
@@ -131,6 +131,21 @@ const forgetPasswordToDB = async (payload: { email: string }) => {
       httpStatus.NOT_FOUND,
       'User with this email does not exist!',
     );
+  }
+
+  // If the user is not verified, throw a FORBIDDEN error
+  if (!existingUser?.isVerified) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is not verified!');
+  }
+
+  // If the user is blocked, throw a FORBIDDEN error.
+  if (existingUser?.isBlocked) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
+  }
+
+  // If the user is deleted, throw a FORBIDDEN error.
+  if (existingUser?.isDeleted) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted.');
   }
 
   // Generate a one-time password (OTP) for email verification

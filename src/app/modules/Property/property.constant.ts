@@ -3,7 +3,7 @@ import { IProperty } from './property.interface';
 export const UserSearchableFields = ['email', 'presentAddress'];
 
 // Define fields that cannot be updated by the user
-export const keysToExclude: (keyof IProperty)[] = [
+export const propertyFieldsToExclude: (keyof IProperty)[] = [
   'ownerType',
   'ownerNumber',
   'proofOfOwnership',
