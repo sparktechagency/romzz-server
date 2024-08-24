@@ -6,10 +6,20 @@ import { AuthControllers } from './auth.controller';
 const router = Router();
 
 router.post('/login', AuthControllers.loginUser);
-router.post('/forget-password', AuthControllers.forgetPassword);
+router.post('/forgot-password', AuthControllers.requestPasswordReset);
 router.post('/reset-password', AuthControllers.resetPassword);
-router.post('/verify-email-address', AuthControllers.verifyEmailAddress);
-router.post('/verify-reset-password', AuthControllers.verifyResetPassword);
+
+router.post('/verify-email', AuthControllers.verifyEmailAddress);
+router.post('/verify-reset-otp', AuthControllers.verifyResetPassword);
+
+router.post(
+  '/resend-verification-email',
+  AuthControllers.resendVerificationEmail,
+);
+router.post(
+  '/resend-password-reset-email',
+  AuthControllers.resendPasswordResetEmail,
+);
 
 router.post(
   '/change-password',
