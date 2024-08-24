@@ -12,7 +12,7 @@ const sliderSchema = new Schema<ISlider>(
       type: String,
       required: true,
     },
-    sliderImage: {
+    image: {
       type: String,
       required: true,
     },

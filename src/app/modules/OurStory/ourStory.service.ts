@@ -12,33 +12,33 @@ const createOurStoryToDB = async (
   payload: IOurStory,
   file: any,
 ) => {
-  // Check the total number of "Our Story" in the database
+  // Check the total number of our stories in the database
   const OurstoryCount = await OurStory.countDocuments();
 
-  // Enforce the global limit of 1 "Our Story"
+  // If the total number of sliders has reached the limit (5), throw an error
   if (OurstoryCount >= 1) {
-    unlinkFile(file?.path); // Delete the uploaded file if the creation limit is reached
+    unlinkFile(file?.path); // Remove the uploaded file to clean up
     throw new ApiError(
       httpStatus.CONFLICT,
       'Our Story creation limit reached!',
     );
   }
 
-  // Set the createdBy field to the ID of the user who is creating the story
-  payload.createdBy = user?.userId;
-
   // If a new image is uploaded, update the image path in the payload
   if (file && file?.path) {
-    payload.image = file?.path?.replace(/\\/g, '/'); // Replace backslashes with forward slashes for consistency
+    payload.image = file?.path?.replace(/\\/g, '/'); // Normalize the file path to use forward slashes
   }
 
-  // Create the new "Our Story" entry in the database
+  // Set the createdBy field to the ID of the user who is creating the our story
+  payload.createdBy = user?.userId;
+
+  // Create the new our story entry in the database
   const result = await OurStory.create(payload);
   return result;
 };
 
 const getOurStoriesFromDB = async () => {
-  // Fetch all "Our Story" entries from the database
+  // Fetch all our stories entries from the database
   const result = await OurStory.find();
   return result;
 };
@@ -48,12 +48,12 @@ const updateOurStoryByIdFromDB = async (
   payload: Partial<IOurStory>,
   file: any,
 ) => {
-  // Fetch the current "Our Story" entry from the database by its ID
+  // Fetch the existing our stories entry from the database by its ID
   const existingOurStory = await OurStory.findById(ourStoryId);
 
-  // Throw an error if the "Our Story" entry is not found
+  // If the our story entry does not exist, throw an error
   if (!existingOurStory) {
-    unlinkFile(file?.path); // Delete the uploaded file if the entry is not found
+    unlinkFile(file?.path); // Remove the uploaded file to clean up
     throw new ApiError(
       httpStatus.NOT_FOUND,
       `Our Story with ID: ${ourStoryId} not found!`,
@@ -62,19 +62,19 @@ const updateOurStoryByIdFromDB = async (
 
   // If a new image is uploaded, update the image path in the payload
   if (file && file?.path) {
-    const newImagePath = file?.path.replace(/\\/g, '/'); // Replace backslashes with forward slashes for consistency
+    const newImagePath = file?.path.replace(/\\/g, '/'); // Normalize the file path
 
-    // If the "Our Story" entry already has an existing image and it's not the same as the new one, delete the old image file
+    // If a new image file is uploaded, update the image path in the payload
     if (existingOurStory?.image !== newImagePath) {
-      unlinkFile(existingOurStory?.image);
-      payload.image = newImagePath;
+      unlinkFile(existingOurStory.image); // Remove the old image file
+      payload.image = newImagePath; // Update the payload with the new image path
     }
   }
 
-  // Remove the createdBy field from the payload to prevent updates to this field
+  // Prevent modification of the createdBy field to maintain integrity
   delete payload.createdBy;
 
-  // Update the "Our Story" entry with the provided data and return the updated document
+  // Update the our story entry in the database with the new data
   const result = await OurStory.findByIdAndUpdate(ourStoryId, payload, {
     new: true, // Return the updated document
   });
