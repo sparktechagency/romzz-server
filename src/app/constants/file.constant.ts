@@ -1,8 +1,8 @@
 export const IMAGE_FIELD_NAMES = [
+  'image',
   'avatar',
   'propertyImages',
   'proofOfOwnership',
-  'sliderImage',
 ];
 export const VIDEO_FIELD_NAMES = ['propertyVideo'];
 export const AUDIO_FIELD_NAMES = ['audio'];
@@ -15,8 +15,8 @@ export const SUPPORTED_PDF_FORMATS = ['application/pdf'];
 
 // Create a map for field names and their corresponding supported formats
 export const FIELD_NAME_TO_FORMATS: { [key: string]: string[] } = {
+  image: SUPPORTED_IMAGE_FORMATS,
   avatar: SUPPORTED_IMAGE_FORMATS,
-  sliderImage: SUPPORTED_IMAGE_FORMATS,
   propertyImages: SUPPORTED_IMAGE_FORMATS,
   proofOfOwnership: SUPPORTED_IMAGE_FORMATS,
   propertyVideo: SUPPORTED_VIDEO_FORMATS,

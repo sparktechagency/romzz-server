@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongoose';
 
-export interface IStory {
+export interface IOurStory {
   createdBy: ObjectId; // Reference to the User
   title: string;
-  storyImage: string;
+  image: string;
 }

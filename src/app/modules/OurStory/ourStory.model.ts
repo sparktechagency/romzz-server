@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
-import { IStory } from './story.interface';
+import { IOurStory } from './ourStory.interface';
 
-const storySchema = new Schema<IStory>(
+const ourStorySchema = new Schema<IOurStory>(
   {
     createdBy: {
       type: Schema.Types.ObjectId, // MongoDB ObjectId type
@@ -12,13 +12,13 @@ const storySchema = new Schema<IStory>(
       type: String,
       required: true,
     },
-    storyImage: {
+    image: {
       type: String,
       required: true,
     },
   },
-  { timestamps: true },
+  { timestamps: true }, // Automatically adds createdAt and updatedAt timestamps to the schema
 );
 
-// Create the Story model using the schema
-export const Story = model<IStory>('Story', storySchema);
+// Create the 'Our Story' model using the schema
+export const OurStory = model<IOurStory>('OurStory', ourStorySchema);

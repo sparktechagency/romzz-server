@@ -21,7 +21,7 @@ export default {
   superAdminGender: process.env.SUPER_ADMIN_GENDER,
   superAdminPassword: process.env.SUPER_ADMIN_PASSWORD,
   superAdminRole: process.env.SUPER_ADMIN_ROLE,
-  superAdminIsVerified: process.env.SUPER_ADMIN_PASSWORD,
+  superAdminIsVerified: process.env.SUPER_ADMIN_IS_VERIFIED,
 
   smtpEmailUser: process.env.SMTP_EMAIL_USER,
   smtpEmailPass: process.env.SMTP_EMAIL_PASS,
