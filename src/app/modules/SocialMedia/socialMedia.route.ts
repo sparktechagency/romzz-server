@@ -1,23 +1,23 @@
 import { Router } from 'express';
 import validateAuth from '../../middlewares/validateAuth';
 import { USER_ROLE } from '../User/user.constant';
-import { MediaControllers } from './media.controller';
+import { SocialMediaControllers } from './socialMedia.controller';
 
 const router = Router();
 
 router
   .route('/')
 
-  .get(MediaControllers.getMedias)
+  .get(SocialMediaControllers.getSocialMedias)
   .post(
     validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
-    MediaControllers.createMedia,
+    SocialMediaControllers.createSocialMedia,
   );
 
 router.patch(
   '/:id',
   validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
-  MediaControllers.updateMediaById,
+  SocialMediaControllers.updateSocialMediaById,
 );
 
 export const MediaRoutes = router;

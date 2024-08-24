@@ -8,8 +8,8 @@ import { StoryRoutes } from '../modules/OurStory/ourStory.route';
 import { FaqRoutes } from '../modules/FAQ/faq.route';
 import { TermsRoutes } from '../modules/TermsAndConditions/terms.route';
 import { FeedbackRoutes } from '../modules/Feedback/feedback.route';
-import { ContactRoutes } from '../modules/GetInTouch/contact.route';
-import { MediaRoutes } from '../modules/SocialMedia/media.route';
+import { ContactRoutes } from '../modules/Contact/contact.route';
+import { MediaRoutes } from '../modules/SocialMedia/socialMedia.route';
 
 const router = Router();
 

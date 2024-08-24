@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
-import { IMedia } from './media.interface';
+import { ISocialMedia } from './socialMedia.interface';
 
-const mediaSchema = new Schema<IMedia>(
+const socialMediaSchema = new Schema<ISocialMedia>(
   {
     createdBy: {
       type: Schema.Types.ObjectId, // MongoDB ObjectId type
@@ -20,5 +20,8 @@ const mediaSchema = new Schema<IMedia>(
   { timestamps: true },
 );
 
-// Create the Media model using the schema
-export const Media = model<IMedia>('Media', mediaSchema);
+// Create the Social Media model using the schema
+export const SocialMedia = model<ISocialMedia>(
+  'SocialMedia',
+  socialMediaSchema,
+);
