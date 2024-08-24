@@ -1,10 +1,14 @@
 import { GENDER, USER_ROLE, USER_STATUS } from './user.constant';
 import { Model, ObjectId } from 'mongoose';
 
+// Define type for user roles based on constants
 export type TUserRole = keyof typeof USER_ROLE;
+// Define type for gender based on constants
 export type TGender = keyof typeof GENDER;
+// Define type for user status based on constants
 export type TUserStatus = keyof typeof USER_STATUS;
 
+// Interface representing the structure of a User document in MongoDB
 export interface IUser {
   _id: ObjectId;
   fullName: string;
@@ -14,13 +18,13 @@ export interface IUser {
   phoneNumber: string;
   nidNumber: number;
   ineNumber: number;
-  gender: 'male' | 'female' | 'others';
+  gender: TGender;
   password: string;
   passwordChangedAt: Date;
   permanentAddress: string;
   presentAddress: string;
   role: TUserRole;
-  status: 'in-progress' | 'active' | 'blocked' | 'deleted';
+  status: TUserStatus;
   otp: number;
   otpExpiresAt: Date;
   isDeleted: boolean;
@@ -29,19 +33,19 @@ export interface IUser {
   toJSON(options?: { includeRole?: boolean }): IUser;
 }
 
-// for creating a static
+// Interface for the User model methods
 export interface UserModel extends Model<IUser> {
-  isUserExistsByEmail(email: string): Promise<IUser>;
+  isUserExistsByEmail(email: string): Promise<IUser>; // Static method to check if a user exists by email
 
   isPasswordMatched(
     plainTextPassword: string,
     hashedPassword: string,
-  ): Promise<boolean>;
+  ): Promise<boolean>; // Static method to compare plaintext password with stored hashed password
 
   isJWTIssuedBeforePasswordChanged(
     passwordChangedTime: Date,
     jwtIssuedTime: number,
-  ): Promise<boolean>;
+  ): Promise<boolean>; // Static method to check if a JWT was issued before the password was changed
 
-  verifyOtp(email: string, otp: number): Promise<boolean>;
+  verifyOtp(email: string, otp: number): Promise<boolean>; // Static method to verify OTP for a user
 }

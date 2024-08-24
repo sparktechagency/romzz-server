@@ -3,13 +3,17 @@ import { UserControllers } from './user.controller';
 import validateRequest from '../../middlewares/validateRequest';
 import { userValidationSchema } from './user.validation';
 import validateAuth from '../../middlewares/validateAuth';
-// import { USER_ROLE } from './user.constant';
 import { upload } from '../../helpers/multer';
 import { USER_ROLE } from './user.constant';
 
 const router = Router();
 
-router.get('/', UserControllers.getUsers);
+router.get(
+  '/',
+  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  UserControllers.getUsers,
+);
+
 router.get(
   '/profile',
   validateAuth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),

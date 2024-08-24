@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-export const createUserSchema = z.object({
+// Schema for user creation validation
+const createUserSchema = z.object({
   body: z.object({
     fullName: z.string({
       required_error: 'Full name is required.',
@@ -62,6 +63,7 @@ const createAdminSchema = z.object({
   }),
 });
 
+// Schema for admin creation validation
 export const userValidationSchema = {
   createUserSchema,
   createAdminSchema,

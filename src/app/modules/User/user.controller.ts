@@ -20,7 +20,7 @@ const createAdmin = catchAsync(async (req, res) => {
   return sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
-    message: 'Thanks for registering!',
+    message: 'Admin created successfully!',
     data: result,
   });
 });
