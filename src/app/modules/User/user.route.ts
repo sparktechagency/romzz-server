@@ -17,13 +17,13 @@ router.get(
 
 router.post(
   '/create-user',
-  validateRequest(userValidationSchema),
+  validateRequest(userValidationSchema.createUserSchema),
   UserControllers.createUser,
 );
 router.post(
   '/create-admin',
   validateAuth(USER_ROLE.superAdmin),
-  validateRequest(userValidationSchema),
+  validateRequest(userValidationSchema.createAdminSchema),
   UserControllers.createAdmin,
 );
 

@@ -12,6 +12,7 @@ import ejs from 'ejs';
 import generateOtp from '../../helpers/generateOtp';
 import { sendEmail } from '../../helpers/emailHelpers';
 import unlinkFile from '../../helpers/unlinkFile';
+import cron from 'node-cron';
 
 const createUserIntoDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
@@ -189,7 +190,6 @@ const updateUserProfileIntoDB = async (
   // Filter out these fields from the payload
   fieldsToExclude.forEach((field) => delete payload[field]);
 
-  console.log(payload);
   // Proceed with the update using the filtered data
   const result = await User.findByIdAndUpdate(user?.userId, payload, {
     new: true,
@@ -197,6 +197,31 @@ const updateUserProfileIntoDB = async (
 
   return result;
 };
+
+// Schedule the function to run every 12 hours
+cron.schedule('0 */12 * * *', async () => {
+  const now = new Date();
+
+  try {
+    // Delete users with expired OTPs, 'in-progress' status, and not verified
+    const result = await User.deleteMany({
+      otpExpiresAt: { $lt: now }, // Condition 1: OTP has expired
+      status: 'in-progress', // Condition 2: User registration is in-progress
+      isVerified: false, // Condition 3: User is not verified
+    });
+
+    console.log(result);
+    if (result.deletedCount > 0) {
+      console.log(
+        `${result.deletedCount} expired unverified users were deleted.`,
+      );
+    } else {
+      console.log('No expired unverified users found for deletion.');
+    }
+  } catch (error) {
+    console.error('Error deleting expired users:', error);
+  }
+});
 
 export const UserServices = {
   createUserIntoDB,

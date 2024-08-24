@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-// User  Validation Schema
-export const userValidationSchema = z.object({
+export const createUserSchema = z.object({
   body: z.object({
     fullName: z.string({
       required_error: 'Full name is required.',
@@ -41,3 +40,29 @@ export const userValidationSchema = z.object({
     }),
   }),
 });
+
+const createAdminSchema = z.object({
+  body: z.object({
+    fullName: z.string({
+      required_error: 'Full name is required.',
+      invalid_type_error: 'Full name must be a string.',
+    }),
+
+    email: z
+      .string({
+        required_error: 'Email is required.',
+        invalid_type_error: 'Email must be a string.',
+      })
+      .email('Invalid email format.'),
+
+    password: z.string({
+      required_error: 'Password is required.',
+      invalid_type_error: 'Password must be a string.',
+    }),
+  }),
+});
+
+export const userValidationSchema = {
+  createUserSchema,
+  createAdminSchema,
+};

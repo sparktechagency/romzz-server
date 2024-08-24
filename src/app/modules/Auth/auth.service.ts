@@ -206,16 +206,6 @@ const verifyResetPasswordOtpToDB = async (payload: {
     throw new ApiError(httpStatus.FORBIDDEN, 'User account is not verified!');
   }
 
-  // If the user is blocked, throw a FORBIDDEN error.
-  if (existingUser?.isBlocked) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
-  }
-
-  // If the user is deleted, throw a FORBIDDEN error.
-  if (existingUser?.isDeleted) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted.');
-  }
-
   await User.verifyOtp(payload?.email, payload?.otp);
 
   // Prepare the payload for JWT token generation
@@ -264,16 +254,6 @@ const resetPasswordToDB = async (
   // If the user is not verified, throw a FORBIDDEN error
   if (!existingUser?.isVerified) {
     throw new ApiError(httpStatus.FORBIDDEN, 'User account is not verified!');
-  }
-
-  // If the user is blocked, throw a FORBIDDEN error.
-  if (existingUser?.isBlocked) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
-  }
-
-  // If the user is deleted, throw a FORBIDDEN error.
-  if (existingUser?.isDeleted) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted.');
   }
 
   if (payload?.userId !== decoded?.userId) {
