@@ -197,6 +197,7 @@ const updatePropertyByIdToDB = async (
   // Save new data to the database
   const result = await Property.findByIdAndUpdate(propertyId, payload, {
     new: true,
+    runValidators: true,
   });
 
   return result;

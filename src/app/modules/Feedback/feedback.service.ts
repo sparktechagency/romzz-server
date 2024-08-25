@@ -114,7 +114,7 @@ const getUserProfileFeedbacksFromDB = async (userId: string) => {
     propertyId: { $in: propertyIds },
   }).populate({
     path: 'userId', // Populate the user who gave the feedback
-    select: 'fullName avatar', // Adjust the fields to select the user's details
+    select: '-_id fullName avatar', // Adjust the fields to select the user's details
   });
 
   return result;
@@ -122,11 +122,11 @@ const getUserProfileFeedbacksFromDB = async (userId: string) => {
 
 const getUserProfileFeedbackSummaryFromDB = async (userId: string) => {
   // Fetch user profile
-  const user = await User.findById(userId).select(
-    'fullName email avater coverImage address',
+  const existingUser = await User.findById(userId).select(
+    '-_id fullName email avater coverImage address',
   ); // Adjust fields as necessary
 
-  if (!user) {
+  if (!existingUser) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found!');
   }
 
@@ -160,7 +160,7 @@ const getUserProfileFeedbackSummaryFromDB = async (userId: string) => {
 
   // Return user profile and average rating
   return {
-    user,
+    userInfo: existingUser,
     averageRating,
   };
 };
