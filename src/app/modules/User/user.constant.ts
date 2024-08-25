@@ -1,9 +1,9 @@
 import { IUser } from './user.interface';
 
-// Fields that can be searched in the user model
+// Fields that can be searched in user queries.
 export const UserSearchableFields = ['email', 'presentAddress'];
 
-// Fields that are not allowed to be updated by the user
+// Fields that cannot be updated by the user.
 export const userFieldsToExclude: (keyof IUser)[] = [
   'email',
   'password',
@@ -17,12 +17,14 @@ export const userFieldsToExclude: (keyof IUser)[] = [
   'otpExpiresAt',
 ];
 
+// User roles within the system.
 export const USER_ROLE = {
   user: 'user',
   admin: 'admin',
   superAdmin: 'superAdmin',
 } as const;
 
+// Possible user account statuses.
 export const USER_STATUS = {
   'in-progress': 'in-progress',
   active: 'active',
@@ -30,6 +32,7 @@ export const USER_STATUS = {
   deleted: 'deleted',
 } as const;
 
+// Gender options available for users.
 export const GENDER = {
   male: 'male',
   female: 'female',

@@ -43,7 +43,7 @@ const userSchema = new Schema<IUser, UserModel>(
     password: {
       type: String,
       required: true,
-      select: 0, // Exclude password from query results by default
+      select: 0, // Exclude password by default
     },
     passwordChangedAt: {
       type: Date,
@@ -83,12 +83,12 @@ const userSchema = new Schema<IUser, UserModel>(
       default: false,
     },
   },
-  { timestamps: true }, // Automatically manage createdAt and updatedAt
+  { timestamps: true }, // Automatically adds createdAt and updatedAt fields
 );
 
-// Pre-save middleware to hash the password before saving the user document
+// Hash password before saving
 userSchema.pre('save', async function (next) {
-  // Hash the password using bcrypt if it has been modified
+  // Only hash if password is new or changed
   this.password = await bcrypt.hash(
     this.password,
     Number(config.bcryptSaltRounds),
@@ -96,11 +96,11 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-// Method to remove sensitive fields before converting to JSON
+// Remove sensitive fields before converting to JSON
 userSchema.methods.toJSON = function (options?: { includeRole?: boolean }) {
   const userObject = this.toObject();
 
-  // Exclude sensitive fields
+  // Remove sensitive fields
   delete userObject?.password;
   delete userObject?.passwordChangedAt;
   delete userObject?.status;
@@ -117,12 +117,12 @@ userSchema.methods.toJSON = function (options?: { includeRole?: boolean }) {
   return userObject;
 };
 
-// Static method to check if a user with the given email exists
+// Check if a user exists by email
 userSchema.statics.isUserExistsByEmail = async function (email: string) {
-  return await User.findOne({ email }).select('+password'); // Include password field in query result
+  return await User.findOne({ email }).select('+password'); // Include password in results
 };
 
-// Static method to compare plain text password with hashed password
+// Compare plain text password with hashed password
 userSchema.statics.isPasswordMatched = async function (
   plainTextPassword,
   hashedPassword,
@@ -130,7 +130,7 @@ userSchema.statics.isPasswordMatched = async function (
   return await bcrypt.compare(plainTextPassword, hashedPassword);
 };
 
-// Static method to check if the JWT was issued before the password was changed
+// Check if JWT was issued before password change
 userSchema.statics.isJWTIssuedBeforePasswordChanged = function (
   passwordChangedAt: Date,
   jwtIssuedTime: number,
@@ -139,17 +139,19 @@ userSchema.statics.isJWTIssuedBeforePasswordChanged = function (
   return passwordChangedTime > jwtIssuedTime;
 };
 
-// Static method to verify the OTP sent to the user's email
+// Verify OTP for user authentication
 userSchema.statics.verifyOtp = async function (email: string, otp: number) {
   const existingUser = await User.findOne({ email });
 
+  // Validate OTP input
   if (!otp) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      'OTP is required. Please check your email for the code.',
+      'OTP is required. Please check your email for the code!',
     );
   }
 
+  // Check if user exists
   if (!existingUser) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
@@ -157,13 +159,15 @@ userSchema.statics.verifyOtp = async function (email: string, otp: number) {
     );
   }
 
+  // Verify OTP expiration
   if (!existingUser?.otpExpiresAt || existingUser?.otpExpiresAt < new Date()) {
     throw new ApiError(
       httpStatus.UNAUTHORIZED,
-      'OTP has expired. Please request a new one.',
+      'OTP has expired. Please request a new one!',
     );
   }
 
+  // Check if OTP matches
   if (existingUser?.otp !== otp) {
     throw new ApiError(
       httpStatus.UNAUTHORIZED,
@@ -174,12 +178,12 @@ userSchema.statics.verifyOtp = async function (email: string, otp: number) {
   // If OTP is correct, remove OTP fields and verify the user
   await User.findByIdAndUpdate(existingUser._id, {
     $unset: {
-      otp: '', // Remove OTP field
-      otpExpiresAt: '', // Remove OTP expiration field
+      otp: '',
+      otpExpiresAt: '',
     },
     $set: {
-      isVerified: true, // Set user as verified
-      status: 'active', // Update user status to active
+      isVerified: true,
+      status: 'active',
     },
   });
 

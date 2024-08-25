@@ -17,7 +17,6 @@ import unlinkFile from '../../helpers/unlinkFile';
 const createUserIntoDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
   if (await User.isUserExistsByEmail(payload?.email)) {
-    // If user already exists, throw a CONFLICT ApiError
     throw new ApiError(
       httpStatus.CONFLICT,
       'A user with this email already exists!',
@@ -25,20 +24,20 @@ const createUserIntoDB = async (payload: IUser) => {
   }
 
   // Set default values for new users
-  payload.role = 'user'; // Set the role to 'user'
-  payload.status = 'in-progress'; // Set the status to 'in-progress'
-  payload.isBlocked = false; // Set the blocked status to false
-  payload.isDeleted = false; // Set the deleted status to false
+  payload.role = 'user';
+  payload.status = 'in-progress';
+  payload.isBlocked = false;
+  payload.isDeleted = false;
 
-  // Generate a one-time password (OTP) for email verification
+  // Generate OTP and set expiration for email verification
   const otp = generateRandomNumber();
   const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
 
   // Add OTP and expiration time to the payload
-  payload.otp = Number(otp); // Store OTP as a number
+  payload.otp = Number(otp);
   payload.otpExpiresAt = otpExpiresAt;
 
-  // Define the path to the email verification template
+  // Path to the email verification template
   const verifyEmailTemplatePath = path.join(
     process.cwd(),
     'src',
@@ -47,13 +46,13 @@ const createUserIntoDB = async (payload: IUser) => {
     'verifyEmailTemplate.ejs',
   );
 
-  // Render the verify email template with provided payload data
+  // Render the email template with user's name and OTP
   const verifyEmailTemplate = await ejs.renderFile(verifyEmailTemplatePath, {
     fullName: payload.fullName,
     otp,
   });
 
-  // Define the mail options for sending thank-you email to the user
+  // Email options for sending the verification email
   const emailOptions = {
     to: payload.email, // Receiver's email address (user's email)
     subject: 'Verify Your Email Address - Roomz', // Subject of the email
@@ -71,28 +70,27 @@ const createUserIntoDB = async (payload: IUser) => {
 const createAdminIntoDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
   if (await User.isUserExistsByEmail(payload?.email)) {
-    // If user already exists, throw a CONFLICT ApiError
     throw new ApiError(
       httpStatus.CONFLICT,
-      'An admin with this email already exists.',
+      'An admin with this email already exists!',
     );
   }
 
   // Set default values for new admins
-  payload.role = 'admin'; // Set the role to 'admin'
-  payload.status = 'in-progress'; // Set the status to 'in-progress'
-  payload.isBlocked = false; // Set the blocked status to false
-  payload.isDeleted = false; // Set the deleted status to false
+  payload.role = 'admin';
+  payload.status = 'in-progress';
+  payload.isBlocked = false;
+  payload.isDeleted = false;
 
-  // Generate a one-time password (OTP) for email verification
+  // Generate OTP and set expiration for email verification
   const otp = generateRandomNumber();
   const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
 
   // Add OTP and expiration time to the payload
-  payload.otp = Number(otp); // Store OTP as a number
+  payload.otp = Number(otp);
   payload.otpExpiresAt = otpExpiresAt;
 
-  // Define the path to the email verification template
+  // Path to the email verification template
   const verifyEmailTemplatePath = path.join(
     process.cwd(),
     'src',
@@ -101,16 +99,16 @@ const createAdminIntoDB = async (payload: IUser) => {
     'verifyEmailTemplate.ejs',
   );
 
-  // Render the verify email template with provided payload data
+  // Render the email template with user's name and OTP
   const verifyEmailTemplate = await ejs.renderFile(verifyEmailTemplatePath, {
     fullName: payload.fullName,
     otp,
   });
 
-  // Define the mail options for sending thank-you email to the user
+  // Email options for sending the verification email
   const emailOptions = {
     to: payload.email, // Receiver's email address (user's email)
-    subject: 'Verify Your Email - Roomz', // Subject of the email
+    subject: 'Verify Your Email - Roomz',
     html: verifyEmailTemplate, // HTML content of the email
   };
 
@@ -140,10 +138,9 @@ const getUsersFromDB = async (query: Record<string, unknown>) => {
 
 const getUserProfileFromDB = async (user: JwtPayload) => {
   const options = { includeRole: true };
-
   const result = await User.findById(user?.userId);
 
-  // Ensure result is not null or undefined before calling toJSON
+  // Convert user document to JSON if it exists
   if (result) {
     return result.toJSON(options);
   }
@@ -159,12 +156,12 @@ const updateUserProfileIntoDB = async (
   // Find the existing user to get the current avatar path
   const existingUser = await User.findById(user?.userId);
 
-  // If a new avatar is uploaded, update the avatar path in the database
+  // Handle avatar update if a new avatar is uploaded
   if (files?.avatar && files?.avatar?.length > 0) {
     const newAvatarPath = files?.avatar[0]?.path.replace(/\\/g, '/'); // Replace backslashes with forward slashes for consistency
     payload.avatar = newAvatarPath;
 
-    // If the user already has an existing avatar (and it's not the default avatar), delete the old avatar file
+    // Delete the old avatar file if it exists and is not the default
     if (
       existingUser?.avatar &&
       existingUser?.avatar !== 'https://i.ibb.co/z5YHLV9/profile.png'
@@ -173,12 +170,12 @@ const updateUserProfileIntoDB = async (
     }
   }
 
-  // If a new cover image is uploaded, update the coverImage path in the database
+  // Handle cover image update if a new cover image is uploaded
   if (files?.coverImage && files?.coverImage?.length > 0) {
     const newCoverImagePath = files?.coverImage[0]?.path.replace(/\\/g, '/'); // Replace backslashes with forward slashes for consistency
     payload.coverImage = newCoverImagePath;
 
-    // If the user already has an existing avatar (and it's not the default avatar), delete the old avatar file
+    // Delete the old cover image file if it exists and is not the default
     if (
       existingUser?.coverImage &&
       existingUser?.coverImage !== 'https://i.ibb.co/z5YHLV9/profile.png'
@@ -187,10 +184,10 @@ const updateUserProfileIntoDB = async (
     }
   }
 
-  // Filter out these fields from the payload
+  // Exclude specific fields from being updated
   userFieldsToExclude.forEach((field) => delete payload[field]);
 
-  // Proceed with the update using the filtered data
+  // Update user profile with the filtered data and return the result
   const result = await User.findByIdAndUpdate(user?.userId, payload, {
     new: true,
   });
@@ -198,22 +195,21 @@ const updateUserProfileIntoDB = async (
   return result;
 };
 
-// Schedule the function to run every 12 hours
+// Schedule a cron job to delete expired, unverified users every 12 hours
 cron.schedule('0 */12 * * *', async () => {
   const now = new Date();
 
   try {
-    // Delete users with expired OTPs, 'in-progress' status, and not verified
     const result = await User.deleteMany({
       otpExpiresAt: { $lt: now }, // Condition 1: OTP has expired
       status: 'in-progress', // Condition 2: User registration is in-progress
       isVerified: false, // Condition 3: User is not verified
     });
 
-    console.log(result);
+    // Log results of the deletion operation
     if (result.deletedCount > 0) {
       console.log(
-        `${result.deletedCount} expired unverified users were deleted.`,
+        `${result?.deletedCount} expired unverified users were deleted.`,
       );
     } else {
       console.log('No expired unverified users found for deletion.');

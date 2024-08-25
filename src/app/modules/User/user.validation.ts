@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-// Schema for user creation validation
 const createUserSchema = z.object({
   body: z.object({
     fullName: z.string({
@@ -63,7 +62,6 @@ const createAdminSchema = z.object({
   }),
 });
 
-// Schema for admin creation validation
 export const userValidationSchema = {
   createUserSchema,
   createAdminSchema,

@@ -1,14 +1,12 @@
 import { GENDER, USER_ROLE, USER_STATUS } from './user.constant';
 import { Model, ObjectId } from 'mongoose';
 
-// Define type for user roles based on constants
+// Type definitions based on user constants
 export type TUserRole = keyof typeof USER_ROLE;
-// Define type for user status based on constants
 export type TUserStatus = keyof typeof USER_STATUS;
-// Define type for gender based on constants
 export type TGender = keyof typeof GENDER;
 
-// Interface representing the structure of a User document in MongoDB
+// Interface representing a User document in MongoDB
 export interface IUser {
   _id: ObjectId;
   fullName: string;
@@ -35,17 +33,17 @@ export interface IUser {
 
 // Interface for the User model methods
 export interface UserModel extends Model<IUser> {
-  isUserExistsByEmail(email: string): Promise<IUser>; // Static method to check if a user exists by email
+  isUserExistsByEmail(email: string): Promise<IUser>; // Check if a user exists by email
 
   isPasswordMatched(
     plainTextPassword: string,
     hashedPassword: string,
-  ): Promise<boolean>; // Static method to compare plaintext password with stored hashed password
+  ): Promise<boolean>; // Compare a plaintext password with a hashed password
 
   isJWTIssuedBeforePasswordChanged(
     passwordChangedTime: Date,
     jwtIssuedTime: number,
-  ): Promise<boolean>; // Static method to check if a JWT was issued before the password was changed
+  ): Promise<boolean>; // Check if a JWT was issued before the last password change
 
-  verifyOtp(email: string, otp: number): Promise<boolean>; // Static method to verify OTP for a user
+  verifyOtp(email: string, otp: number): Promise<boolean>; // Verify OTP for user authentication
 }
