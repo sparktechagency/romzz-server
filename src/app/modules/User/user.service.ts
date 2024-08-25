@@ -158,7 +158,7 @@ const updateUserProfileIntoDB = async (
 
   // Handle avatar update if a new avatar is uploaded
   if (files?.avatar && files?.avatar?.length > 0) {
-    const newAvatarPath = files?.avatar[0]?.path.replace(/\\/g, '/'); // Replace backslashes with forward slashes for consistency
+    const newAvatarPath = files?.avatar[0]?.path.replace(/\\/g, '/'); // Replace backslashes with forward slashes
     payload.avatar = newAvatarPath;
 
     // Delete the old avatar file if it exists and is not the default
@@ -172,7 +172,7 @@ const updateUserProfileIntoDB = async (
 
   // Handle cover image update if a new cover image is uploaded
   if (files?.coverImage && files?.coverImage?.length > 0) {
-    const newCoverImagePath = files?.coverImage[0]?.path.replace(/\\/g, '/'); // Replace backslashes with forward slashes for consistency
+    const newCoverImagePath = files?.coverImage[0]?.path.replace(/\\/g, '/'); // Replace backslashes with forward slashes
     payload.coverImage = newCoverImagePath;
 
     // Delete the old cover image file if it exists and is not the default

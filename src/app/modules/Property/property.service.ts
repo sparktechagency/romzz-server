@@ -6,9 +6,10 @@ import { Property } from './property.model';
 import QueryBuilder from '../../builder/QueryBuilder';
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
-import { propertyFieldsToExclude } from './property.constant';
+import { MAX_PROPERTY_IMAGES } from './property.constant';
+import unlinkFile from '../../helpers/unlinkFile';
 
-const createPropertyIntoDB = async (
+const createPropertyToDB = async (
   user: JwtPayload,
   payload: IProperty,
   files: any,
@@ -17,27 +18,30 @@ const createPropertyIntoDB = async (
   payload.createdBy = user?.userId;
 
   // Set default values for new properties
-  payload.status = 'pending'; // Set the status to 'pending'
-  payload.isApproved = false; // Set the isApproved status to false
-  payload.isBooked = false; // Set the isApproved status to false
+  payload.status = 'pending';
+  payload.isApproved = false;
+  payload.isBooked = false;
 
   // Extract and map the image file paths
-  if (files['proofOfOwnership']) {
-    payload.proofOfOwnership = files['proofOfOwnership']?.map(
-      (file: any) => file?.path,
+  if (files && files?.ownershipImages) {
+    payload.ownershipImages = files?.ownershipImages?.map(
+      (file: any) => file?.path?.replace(/\\/g, '/'), // Replace backslashes with forward slashes,
     );
   }
 
   // Extract and map the image file paths
-  if (files['propertyImages']) {
-    payload.propertyImages = files['propertyImages']?.map(
-      (file: any) => file?.path,
+  if (files && files?.propertyImages) {
+    payload.propertyImages = files?.propertyImages?.map(
+      (file: any) => file?.path?.replace(/\\/g, '/'), // Replace backslashes with forward slashes,
     );
   }
 
   // Extract and set the video file path
-  if (files['propertyVideo'] && files['propertyVideo'][0]) {
-    payload.propertyVideo = files['propertyVideo'][0]?.path;
+  if (files && files?.propertyVideo) {
+    payload.propertyVideo = files['propertyVideo'][0]?.path?.replace(
+      /\\/g,
+      '/',
+    ); // Replace backslashes with forward slashes;
   }
 
   // Create the property in the database
@@ -109,11 +113,13 @@ const getPropertyByIdFromDB = async (propertyId: string) => {
   return result;
 };
 
-const updatePropertyByIdIntoDB = async (
+const updatePropertyByIdToDB = async (
   user: JwtPayload,
   propertyId: string,
   files: any,
-  payload: Partial<IProperty>,
+  payload: Partial<IProperty> & {
+    propertyImagesToDelete?: string[];
+  },
 ) => {
   // Find the existing property
   const existingProperty = await Property.findById(propertyId);
@@ -127,16 +133,63 @@ const updatePropertyByIdIntoDB = async (
   }
 
   // Ensure the user trying to update the property is the creator
-  if (existingProperty?.createdBy !== user?.userId) {
+  if (existingProperty.createdBy.toString() !== user.userId) {
     throw new ApiError(
       httpStatus.FORBIDDEN,
       'You do not have permission to update this property!',
     );
   }
 
-  // Filter out these fields from the payload
-  propertyFieldsToExclude.forEach((field) => delete payload[field]);
+  // Initialize updated lists
+  let updatedPropertyImages = existingProperty?.propertyImages || [];
 
+  // Handle deletion of property images
+  if (payload?.propertyImagesToDelete) {
+    updatedPropertyImages = updatedPropertyImages?.filter(
+      (image: string) => !payload?.propertyImagesToDelete?.includes(image),
+    );
+
+    // Delete specified images from storage
+    for (const propertyImage of payload.propertyImagesToDelete) {
+      unlinkFile(propertyImage);
+    }
+  }
+
+  // Update proof of ownership if new files are provided
+  if (files?.propertyImages) {
+    const newImages = files?.propertyImages?.map(
+      (file: any) => file?.path.replace(/\\/g, '/'), // Replace backslashes with forward slashes
+    );
+
+    // Combine existing and new images
+    updatedPropertyImages = [...updatedPropertyImages, ...newImages];
+
+    // Ensure the total number of images does not exceed the limit
+    if (updatedPropertyImages?.length > MAX_PROPERTY_IMAGES) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        `You can only have up to ${MAX_PROPERTY_IMAGES} property images!`,
+      );
+    }
+
+    // Save the updated property images to the payload
+    payload.propertyImages = updatedPropertyImages;
+  }
+
+  // Update property video if a new file is provided
+  if (files && files?.propertyVideo > 0) {
+    const newPropertyVideoPath = files?.propertyVideo[0]?.path.replace(
+      /\\/g,
+      '/',
+    ); // Replace backslashes with forward slashes
+    payload.propertyVideo = newPropertyVideoPath;
+
+    if (existingProperty && existingProperty?.propertyVideo) {
+      unlinkFile(existingProperty?.propertyVideo);
+    }
+  }
+
+  // Save new data to the database
   const result = await Property.findByIdAndUpdate(propertyId, payload, {
     new: true,
   });
@@ -145,9 +198,9 @@ const updatePropertyByIdIntoDB = async (
 };
 
 export const PropertyServices = {
-  createPropertyIntoDB,
+  createPropertyToDB,
   getAllPropertiesFromDB,
   getApprovedPropertiesFromDB,
   getPropertyByIdFromDB,
-  updatePropertyByIdIntoDB,
+  updatePropertyByIdToDB,
 };

@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-// Property Validation Schema
 export const propertyValidationSchema = z.object({
   body: z.object({
     ownerType: z.enum(['own-property', 'others-property'], {

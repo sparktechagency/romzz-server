@@ -3,8 +3,9 @@ export const IMAGE_FIELD_NAMES = [
   'avatar',
   'coverImage',
   'propertyImages',
-  'proofOfOwnership',
+  'ownershipImages',
 ];
+
 export const VIDEO_FIELD_NAMES = ['propertyVideo'];
 export const AUDIO_FIELD_NAMES = ['audio'];
 export const PDF_FIELD_NAMES = ['pdf'];
@@ -20,7 +21,7 @@ export const FIELD_NAME_TO_FORMATS: { [key: string]: string[] } = {
   avatar: SUPPORTED_IMAGE_FORMATS,
   coverImage: SUPPORTED_IMAGE_FORMATS,
   propertyImages: SUPPORTED_IMAGE_FORMATS,
-  proofOfOwnership: SUPPORTED_IMAGE_FORMATS,
+  ownershipImages: SUPPORTED_IMAGE_FORMATS,
   propertyVideo: SUPPORTED_VIDEO_FORMATS,
   audio: SUPPORTED_AUDIO_FORMATS,
   pdf: SUPPORTED_PDF_FORMATS,

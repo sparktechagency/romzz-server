@@ -24,7 +24,7 @@ const propertySchema = new Schema<IProperty>(
       enum: Object.values(OWNER_TYPE),
       required: true,
     },
-    proofOfOwnership: {
+    ownershipImages: {
       type: [String], // Array of strings for ownership proof documents
       required: true,
     },

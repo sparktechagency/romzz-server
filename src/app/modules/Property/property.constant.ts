@@ -2,11 +2,14 @@ import { IProperty } from './property.interface';
 
 export const PropertySearchableFields = ['email', 'presentAddress'];
 
+export const MAX_PROPERTY_IMAGES = 11;
+export const MAX_OWNERSHIP_IMAGES = 2;
+
 // Define fields that cannot be updated by the user
 export const propertyFieldsToExclude: (keyof IProperty)[] = [
   'ownerType',
   'ownerNumber',
-  'proofOfOwnership',
+  'ownershipImages',
   'address',
   'category',
   'price',

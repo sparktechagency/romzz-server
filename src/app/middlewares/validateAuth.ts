@@ -21,13 +21,10 @@ const validateAuth = (...requiredRoles: TUserRole[]) => {
       const token = bearerToken.split(' ')[1];
 
       // checking if the given token is valid
-      const verifyUser = verifyJwtToken(
-        token,
-        config.jwtAccessSecret as string,
-      );
+      const decoded = verifyJwtToken(token, config.jwtAccessSecret as string);
 
       // Check if a user with the provided email exists in the database
-      const existingUser = await User.isUserExistsByEmail(verifyUser?.email);
+      const existingUser = await User.findById(decoded?.userId);
 
       // If no user is found with the given email, throw a NOT_FOUND error
       if (!existingUser) {
@@ -59,17 +56,17 @@ const validateAuth = (...requiredRoles: TUserRole[]) => {
         existingUser.passwordChangedAt &&
         (await User.isJWTIssuedBeforePasswordChanged(
           existingUser?.passwordChangedAt,
-          verifyUser?.iat as number,
+          decoded?.iat as number,
         ))
       ) {
         throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
       }
 
-      if (requiredRoles && !requiredRoles.includes(verifyUser?.role)) {
+      if (requiredRoles && !requiredRoles.includes(decoded?.role)) {
         throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
       }
 
-      req.user = verifyUser as JwtPayload;
+      req.user = decoded as JwtPayload;
       next();
     }
   });

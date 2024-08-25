@@ -4,7 +4,7 @@ import sendResponse from '../../helpers/sendResponse';
 import { PropertyServices } from './property.service';
 
 const createProperty = catchAsync(async (req, res) => {
-  const result = await PropertyServices.createPropertyIntoDB(
+  const result = await PropertyServices.createPropertyToDB(
     req?.user,
     req?.body,
     req?.files,
@@ -52,7 +52,7 @@ const getPropertyById = catchAsync(async (req, res) => {
 });
 
 const updatePropertyById = catchAsync(async (req, res) => {
-  const result = await PropertyServices.updatePropertyByIdIntoDB(
+  const result = await PropertyServices.updatePropertyByIdToDB(
     req?.user,
     req?.params?.id,
     req?.files,
