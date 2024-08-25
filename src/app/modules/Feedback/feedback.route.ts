@@ -21,6 +21,13 @@ router
 // Route to get only visible feedbacks
 router.get('/visible', FeedbackControllers.getVisibleFeedbacks);
 
+router.get('/:userId', FeedbackControllers.getUserProfileFeedbacks);
+
+router.get(
+  '/summary/:userId',
+  FeedbackControllers.getUserProfileFeedbackSummary,
+);
+
 // Route to update feedback visibility to "show"
 router.patch(
   '/show/:id',

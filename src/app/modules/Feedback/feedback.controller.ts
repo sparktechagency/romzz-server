@@ -4,7 +4,7 @@ import sendResponse from '../../helpers/sendResponse';
 import { FeedbackServices } from './feedback.service';
 
 const createFeedback = catchAsync(async (req, res) => {
-  const result = await FeedbackServices.createFeedbackIntoDB(
+  const result = await FeedbackServices.createFeedbackToDB(
     req?.user,
     req?.body,
   );
@@ -65,10 +65,38 @@ const updateFeedbackStatusToHide = catchAsync(async (req, res) => {
   });
 });
 
+const getUserProfileFeedbacks = catchAsync(async (req, res) => {
+  const result = await FeedbackServices.getUserProfileFeedbacksFromDB(
+    req?.params?.userId,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User profile feedbacks retrived successfully!',
+    data: result,
+  });
+});
+
+const getUserProfileFeedbackSummary = catchAsync(async (req, res) => {
+  const result = await FeedbackServices.getUserProfileFeedbackSummaryFromDB(
+    req?.params?.userId,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User profile feedback summary retrived successfully!',
+    data: result,
+  });
+});
+
 export const FeedbackControllers = {
   createFeedback,
   getAllFeedbacks,
   getVisibleFeedbacks,
   updateFeedbackStatusToShow,
   updateFeedbackStatusToHide,
+  getUserProfileFeedbacks,
+  getUserProfileFeedbackSummary,
 };
