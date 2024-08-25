@@ -6,37 +6,46 @@ import { upload } from '../../helpers/multer';
 
 const router = Router();
 
-router.post(
-  '/',
-  validateAuth(USER_ROLE.user),
-  upload.fields([
-    { name: 'ownershipImages', maxCount: 2 }, // Array of images, max 2 files
-    { name: 'propertyImages', maxCount: 11 }, // Array of images, max 11 files
-    { name: 'propertyVideo', maxCount: 1 }, // Single video file
-  ]),
-  (req: Request, res: Response, next: NextFunction) => {
-    req.body = JSON.parse(req?.body?.data);
-    next();
-  },
-  PropertyControllers.createProperty,
-);
+router
+  .route('/')
 
-router.get('/', PropertyControllers.getAllProperties);
+  .get(PropertyControllers.getAllProperties)
+  .post(
+    validateAuth(USER_ROLE.user),
+    upload.fields([
+      { name: 'ownershipImages', maxCount: 2 }, // Array of images, max 2 files
+      { name: 'propertyImages', maxCount: 11 }, // Array of images, max 11 files
+      { name: 'propertyVideo', maxCount: 1 }, // Single video file
+    ]),
+    (req: Request, res: Response, next: NextFunction) => {
+      req.body = JSON.parse(req?.body?.data);
+      next();
+    },
+    PropertyControllers.createProperty,
+  );
+
 router.get('/approved-properties', PropertyControllers.getApprovedProperties);
-router.get('/:id', PropertyControllers.getPropertyById);
-
-router.patch(
-  '/:id',
+router.get(
+  '/user-properties',
   validateAuth(USER_ROLE.user),
-  upload.fields([
-    { name: 'propertyImages', maxCount: 11 }, // Array of images, max 11 files
-    { name: 'propertyVideo', maxCount: 1 }, // Single video file
-  ]),
-  (req: Request, res: Response, next: NextFunction) => {
-    req.body = JSON.parse(req?.body?.data);
-    next();
-  },
-  PropertyControllers.updatePropertyById,
+  PropertyControllers.getPropertyByUserId,
 );
+
+router
+  .route('/:id')
+
+  .get(PropertyControllers.getPropertyById)
+  .patch(
+    validateAuth(USER_ROLE.user),
+    upload.fields([
+      { name: 'propertyImages', maxCount: 11 }, // Array of images, max 11 files
+      { name: 'propertyVideo', maxCount: 1 }, // Single video file
+    ]),
+    (req: Request, res: Response, next: NextFunction) => {
+      req.body = JSON.parse(req?.body?.data);
+      next();
+    },
+    PropertyControllers.updatePropertyById,
+  );
 
 export const PropertyRoutes = router;

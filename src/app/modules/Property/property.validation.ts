@@ -8,11 +8,6 @@ export const propertyValidationSchema = z.object({
         'Owner type must be either "own-property" or "others-property".',
     }),
 
-    ownershipProof: z.array(z.string(), {
-      required_error: 'Ownership proof URLs are required.',
-      invalid_type_error: 'Ownership proof must be an array of valid URLs.',
-    }),
-
     ownerNumber: z.string({
       required_error: 'Owner number is required.',
       invalid_type_error: 'Owner number must be a string.',
@@ -21,11 +16,6 @@ export const propertyValidationSchema = z.object({
     propertyTitle: z.string({
       required_error: 'Property title is required.',
       invalid_type_error: 'Property title must be a string.',
-    }),
-
-    propertyImages: z.array(z.string(), {
-      required_error: 'Property images URLs are required.',
-      invalid_type_error: 'Property images must be an array of valid URLs.',
     }),
 
     address: z.string({

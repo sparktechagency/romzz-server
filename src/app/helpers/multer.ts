@@ -1,6 +1,5 @@
 import multer from 'multer';
 import path from 'path';
-import formatDate from './formatDate';
 import ApiError from '../errors/ApiError';
 import httpStatus from 'http-status';
 import createDirectory from './createDirectory';
@@ -11,7 +10,6 @@ import {
   PDF_FIELD_NAMES,
   VIDEO_FIELD_NAMES,
 } from '../constants/file.constant';
-import generateRandomNumber from './generateRandomNumber';
 
 // Define the base directory for uploads
 const baseUploadDirectory = path.join(process.cwd(), 'uploads');
@@ -57,12 +55,11 @@ const storage = multer.diskStorage({
   },
 
   // Generate a unique filename based on the current date and time
-  filename: function (req, file, cb) {
-    const formattedDate = formatDate();
-    const randomNumber = generateRandomNumber();
-
-    const filename = `${file.fieldname}_${randomNumber}_${formattedDate}${path.extname(file.originalname)}`;
-    cb(null, filename);
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const fileName =
+      file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname);
+    cb(null, fileName);
   },
 });
 

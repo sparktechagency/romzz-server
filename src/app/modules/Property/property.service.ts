@@ -113,6 +113,11 @@ const getPropertyByIdFromDB = async (propertyId: string) => {
   return result;
 };
 
+const getPropertyByUserIdFromDB = async (user: JwtPayload) => {
+  const result = await Property.find({ createdBy: user?.userId });
+  return result;
+};
+
 const updatePropertyByIdToDB = async (
   user: JwtPayload,
   propertyId: string,
@@ -201,6 +206,7 @@ export const PropertyServices = {
   createPropertyToDB,
   getAllPropertiesFromDB,
   getApprovedPropertiesFromDB,
+  getPropertyByUserIdFromDB,
   getPropertyByIdFromDB,
   updatePropertyByIdToDB,
 };

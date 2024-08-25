@@ -155,7 +155,6 @@ propertySchema.methods.toJSON = function () {
   const propertyObject = this.toObject();
 
   // Remove password and role fields from the user object
-  delete propertyObject?.status;
   delete propertyObject?.isApproved;
   delete propertyObject?.isBooked;
 
