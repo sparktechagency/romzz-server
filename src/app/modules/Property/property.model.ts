@@ -1,5 +1,16 @@
 import { Schema, model } from 'mongoose';
 import { IProperty } from './property.interface';
+import {
+  ALLOWED_GENDER,
+  CATEGORY,
+  DECORATION_TYPE,
+  GUEST_TYPE,
+  OCCUPATION,
+  OWNER_TYPE,
+  PRICE_TYPE,
+  PROPERTY_TYPE,
+  STATUS,
+} from './property.constant';
 
 const propertySchema = new Schema<IProperty>(
   {
@@ -10,7 +21,7 @@ const propertySchema = new Schema<IProperty>(
     },
     ownerType: {
       type: String,
-      enum: ['own-property', 'others-property'],
+      enum: Object.values(OWNER_TYPE),
       required: true,
     },
     proofOfOwnership: {
@@ -38,7 +49,7 @@ const propertySchema = new Schema<IProperty>(
     },
     category: {
       type: String,
-      enum: ['whole-unit', 'room-mate', 'flat-mate', 'house'],
+      enum: Object.values(CATEGORY),
       required: true,
     },
     price: {
@@ -47,7 +58,7 @@ const propertySchema = new Schema<IProperty>(
     },
     priceType: {
       type: String,
-      enum: ['day', 'week', 'month', 'year'],
+      enum: Object.values(PRICE_TYPE),
       required: true,
     },
     propertyDetails: {
@@ -60,7 +71,7 @@ const propertySchema = new Schema<IProperty>(
     },
     decorationType: {
       type: String,
-      enum: ['furnished', 'unfurnished'],
+      enum: Object.values(DECORATION_TYPE),
       required: true,
     },
     flore: {
@@ -69,7 +80,7 @@ const propertySchema = new Schema<IProperty>(
     },
     propertyType: {
       type: String,
-      enum: ['family-house', 'apartment', 'lodge', 'villa', 'cottage'],
+      enum: Object.values(PROPERTY_TYPE),
       required: true,
     },
     bedType: {
@@ -108,15 +119,15 @@ const propertySchema = new Schema<IProperty>(
     },
     allowedGender: {
       type: String,
-      enum: ['all', 'male', 'female', 'others'],
+      enum: Object.values(ALLOWED_GENDER),
     },
     guestType: {
       type: String,
-      enum: ['all', 'single', 'couple', 'family'],
+      enum: Object.values(GUEST_TYPE),
     },
     occupation: {
       type: String,
-      enum: ['all', 'student', 'professional'],
+      enum: Object.values(OCCUPATION),
     },
     facilities: {
       type: [String], // Array of strings for facilities
@@ -128,7 +139,7 @@ const propertySchema = new Schema<IProperty>(
     },
     status: {
       type: String,
-      enum: ['pending', 'approved', 'rejected'],
+      enum: Object.values(STATUS),
       default: 'pending',
     },
     isBooked: {

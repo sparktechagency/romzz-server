@@ -8,11 +8,16 @@ const feedbackSchema = new Schema<IFeedback>(
       ref: 'User', // Reference to the 'User' model
       required: true,
     },
-    feedbackMessage: {
+    propertyId: {
+      type: Schema.Types.ObjectId, // MongoDB ObjectId type
+      ref: 'Property', // Reference to the 'Property' model
+      required: true,
+    },
+    feedback: {
       type: String,
       required: true,
     },
-    feedbackImage: {
+    image: {
       type: String,
     },
     rating: {

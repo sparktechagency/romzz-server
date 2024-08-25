@@ -8,7 +8,7 @@ const socialMediaSchema = new Schema<ISocialMedia>(
       ref: 'User', // Reference to the 'User' model
       required: true,
     },
-    mediaName: {
+    name: {
       type: String,
       required: true,
     },

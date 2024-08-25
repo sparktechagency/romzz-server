@@ -4,8 +4,6 @@ import sendResponse from '../../helpers/sendResponse';
 import { PropertyServices } from './property.service';
 
 const createProperty = catchAsync(async (req, res) => {
-  console.log(req?.files['propertyImages']);
-
   const result = await PropertyServices.createPropertyIntoDB(
     req?.user,
     req?.body,

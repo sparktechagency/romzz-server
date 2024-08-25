@@ -333,7 +333,7 @@ const verifyResetPasswordOtpToDB = async (payload: {
 
 const resetPasswordToDB = async (
   token: string,
-  payload: { userId: string; newPassword: string },
+  payload: { newPassword: string },
 ) => {
   if (!token) {
     throw new ApiError(httpStatus.FORBIDDEN, 'This user is deleted !');
@@ -353,10 +353,6 @@ const resetPasswordToDB = async (
       httpStatus.NOT_FOUND,
       'User with this email does not exist!',
     );
-  }
-
-  if (payload?.userId !== decoded?.userId) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'You are forbidden!');
   }
 
   // Ensure the new password is different from the current password

@@ -71,7 +71,7 @@ const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
 const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const propertiesQuery = new QueryBuilder(
-    Property.find({ isApproved: true }).populate({
+    Property.find({ isApproved: true, isBooked: false }).populate({
       path: 'createdBy',
       select: 'avatar',
     }),

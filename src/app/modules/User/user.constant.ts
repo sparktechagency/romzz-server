@@ -23,15 +23,15 @@ export const USER_ROLE = {
   superAdmin: 'superAdmin',
 } as const;
 
-export const GENDER = {
-  male: 'male',
-  female: 'female',
-  others: 'others',
-} as const;
-
 export const USER_STATUS = {
   'in-progress': 'in-progress',
   active: 'active',
   blocked: 'blocked',
   deleted: 'deleted',
+} as const;
+
+export const GENDER = {
+  male: 'male',
+  female: 'female',
+  others: 'others',
 } as const;

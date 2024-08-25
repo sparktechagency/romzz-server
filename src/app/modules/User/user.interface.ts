@@ -3,10 +3,10 @@ import { Model, ObjectId } from 'mongoose';
 
 // Define type for user roles based on constants
 export type TUserRole = keyof typeof USER_ROLE;
-// Define type for gender based on constants
-export type TGender = keyof typeof GENDER;
 // Define type for user status based on constants
 export type TUserStatus = keyof typeof USER_STATUS;
+// Define type for gender based on constants
+export type TGender = keyof typeof GENDER;
 
 // Interface representing the structure of a User document in MongoDB
 export interface IUser {
