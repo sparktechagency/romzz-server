@@ -27,6 +27,8 @@ const routes = [
   { path: '/feedbacks', route: FeedbackRoutes },
   { path: '/contacts', route: ContactRoutes },
   { path: '/medias', route: MediaRoutes },
+  
+  { path: '/medias', route: MediaRoutes },
 ];
 
 routes.forEach((route) => router.use(route.path, route.route));
