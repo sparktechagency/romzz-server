@@ -30,7 +30,6 @@ class QueryBuilder<T> {
   // Method to apply filters based on query parameters
   filter() {
     const queryObj = { ...this.query };
-
     const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
 
     excludeFields.forEach((el) => delete queryObj[el]);
@@ -72,8 +71,7 @@ class QueryBuilder<T> {
 
   // Method to select specific fields to include/exclude from the result
   fields() {
-    const fields =
-      (this?.query?.fields as string)?.split(',')?.join(' ') || '-__v';
+    const fields = (this?.query?.fields as string)?.split(',')?.join(' ');
 
     this.modelQuery = this.modelQuery.select(fields);
 

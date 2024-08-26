@@ -20,7 +20,7 @@ router
   )
   .delete(
     validateAuth(USER_ROLE.superAdmin),
-    FacilityControllers.updateFacilityById,
+    FacilityControllers.deleteFacilityById,
   );
 
-export const MediaRoutes = router;
+export const FacilityRoutes = router;

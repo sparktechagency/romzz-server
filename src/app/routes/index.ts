@@ -10,6 +10,7 @@ import { TermsRoutes } from '../modules/TermsAndConditions/terms.route';
 import { FeedbackRoutes } from '../modules/Feedback/feedback.route';
 import { ContactRoutes } from '../modules/Contact/contact.route';
 import { MediaRoutes } from '../modules/SocialMedia/socialMedia.route';
+import { FacilityRoutes } from '../modules/Facility/facility.route';
 
 const router = Router();
 
@@ -28,7 +29,7 @@ const routes = [
   { path: '/contacts', route: ContactRoutes },
   { path: '/medias', route: MediaRoutes },
 
-  { path: '/medias', route: MediaRoutes },
+  { path: '/facilities', route: FacilityRoutes },
 ];
 
 routes.forEach((route) => router.use(route.path, route.route));

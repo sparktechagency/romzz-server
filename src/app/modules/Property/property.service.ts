@@ -59,6 +59,7 @@ const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
     query,
   )
     .search(['address']) // Apply search conditions based on searchable fields
+    .filter()
     .sort() // Apply sorting based on the query parameter
     .paginate() // Apply pagination based on the query parameter
     .fields(); // Select specific fields to include/exclude in the result
@@ -67,9 +68,9 @@ const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
   const meta = await propertiesQuery.countTotal();
 
   // Execute the query to retrieve the reviews
-  const result = await propertiesQuery.modelQuery;
+  const data = await propertiesQuery.modelQuery;
 
-  return { meta, result };
+  return { meta, data };
 };
 
 const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
@@ -90,9 +91,9 @@ const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
   const meta = await propertiesQuery.countTotal();
 
   // Execute the query to retrieve the reviews
-  const result = await propertiesQuery.modelQuery;
+  const data = await propertiesQuery.modelQuery;
 
-  return { meta, result };
+  return { meta, data };
 };
 
 const getPropertyByIdFromDB = async (propertyId: string) => {
