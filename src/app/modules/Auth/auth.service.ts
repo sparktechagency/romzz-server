@@ -3,10 +3,10 @@ import ApiError from '../../errors/ApiError';
 import bcrypt from 'bcrypt';
 import config from '../../config';
 import { User } from '../User/user.model';
-import { createJwtToken, verifyJwtToken } from '../../utils/jwtUtils';
+import { createJwtToken, verifyJwtToken } from '../../helpers/jwtUtils';
 import { JwtPayload } from 'jsonwebtoken';
 import path from 'path';
-import { sendEmail } from '../../helpers/emailService.ts';
+import { sendEmail } from '../../helpers/emailService';
 import ejs from 'ejs';
 import generateRandomNumber from '../../helpers/generateRandomNumber';
 

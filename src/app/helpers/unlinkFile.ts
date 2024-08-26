@@ -1,4 +1,6 @@
 import fs from 'fs';
+import { errorLogger, logger } from '../utils/winstonLogger';
+import colors from 'colors';
 
 const unlinkFile = (filePath: string) => {
   // Check if the file exists before attempting to delete it
@@ -6,13 +8,15 @@ const unlinkFile = (filePath: string) => {
     // File exists, proceed to delete it
     fs.unlink(filePath, (err) => {
       if (err) {
-        console.error('Failed to delete file:', err);
+        errorLogger.error(
+          colors.bgRed(`Failed to delete file: ${err.message}`),
+        );
       } else {
-        console.log('File deleted successfully:', filePath);
+        logger.info(colors.bgGreen(`File deleted successfully: ${filePath}`));
       }
     });
   } else {
-    console.error('File does not exist:', filePath);
+    logger.warn(colors.bgYellow(`File does not exist: ${filePath}!`));
   }
 };
 

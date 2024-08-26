@@ -24,10 +24,10 @@ const sendEmail = async (payload: ISendEmail) => {
       html: payload.html,
     });
     logger.info(
-      colors.bgGreen.bold(`✅ Email successfully sent to: ${info?.accepted}`),
+      colors.bgGreen(`Email successfully sent to: ${info?.accepted}`),
     );
   } catch (error) {
-    errorLogger.error(colors.bgRed.bold(`❌ Email sending failed: ${error}`));
+    errorLogger.error(colors.bgRed(`Email sending failed: ${error}`));
   }
 };
 

@@ -6,7 +6,7 @@ import { User } from '../modules/User/user.model';
 import catchAsync from '../utils/catchAsync';
 import ApiError from '../errors/ApiError';
 import { TUserRole } from '../modules/User/user.interface';
-import { verifyJwtToken } from '../utils/jwtUtils';
+import { verifyJwtToken } from '../helpers/jwtUtils';
 
 const validateAuth = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {

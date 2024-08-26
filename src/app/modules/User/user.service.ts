@@ -11,8 +11,10 @@ import path from 'path';
 import ejs from 'ejs';
 import cron from 'node-cron';
 import generateRandomNumber from '../../helpers/generateRandomNumber';
-import { sendEmail } from '../../helpers/emailService.ts';
 import unlinkFile from '../../helpers/unlinkFile';
+import { errorLogger, logger } from '../../utils/winstonLogger';
+import colors from 'colors';
+import { sendEmail } from '../../helpers/emailService';
 
 const createUserToDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
@@ -195,16 +197,20 @@ cron.schedule('0 */12 * * *', async () => {
       isVerified: false, // Condition 3: User is not verified
     });
 
-    // Log results of the deletion operation
-    if (result.deletedCount > 0) {
-      console.log(
-        `${result?.deletedCount} expired unverified users were deleted.`,
+    // Log results of the deletion operation using custom logger with colors
+    if (result?.deletedCount > 0) {
+      logger.info(
+        colors.bgGreen(
+          `${result?.deletedCount} expired unverified users were deleted.`,
+        ),
       );
     } else {
-      console.log('No expired unverified users found for deletion.');
+      logger.info(
+        colors.bgYellow('No expired unverified users found for deletion.'),
+      );
     }
   } catch (error) {
-    console.error('Error deleting expired users:', error);
+    errorLogger.error(colors.bgRed(`Error deleting expired users: ${error}`));
   }
 });
 
