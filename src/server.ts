@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import app from './app';
 import config from './app/config';
 import seedSuperAdmin from './app/DB';
-import { errorLogger, logger } from './app/utils/logger';
+import { errorLogger, logger } from './app/utils/winstonLogger';
 import colors from 'colors';
 
 let server: Server;

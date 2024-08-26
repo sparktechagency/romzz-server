@@ -3,13 +3,15 @@ import express, { Request, Response } from 'express';
 import router from './app/routes';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
 import notFound from './app/middlewares/notFound';
-import corsOptions from './app/helpers/corsOptions';
+import corsConfig from './app/utils/corsConfig';
+import requestLogger from './app/middlewares/requestLogger';
 
 const app = express();
 
 // middlewares
 app.use(express.json());
 app.use(cors());
+app.use(requestLogger);
 
 // Default route for the root URL
 app.get('/', (req: Request, res: Response) => {
@@ -34,7 +36,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // Application routes under the '/api/v1' path
-app.use('/api/v1', cors(corsOptions), router);
+app.use('/api/v1', cors(corsConfig), router);
 
 // Error-handling middlewares
 app.use(globalErrorHandler); // Global error handler middleware

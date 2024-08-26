@@ -69,7 +69,6 @@ const upload = multer({
 
   // Filter files based on their mimetype and fieldname
   fileFilter: function (req, file, cb) {
-    console.log(req?.files);
     const { fieldname, mimetype } = file;
 
     // Retrieve the list of supported formats for the given fieldname

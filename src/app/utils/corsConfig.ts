@@ -6,7 +6,7 @@ import httpStatus from 'http-status';
 const whitelist = ['http://localhost:3000', 'http://localhost:5173'];
 
 // CORS options to allow requests only from whitelisted origins
-const corsOptions: CorsOptions = {
+const corsConfig: CorsOptions = {
   origin: function (origin, callback) {
     if (whitelist?.indexOf(origin as string) !== -1 || !origin) {
       callback(null, true); // Allow request
@@ -22,4 +22,4 @@ const corsOptions: CorsOptions = {
   },
 };
 
-export default corsOptions;
+export default corsConfig;
