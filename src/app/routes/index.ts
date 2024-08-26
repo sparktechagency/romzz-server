@@ -19,7 +19,10 @@ const routes = [
   { path: '/auth', route: AuthRoutes },
   { path: '/properties', route: PropertyRoutes },
 
-  // Dashboard settings
+  // Dashboard
+  { path: '/facilities', route: FacilityRoutes },
+
+  // Settings
   { path: '/sliders', route: SliderRoutes },
   { path: '/our-story', route: StoryRoutes },
   { path: '/terms-and-conditions', route: TermsRoutes },
@@ -28,8 +31,6 @@ const routes = [
   { path: '/feedbacks', route: FeedbackRoutes },
   { path: '/contacts', route: ContactRoutes },
   { path: '/medias', route: MediaRoutes },
-
-  { path: '/facilities', route: FacilityRoutes },
 ];
 
 routes.forEach((route) => router.use(route.path, route.route));
