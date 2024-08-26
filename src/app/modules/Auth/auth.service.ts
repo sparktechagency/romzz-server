@@ -11,17 +11,17 @@ import ejs from 'ejs';
 import generateRandomNumber from '../../helpers/generateRandomNumber';
 
 const verifyEmailAddressOtpToDB = async (payload: {
-  email: string;
+  userId: string;
   otp: number;
 }) => {
-  await User.verifyOtp(payload?.email, payload?.otp);
+  // Verify the OTP for the given user ID
+  await User.verifyOtp(payload?.userId, payload?.otp);
 };
 
-const resendVerificationEmailToDB = async (payload: { email: string }) => {
-  // Check if a user with the provided email exists in the database
-  const existingUser = await User.isUserExistsByEmail(payload?.email);
+const resendVerificationEmailToDB = async (payload: { userId: string }) => {
+  // Find the user by ID
+  const existingUser = await User.findById(payload?.userId);
 
-  // If no user is found with the given email, throw a NOT_FOUND error
   if (!existingUser) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
@@ -29,11 +29,15 @@ const resendVerificationEmailToDB = async (payload: { email: string }) => {
     );
   }
 
-  // Generate a one-time password (OTP) for email verification
+  if (existingUser?.isVerified) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User is already verified!');
+  }
+
+  // Generate new OTP and set its expiration time
   const otp = generateRandomNumber();
   const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
 
-  // Define the path to the email verification template
+  // Load the email verification template and render it with user-specific data
   const verifyEmailTemplatePath = path.join(
     process.cwd(),
     'src',
@@ -42,32 +46,30 @@ const resendVerificationEmailToDB = async (payload: { email: string }) => {
     'verifyEmailTemplate.ejs',
   );
 
-  // Render the verify email template with provided payload data
   const verifyEmailTemplate = await ejs.renderFile(verifyEmailTemplatePath, {
     fullName: existingUser?.fullName,
     otp,
   });
 
-  // Define the mail options for sending thank-you email to the user
   const emailOptions = {
-    to: existingUser?.email, // Receiver's email address (user's email)
-    subject: 'Verify Your Email Address - Roomz', // Subject of the email
+    to: existingUser?.email, // Receiver's email address
+    subject: 'Verify Your Email Address - Roomz',
     html: verifyEmailTemplate, // HTML content of the email
   };
 
-  // Send the OTP email to the user.
+  // Send verification email to user
   await sendEmail(emailOptions);
 
+  // Save OTP and expiration time to user document
   await User.findByIdAndUpdate(existingUser?._id, {
     $set: { otp, otpExpiresAt },
   });
 };
 
 const loginUserToDB = async (payload: { email: string; password: string }) => {
-  // Check if a user with the provided email exists in the database
+  // Check if the user exists with the given email
   const existingUser = await User.isUserExistsByEmail(payload?.email as string);
 
-  // If no user is found with the given email, throw a NOT_FOUND error
   if (!existingUser) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
@@ -75,40 +77,36 @@ const loginUserToDB = async (payload: { email: string; password: string }) => {
     );
   }
 
-  // If the user is not verified, throw a FORBIDDEN error
+  // Check if the user's account is verified, active, and not deleted
   if (!existingUser?.isVerified) {
     throw new ApiError(httpStatus.FORBIDDEN, 'User account is not verified!');
   }
 
-  // If the user is blocked, throw a FORBIDDEN error.
   if (existingUser?.isBlocked) {
     throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
   }
 
-  // If the user is deleted, throw a FORBIDDEN error.
   if (existingUser?.isDeleted) {
     throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted.');
   }
 
-  // Verify the provided password against the stored hashed password
+  // Verify the provided password
   const isPasswordValid = await User.isPasswordMatched(
     payload?.password as string,
     existingUser?.password,
   );
 
-  // If the password does not match, throw a FORBIDDEN error
   if (!isPasswordValid) {
     throw new ApiError(httpStatus.FORBIDDEN, 'Invalid password provided!');
   }
 
-  // Prepare the payload for JWT token generation
+  // Generate JWT token for user authentication
   const jwtPayload = {
     userId: existingUser?._id,
     email: existingUser?.email,
     role: existingUser?.role,
   };
 
-  // Generate a JWT access token for the authenticated user
   const accessToken = createJwtToken(
     jwtPayload,
     config.jwtAccessSecret as string,
@@ -124,54 +122,50 @@ const changePasswordToDB = async (
   user: JwtPayload,
   payload: { currentPassword: string; newPassword: string },
 ) => {
-  // Check if a user with the provided email exists in the database
+  // Verify user's current password
   const existingUser = await User.isUserExistsByEmail(user?.email);
 
-  // Verify the provided password against the stored hashed password
   const isPasswordValid = await User.isPasswordMatched(
     payload?.currentPassword,
     existingUser?.password,
   );
 
-  // If the password does not match, throw a FORBIDDEN error
   if (!isPasswordValid) {
     throw new ApiError(httpStatus.FORBIDDEN, 'Invalid password provided!');
   }
 
+  // Check if the new password is different from the current one
   const isSamePassword = await User.isPasswordMatched(
     payload?.newPassword,
     existingUser?.password,
   );
 
-  // If the new password is the same as the current one, throw a NOT_ACCEPTABLE error.
   if (isSamePassword) {
     throw new ApiError(
-      httpStatus.NOT_ACCEPTABLE,
+      httpStatus.BAD_REQUEST,
       'New password must differ from the current one!',
     );
   }
 
-  // Hash the new password using bcrypt with the configured salt rounds
+  // Hash the new password before saving
   const hashPassword = await bcrypt.hash(
     payload?.newPassword,
     Number(config.bcryptSaltRounds),
   );
 
-  // Prepare the data to be updated
   const updatedData = {
     password: hashPassword,
     passwordChangedAt: new Date(), // Update the password change timestamp
   };
 
-  // Update the user's password in the database.
+  // Update user with new password
   await User.findByIdAndUpdate(user?.userId, updatedData);
 };
 
 const requestPasswordResetToDB = async (payload: { email: string }) => {
-  // Check if a user with the provided email exists in the database
+  // Check if user exists and is eligible for password reset
   const existingUser = await User.isUserExistsByEmail(payload?.email);
 
-  // If no user is found with the given email, throw a NOT_FOUND error
   if (!existingUser) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
@@ -179,26 +173,23 @@ const requestPasswordResetToDB = async (payload: { email: string }) => {
     );
   }
 
-  // If the user is not verified, throw a FORBIDDEN error
   if (!existingUser?.isVerified) {
     throw new ApiError(httpStatus.FORBIDDEN, 'User account is not verified!');
   }
 
-  // If the user is blocked, throw a FORBIDDEN error.
   if (existingUser?.isBlocked) {
     throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
   }
 
-  // If the user is deleted, throw a FORBIDDEN error.
   if (existingUser?.isDeleted) {
     throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted.');
   }
 
-  // Generate a one-time password (OTP) for email verification
+  // Generate OTP for password reset and set its expiration
   const otp = generateRandomNumber();
   const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
 
-  // Define the path to the email template for password reset.
+  // Load the password reset email template and render it with user-specific data
   const forgetPasswordTemplatePath = path.join(
     process.cwd(),
     'src',
@@ -207,25 +198,24 @@ const requestPasswordResetToDB = async (payload: { email: string }) => {
     'forgetPasswordTemplate.ejs',
   );
 
-  // Render the email template with the OTP and user details.
   const forgetPasswordTemplate = await ejs.renderFile(
     forgetPasswordTemplatePath,
     {
-      fullName: existingUser.fullName,
+      fullName: existingUser?.fullName,
       otp,
     },
   );
 
-  // Define the mail options for sending the OTP email.
   const emailOptions = {
-    to: payload.email,
+    to: payload?.email,
     subject: 'Reset Your Password - Roomz',
     html: forgetPasswordTemplate, // HTML content of the email
   };
 
-  // Send the OTP email to the user.
+  // Send password reset email to user
   await sendEmail(emailOptions);
 
+  // Save OTP and expiration time to user document
   await User.findByIdAndUpdate(existingUser?._id, {
     $set: { otp, otpExpiresAt },
   });
@@ -255,7 +245,7 @@ const resendPasswordResetEmailToDB = async (payload: { email: string }) => {
 
   // If the user is deleted, throw a FORBIDDEN error.
   if (existingUser?.isDeleted) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted.');
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted!');
   }
 
   // Generate a one-time password (OTP) for email verification
@@ -336,7 +326,7 @@ const resetPasswordToDB = async (
   payload: { newPassword: string },
 ) => {
   if (!token) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'This user is deleted !');
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
   }
 
   const decoded = verifyJwtToken(
@@ -355,6 +345,18 @@ const resetPasswordToDB = async (
     );
   }
 
+  if (!existingUser?.isVerified) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is not verified!');
+  }
+
+  if (existingUser?.isBlocked) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
+  }
+
+  if (existingUser?.isDeleted) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted.');
+  }
+
   // Ensure the new password is different from the current password
   const isSamePassword = await User.isPasswordMatched(
     payload?.newPassword,
@@ -363,8 +365,8 @@ const resetPasswordToDB = async (
 
   if (isSamePassword) {
     throw new ApiError(
-      httpStatus.NOT_ACCEPTABLE,
-      'The new password must be different from the current password!',
+      httpStatus.BAD_REQUEST,
+      'New password must differ from the current one!',
     );
   }
 

@@ -9,7 +9,7 @@ const createUser = catchAsync(async (req, res) => {
   return sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
-    message: 'Thanks for registering!',
+    message: 'Your account has been successfully created!',
     data: result,
   });
 });
@@ -20,7 +20,7 @@ const createAdmin = catchAsync(async (req, res) => {
   return sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
-    message: 'Admin created successfully!',
+    message: 'Admin account created successfully!',
     data: result,
   });
 });
@@ -31,7 +31,18 @@ const getUsers = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'User list retrieved successfully!',
+    message: 'Users list retrieved successfully!',
+    data: result,
+  });
+});
+
+const getAdmins = catchAsync(async (req, res) => {
+  const result = await UserServices?.getAdminsFromDB(req?.query);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Admins list retrieved successfully!',
     data: result,
   });
 });
@@ -66,6 +77,7 @@ export const UserControllers = {
   createUser,
   createAdmin,
   getUsers,
+  getAdmins,
   getUserProfile,
   updateUserProfile,
 };

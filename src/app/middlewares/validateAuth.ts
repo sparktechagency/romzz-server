@@ -14,7 +14,7 @@ const validateAuth = (...requiredRoles: TUserRole[]) => {
 
     // checking if the token is missing
     if (!bearerToken) {
-      throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized');
+      throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
     }
 
     if (bearerToken && bearerToken.startsWith('Bearer')) {
@@ -26,11 +26,11 @@ const validateAuth = (...requiredRoles: TUserRole[]) => {
       // Check if a user with the provided email exists in the database
       const existingUser = await User.findById(decoded?.userId);
 
-      // If no user is found with the given email, throw a NOT_FOUND error
+      // Handle case where no User is found
       if (!existingUser) {
         throw new ApiError(
           httpStatus.NOT_FOUND,
-          'User with this email does not exist!',
+          `User with ID: ${decoded?.userId} not found!`,
         );
       }
 
@@ -49,7 +49,7 @@ const validateAuth = (...requiredRoles: TUserRole[]) => {
 
       // If the user is deleted, throw a FORBIDDEN error.
       if (existingUser?.isDeleted) {
-        throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted.');
+        throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted!');
       }
 
       if (

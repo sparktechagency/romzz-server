@@ -33,7 +33,7 @@ export interface IUser {
 
 // Interface for the User model methods
 export interface UserModel extends Model<IUser> {
-  isUserExistsById(email: string): Promise<IUser>; // Check if a user exists by email
+  isUserExistsByEmail(email: string): Promise<IUser>; // Check if a user exists by email
 
   isPasswordMatched(
     plainTextPassword: string,

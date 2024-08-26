@@ -15,6 +15,12 @@ router.get(
 );
 
 router.get(
+  '/admins',
+  validateAuth(USER_ROLE.superAdmin),
+  UserControllers.getAdmins,
+);
+
+router.get(
   '/profile',
   validateAuth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
   UserControllers.getUserProfile,

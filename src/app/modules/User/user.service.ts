@@ -78,42 +78,10 @@ const createAdminIntoDB = async (payload: IUser) => {
 
   // Set default values for new admins
   payload.role = 'admin';
-  payload.status = 'in-progress';
+  payload.status = 'active';
+  payload.isVerified = true;
   payload.isBlocked = false;
   payload.isDeleted = false;
-
-  // Generate OTP and set expiration for email verification
-  const otp = generateRandomNumber();
-  const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
-
-  // Add OTP and expiration time to the payload
-  payload.otp = Number(otp);
-  payload.otpExpiresAt = otpExpiresAt;
-
-  // Path to the email verification template
-  const verifyEmailTemplatePath = path.join(
-    process.cwd(),
-    'src',
-    'app',
-    'templates',
-    'verifyEmailTemplate.ejs',
-  );
-
-  // Render the email template with user's name and OTP
-  const verifyEmailTemplate = await ejs.renderFile(verifyEmailTemplatePath, {
-    fullName: payload.fullName,
-    otp,
-  });
-
-  // Email options for sending the verification email
-  const emailOptions = {
-    to: payload.email, // Receiver's email address (user's email)
-    subject: 'Verify Your Email - Roomz',
-    html: verifyEmailTemplate, // HTML content of the email
-  };
-
-  // Send the verification email to the user
-  await sendEmail(emailOptions);
 
   // Create the new admin in the database
   const result = User.create(payload);
@@ -122,8 +90,23 @@ const createAdminIntoDB = async (payload: IUser) => {
 
 const getUsersFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
-  const usersQuery = new QueryBuilder(User.find(), query)
+  const usersQuery = new QueryBuilder(User.find({ role: 'user' }), query)
     .search(UserSearchableFields) // Apply search conditions based on searchable fields
+    .sort() // Apply sorting based on the query parameter
+    .paginate() // Apply pagination based on the query parameter
+    .fields(); // Select specific fields to include/exclude in the result
+
+  // Get the total count of matching documents and total pages for pagination
+  const meta = await usersQuery.countTotal();
+  // Execute the query to retrieve the users
+  const result = await usersQuery.modelQuery;
+
+  return { meta, result };
+};
+
+const getAdminsFromDB = async (query: Record<string, unknown>) => {
+  // Build the query using QueryBuilder with the given query parameters
+  const usersQuery = new QueryBuilder(User.find({ role: 'admin' }), query)
     .sort() // Apply sorting based on the query parameter
     .paginate() // Apply pagination based on the query parameter
     .fields(); // Select specific fields to include/exclude in the result
@@ -145,7 +128,13 @@ const getUserProfileFromDB = async (user: JwtPayload) => {
     return result.toJSON(options);
   }
 
-  return null;
+  // Handle case where no User is found
+  if (!result) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `User with ID: ${user?.userId} not found!`,
+    );
+  }
 };
 
 const updateUserProfileIntoDB = async (
@@ -223,6 +212,7 @@ export const UserServices = {
   createUserIntoDB,
   createAdminIntoDB,
   getUsersFromDB,
+  getAdminsFromDB,
   getUserProfileFromDB,
   updateUserProfileIntoDB,
 };
