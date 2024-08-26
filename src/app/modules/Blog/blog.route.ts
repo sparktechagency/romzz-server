@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { BlogControllers } from './blog.controller';
 import { USER_ROLE } from '../User/user.constant';
 import validateAuth from '../../middlewares/validateAuth';
-import { upload } from '../../helpers/multer';
+import { upload } from '../../helpers/uploadConfig';
 
 const router = Router();
 

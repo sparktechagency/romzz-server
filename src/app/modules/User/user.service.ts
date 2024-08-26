@@ -11,7 +11,7 @@ import path from 'path';
 import ejs from 'ejs';
 import cron from 'node-cron';
 import generateRandomNumber from '../../helpers/generateRandomNumber';
-import { sendEmail } from '../../helpers/emailHelpers';
+import { sendEmail } from '../../helpers/emailService.ts';
 import unlinkFile from '../../helpers/unlinkFile';
 
 const createUserToDB = async (payload: IUser) => {

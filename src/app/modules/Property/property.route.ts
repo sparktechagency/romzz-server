@@ -2,7 +2,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import validateAuth from '../../middlewares/validateAuth';
 import { USER_ROLE } from '../User/user.constant';
 import { PropertyControllers } from './property.controller';
-import { upload } from '../../helpers/multer';
+import { upload } from '../../helpers/uploadConfig';
 
 const router = Router();
 

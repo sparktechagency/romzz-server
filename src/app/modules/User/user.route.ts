@@ -3,7 +3,7 @@ import { UserControllers } from './user.controller';
 import validateRequest from '../../middlewares/validateRequest';
 import { userValidationSchema } from './user.validation';
 import validateAuth from '../../middlewares/validateAuth';
-import { upload } from '../../helpers/multer';
+import { upload } from '../../helpers/uploadConfig';
 import { USER_ROLE } from './user.constant';
 
 const router = Router();
