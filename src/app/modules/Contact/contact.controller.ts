@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
-import catchAsync from '../../helpers/catchAsync';
-import sendResponse from '../../helpers/sendResponse';
+import catchAsync from '../../utils/catchAsync';
+import sendResponse from '../../utils/sendResponse';
 import { ContactServices } from './contact.service';
 
 const saveUserEmail = catchAsync(async (req, res) => {

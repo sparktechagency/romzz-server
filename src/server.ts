@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import app from './app';
 import config from './app/config';
 import seedSuperAdmin from './app/DB';
+import { errorLogger, logger } from './app/utils/logger';
+import colors from 'colors';
 
 let server: Server;
 
@@ -13,23 +15,34 @@ async function main() {
     );
     seedSuperAdmin();
 
-    console.log(
-      `MongoDB Connected! DB Host: ${connectionInstance.connection.host}`,
+    logger.info(
+      colors.bgGreen.bold(
+        `✅ Database Connected! Host: ${connectionInstance?.connection?.host}`,
+      ),
     );
 
     server = app.listen(Number(config.port), config.ipAddress as string, () => {
-      console.log(`App is listening on port ${config.port}`);
+      logger.info(
+        colors.bgYellow.bold(
+          `🚀 Server running on: ${config.ipAddress}:${config.port}`,
+        ),
+      );
     });
   } catch (error) {
-    console.log('MongoDB Error', error);
+    errorLogger.error(
+      colors.bgCyan.bold(`❌ MongoDB connection error: ${error}`),
+    );
     process.exit(1);
   }
 }
 
 main();
 
-process.on('unhandledRejection', (err) => {
-  console.log(`😈 unahandledRejection is detected , shutting down ...`, err);
+process.on('unhandledRejection', (error) => {
+  errorLogger.error(
+    colors.bgYellow.bold(`⚠️ Unhandled rejection, shutting down... ${error}`),
+  );
+
   if (server) {
     server.close(() => {
       process.exit(1);
@@ -38,7 +51,9 @@ process.on('unhandledRejection', (err) => {
   process.exit(1);
 });
 
-process.on('uncaughtException', () => {
-  console.log(`😈 uncaughtException is detected , shutting down ...`);
+process.on('uncaughtException', (error) => {
+  errorLogger.error(
+    colors.bgRed.bold(`❌ Uncaught exception: ${error}, shutting down...`),
+  );
   process.exit(1);
 });

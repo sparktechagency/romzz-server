@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
-import catchAsync from '../../helpers/catchAsync';
-import sendResponse from '../../helpers/sendResponse';
+import catchAsync from '../../utils/catchAsync';
+import sendResponse from '../../utils/sendResponse';
 import { FacilityServices } from './facility.service';
 
 const createFacility = catchAsync(async (req, res) => {

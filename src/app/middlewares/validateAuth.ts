@@ -3,7 +3,7 @@ import httpStatus from 'http-status';
 import { JwtPayload } from 'jsonwebtoken';
 import config from '../config';
 import { User } from '../modules/User/user.model';
-import catchAsync from '../helpers/catchAsync';
+import catchAsync from '../utils/catchAsync';
 import ApiError from '../errors/ApiError';
 import { TUserRole } from '../modules/User/user.interface';
 import { verifyJwtToken } from '../helpers/jwtHelpers';
