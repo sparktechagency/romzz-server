@@ -59,11 +59,11 @@ const updateSliderByIdFromDB = async (
 
   // If a new image is uploaded, update the image path in the payload
   if (file && file?.path) {
-    const newImagePath = file?.path.replace(/\\/g, '/'); // Normalize the file path
+    const newImagePath = file?.path?.replace(/\\/g, '/'); // Normalize the file path
 
     // If a new image file is uploaded, update the image path in the payload
     if (existingSlider?.image !== newImagePath) {
-      unlinkFile(existingSlider.image); // Remove the old image file
+      unlinkFile(existingSlider?.image); // Remove the old image file
       payload.image = newImagePath; // Update the payload with the new image path
     }
   }

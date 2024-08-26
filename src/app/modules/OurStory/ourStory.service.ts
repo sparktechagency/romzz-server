@@ -13,10 +13,10 @@ const createOurStoryToDB = async (
   file: any,
 ) => {
   // Check the total number of our stories in the database
-  const OurstoryCount = await OurStory.countDocuments();
+  const ourstoryCount = await OurStory.countDocuments();
 
   // If the total number of sliders has reached the limit (5), throw an error
-  if (OurstoryCount >= 1) {
+  if (ourstoryCount >= 1) {
     unlinkFile(file?.path); // Remove the uploaded file to clean up
     throw new ApiError(
       httpStatus.CONFLICT,
@@ -37,7 +37,7 @@ const createOurStoryToDB = async (
   return result;
 };
 
-const getOurStoriesFromDB = async () => {
+const getOurStoryFromDB = async () => {
   // Fetch all our stories entries from the database
   const result = await OurStory.find();
   return result;
@@ -62,11 +62,11 @@ const updateOurStoryByIdFromDB = async (
 
   // If a new image is uploaded, update the image path in the payload
   if (file && file?.path) {
-    const newImagePath = file?.path.replace(/\\/g, '/'); // Normalize the file path
+    const newImagePath = file?.path?.replace(/\\/g, '/'); // Normalize the file path
 
     // If a new image file is uploaded, update the image path in the payload
     if (existingOurStory?.image !== newImagePath) {
-      unlinkFile(existingOurStory.image); // Remove the old image file
+      unlinkFile(existingOurStory?.image); // Remove the old image file
       payload.image = newImagePath; // Update the payload with the new image path
     }
   }
@@ -84,6 +84,6 @@ const updateOurStoryByIdFromDB = async (
 
 export const OurStoryServices = {
   createOurStoryToDB,
-  getOurStoriesFromDB,
+  getOurStoryFromDB,
   updateOurStoryByIdFromDB,
 };

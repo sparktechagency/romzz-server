@@ -10,7 +10,7 @@ router
   .route('/')
 
   // GET request to fetch all "Our Story" entries
-  .get(OurStoryControllers.getOurStories)
+  .get(OurStoryControllers.getOurStory)
 
   // POST request to create a new "Our Story" entry
   .post(

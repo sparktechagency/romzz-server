@@ -20,14 +20,14 @@ const routes = [
 
   // Dashboard settings
   { path: '/sliders', route: SliderRoutes },
-  { path: '/stories', route: StoryRoutes },
-  { path: '/terms', route: TermsRoutes },
+  { path: '/our-story', route: StoryRoutes },
+  { path: '/terms-and-conditions', route: TermsRoutes },
   { path: '/faqs', route: FaqRoutes },
   { path: '/blogs', route: BlogRoutes },
   { path: '/feedbacks', route: FeedbackRoutes },
   { path: '/contacts', route: ContactRoutes },
   { path: '/medias', route: MediaRoutes },
-  
+
   { path: '/medias', route: MediaRoutes },
 ];
 

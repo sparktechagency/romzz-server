@@ -18,13 +18,13 @@ const createOurStory = catchAsync(async (req, res) => {
   });
 });
 
-const getOurStories = catchAsync(async (req, res) => {
-  const result = await OurStoryServices.getOurStoriesFromDB();
+const getOurStory = catchAsync(async (req, res) => {
+  const result = await OurStoryServices.getOurStoryFromDB();
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Our Stories retrieved successfully!',
+    message: 'Our Story retrieved successfully!',
     data: result,
   });
 });
@@ -46,6 +46,6 @@ const updateOurStoryById = catchAsync(async (req, res) => {
 
 export const OurStoryControllers = {
   createOurStory,
-  getOurStories,
+  getOurStory,
   updateOurStoryById,
 };
