@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
-const sliderValidationSchema = z.object({
+const outStoryValidationSchema = z.object({
   body: z.object({
-    title: z.string({
+    storyDetails: z.string({
       required_error: 'Titile is required.',
       invalid_type_error: 'Titile must be a string.',
     }),
   }),
 });
 
-export default sliderValidationSchema;
+export default outStoryValidationSchema;
