@@ -4,7 +4,7 @@ import sendResponse from '../../helpers/sendResponse';
 import { TermsServices } from './terms.service';
 
 const createTerms = catchAsync(async (req, res) => {
-  const result = await TermsServices.createTermsIntoDB(req?.user, req?.body);
+  const result = await TermsServices.createTermsToDB(req?.user, req?.body);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,

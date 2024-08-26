@@ -4,7 +4,7 @@ import sendResponse from '../../helpers/sendResponse';
 import { UserServices } from './user.service';
 
 const createUser = catchAsync(async (req, res) => {
-  const result = await UserServices.createUserIntoDB(req?.body);
+  const result = await UserServices.createUserToDB(req?.body);
 
   return sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -15,7 +15,7 @@ const createUser = catchAsync(async (req, res) => {
 });
 
 const createAdmin = catchAsync(async (req, res) => {
-  const result = await UserServices.createAdminIntoDB(req?.body);
+  const result = await UserServices.createAdminToDB(req?.body);
 
   return sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -59,7 +59,7 @@ const getUserProfile = catchAsync(async (req, res) => {
 });
 
 const updateUserProfile = catchAsync(async (req, res) => {
-  const result = await UserServices?.updateUserProfileIntoDB(
+  const result = await UserServices?.updateUserProfileToDB(
     req?.user,
     req?.body,
     req?.files,

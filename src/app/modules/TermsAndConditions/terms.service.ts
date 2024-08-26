@@ -4,7 +4,7 @@ import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
 import { Terms } from './terms.model';
 
-const createTermsIntoDB = async (user: JwtPayload, payload: ITerms) => {
+const createTermsToDB = async (user: JwtPayload, payload: ITerms) => {
   // Check the total number of Termss in the database
   const termsCount = await Terms.countDocuments();
 
@@ -48,7 +48,7 @@ const updateTermsByIdFromDB = async (
 };
 
 export const TermsServices = {
-  createTermsIntoDB,
+  createTermsToDB,
   getTermsFromDB,
   updateTermsByIdFromDB,
 };

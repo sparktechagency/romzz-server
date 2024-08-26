@@ -8,11 +8,7 @@ import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
 import unlinkFile from '../../helpers/unlinkFile';
 
-const createBlogIntoDB = async (
-  user: JwtPayload,
-  payload: IBlog,
-  file: any,
-) => {
+const createBlogToDB = async (user: JwtPayload, payload: IBlog, file: any) => {
   // If a new image is uploaded, update the image path in the payload
   if (file && file?.path) {
     payload.image = file?.path?.replace(/\\/g, '/'); // Normalize the file path to use forward slashes
@@ -61,12 +57,12 @@ const updateBlogByIdFromDB = async (
   // Fetch the existing our stories entry from the database by its ID
   const existingBlog = await Blog.findById(blogId);
 
-  // If the our story entry does not exist, throw an error
+  // If the Blog entry does not exist, throw an error
   if (!existingBlog) {
     unlinkFile(file?.path); // Remove the uploaded file to clean up
     throw new ApiError(
       httpStatus.NOT_FOUND,
-      `Our Story with ID: ${blogId} not found!`,
+      `Blog with ID: ${blogId} not found!`,
     );
   }
 
@@ -76,8 +72,8 @@ const updateBlogByIdFromDB = async (
 
     // If a new image file is uploaded, update the image path in the payload
     if (existingBlog?.image !== newImagePath) {
-      unlinkFile(existingBlog?.image); // Remove the old image file
       payload.image = newImagePath; // Update the payload with the new image path
+      unlinkFile(existingBlog?.image); // Remove the old image file
     }
   }
 
@@ -93,25 +89,25 @@ const updateBlogByIdFromDB = async (
 };
 
 const deleteBlogByIdFromDB = async (blogId: string) => {
-  // Delete the slider entry from the database by its ID
+  // Delete the Blog entry from the database by its ID
   const result = await Blog.findByIdAndDelete(blogId);
 
-  // If the slider entry does not exist, throw an error
+  // If the Blog entry does not exist, throw an error
   if (!result) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
-      `Slider with ID: ${blogId} not found!`,
+      `Blog with ID: ${blogId} not found!`,
     );
   }
 
-  // If the slider entry has an associated image, remove the image file
+  // If the Blog entry has an associated image, remove the image file
   if (result?.image) {
     unlinkFile(result?.image);
   }
 };
 
 export const BlogServices = {
-  createBlogIntoDB,
+  createBlogToDB,
   getBlogsFromDB,
   getBlogByIdFromDB,
   updateBlogByIdFromDB,

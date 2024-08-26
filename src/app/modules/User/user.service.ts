@@ -14,7 +14,7 @@ import generateRandomNumber from '../../helpers/generateRandomNumber';
 import { sendEmail } from '../../helpers/emailHelpers';
 import unlinkFile from '../../helpers/unlinkFile';
 
-const createUserIntoDB = async (payload: IUser) => {
+const createUserToDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
   if (await User.isUserExistsByEmail(payload?.email)) {
     throw new ApiError(
@@ -67,7 +67,7 @@ const createUserIntoDB = async (payload: IUser) => {
   return result;
 };
 
-const createAdminIntoDB = async (payload: IUser) => {
+const createAdminToDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
   if (await User.isUserExistsByEmail(payload?.email)) {
     throw new ApiError(
@@ -137,7 +137,7 @@ const getUserProfileFromDB = async (user: JwtPayload) => {
   }
 };
 
-const updateUserProfileIntoDB = async (
+const updateUserProfileToDB = async (
   user: JwtPayload,
   payload: Partial<IUser>,
   files: any,
@@ -209,10 +209,10 @@ cron.schedule('0 */12 * * *', async () => {
 });
 
 export const UserServices = {
-  createUserIntoDB,
-  createAdminIntoDB,
+  createUserToDB,
+  createAdminToDB,
   getUsersFromDB,
   getAdminsFromDB,
   getUserProfileFromDB,
-  updateUserProfileIntoDB,
+  updateUserProfileToDB,
 };

@@ -156,7 +156,7 @@ const getUserProfileFeedbackSummaryFromDB = async (userId: string) => {
           userRatings?.reduce((sum, rating) => sum + rating, 0) /
           userRatings?.length
         ).toFixed(1)
-      : null;
+      : 0;
 
   // Return user profile and average rating
   return {

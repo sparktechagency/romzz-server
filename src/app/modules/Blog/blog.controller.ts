@@ -4,7 +4,7 @@ import sendResponse from '../../helpers/sendResponse';
 import { BlogServices } from './blog.service';
 
 const createBlog = catchAsync(async (req, res) => {
-  const result = await BlogServices.createBlogIntoDB(
+  const result = await BlogServices.createBlogToDB(
     req?.user,
     req?.body,
     req?.file,
