@@ -66,7 +66,11 @@ const resendVerificationEmailToDB = async (payload: { userId: string }) => {
   });
 };
 
-const loginUserToDB = async (payload: { email: string; password: string }) => {
+const loginUserToDB = async (payload: {
+  email: string;
+  password: string;
+  rememberMe?: boolean;
+}) => {
   // Check if the user exists with the given email
   const existingUser = await User.isUserExistsByEmail(payload?.email as string);
 
@@ -113,8 +117,15 @@ const loginUserToDB = async (payload: { email: string; password: string }) => {
     config.jwtAccessExpiresIn as string,
   );
 
+  const refreshToken = createJwtToken(
+    jwtPayload,
+    config.jwtRefreshSecret as string,
+    config.jwtRefreshExpiresIn as string,
+  );
+
   return {
     accessToken,
+    refreshToken,
   };
 };
 
