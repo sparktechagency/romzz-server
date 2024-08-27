@@ -14,6 +14,9 @@ router.get(
   UserControllers.getUsers,
 );
 
+router.get('/user-count', UserControllers.getVerifiedUsersCount);
+router.get('/user-count/:year', UserControllers.getUserCountByYear);
+
 router.get(
   '/admins',
   validateAuth(USER_ROLE.superAdmin),

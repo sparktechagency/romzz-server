@@ -5,7 +5,11 @@ import { IUser } from './user.interface';
 import ApiError from '../../errors/ApiError';
 import { User } from './user.model';
 import QueryBuilder from '../../builder/QueryBuilder';
-import { userFieldsToExclude, UserSearchableFields } from './user.constant';
+import {
+  monthNames,
+  userFieldsToExclude,
+  UserSearchableFields,
+} from './user.constant';
 import { JwtPayload } from 'jsonwebtoken';
 import path from 'path';
 import ejs from 'ejs';
@@ -15,6 +19,7 @@ import unlinkFile from '../../helpers/unlinkFile';
 import { errorLogger, logger } from '../../utils/winstonLogger';
 import colors from 'colors';
 import { sendEmail } from '../../helpers/emailService';
+import { startOfMonth, endOfMonth } from 'date-fns';
 
 const createUserToDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
@@ -104,6 +109,64 @@ const getUsersFromDB = async (query: Record<string, unknown>) => {
   const result = await usersQuery.modelQuery;
 
   return { meta, result };
+};
+
+const getVerifiedUsersCountFromDB = async () => {
+  const totalUser = await User.countDocuments({
+    role: 'user',
+    isVerified: true,
+  });
+
+  // Define start and end dates for the current month
+  const start = startOfMonth(new Date());
+  const end = endOfMonth(new Date());
+
+  // Count users created in the current month
+  const currentMonthTotal = await User.countDocuments({
+    role: 'user',
+    isVerified: true,
+    createdAt: {
+      $gte: start,
+      $lte: end,
+    },
+  });
+
+  return { totalUser, currentMonthTotal };
+};
+
+const getUserCountByYearFromDB = async (year: number) => {
+  const monthlyUserCounts = [];
+
+  for (let month = 1; month <= 12; month++) {
+    // Define the start and end dates for the current month
+    const startDate = startOfMonth(new Date(year, month - 1, 1));
+    const endDate = endOfMonth(new Date(year, month - 1, 1));
+
+    // Aggregate user counts for the specified month
+    const userCount = await User.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startDate, $lte: endDate },
+          role: 'user',
+          isVerified: true,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // Add the result to monthly User Counts
+    monthlyUserCounts.push({
+      month: monthNames[month - 1],
+      totalUser: userCount?.length > 0 ? userCount[0].count : 0,
+    });
+  }
+
+  return monthlyUserCounts;
 };
 
 const getAdminsFromDB = async (query: Record<string, unknown>) => {
@@ -218,6 +281,8 @@ export const UserServices = {
   createUserToDB,
   createAdminToDB,
   getUsersFromDB,
+  getVerifiedUsersCountFromDB,
+  getUserCountByYearFromDB,
   getAdminsFromDB,
   getUserProfileFromDB,
   updateUserProfileToDB,

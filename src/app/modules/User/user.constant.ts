@@ -17,6 +17,22 @@ export const userFieldsToExclude: (keyof IUser)[] = [
   'otpExpiresAt',
 ];
 
+// Array of month names
+export const monthNames = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
 // User roles within the system.
 export const USER_ROLE = {
   user: 'user',
