@@ -70,8 +70,7 @@ const createUserToDB = async (payload: IUser) => {
   await sendEmail(emailOptions);
 
   // Create the new user in the database
-  const result = User.create(payload);
-  return result;
+  await User.create(payload);
 };
 
 const createAdminToDB = async (payload: IUser) => {
@@ -91,8 +90,7 @@ const createAdminToDB = async (payload: IUser) => {
   payload.isDeleted = false;
 
   // Create the new admin in the database
-  const result = User.create(payload);
-  return result;
+  await User.create(payload);
 };
 
 const getUsersFromDB = async (query: Record<string, unknown>) => {

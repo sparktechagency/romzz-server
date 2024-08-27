@@ -140,8 +140,8 @@ userSchema.statics.isJWTIssuedBeforePasswordChanged = function (
 };
 
 // Verify OTP for user authentication
-userSchema.statics.verifyOtp = async function (userId: string, otp: number) {
-  const existingUser = await User.findById(userId);
+userSchema.statics.verifyOtp = async function (email: string, otp: number) {
+  const existingUser = await User.isUserExistsByEmail(email);
 
   // Validate OTP input
   if (!otp) {

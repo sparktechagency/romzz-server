@@ -11,16 +11,16 @@ import ejs from 'ejs';
 import generateRandomNumber from '../../helpers/generateRandomNumber';
 
 const verifyEmailAddressOtpToDB = async (payload: {
-  userId: string;
+  email: string;
   otp: number;
 }) => {
   // Verify the OTP for the given user ID
-  await User.verifyOtp(payload?.userId, payload?.otp);
+  await User.verifyOtp(payload?.email, payload?.otp);
 };
 
-const resendVerificationEmailToDB = async (payload: { userId: string }) => {
+const resendVerificationEmailToDB = async (payload: { email: string }) => {
   // Find the user by ID
-  const existingUser = await User.findById(payload?.userId);
+  const existingUser = await User.isUserExistsByEmail(payload?.email);
 
   if (!existingUser) {
     throw new ApiError(

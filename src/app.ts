@@ -38,7 +38,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // Application routes under the '/api/v1' path
-app.use('/api/v1', cors(corsConfig), router);
+app.use('/api/v1', router);
 
 // Error-handling middlewares
 app.use(globalErrorHandler); // Global error handler middleware

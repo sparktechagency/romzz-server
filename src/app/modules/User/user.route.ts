@@ -36,7 +36,7 @@ router.post(
 );
 router.post(
   '/create-admin',
-  validateAuth(USER_ROLE.superAdmin),
+  // validateAuth(USER_ROLE.superAdmin),
   validateRequest(userValidationSchema.createAdminSchema),
   UserControllers.createAdmin,
 );
