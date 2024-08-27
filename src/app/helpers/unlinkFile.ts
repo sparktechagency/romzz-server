@@ -9,7 +9,7 @@ const unlinkFile = (filePath: string) => {
     fs.unlink(filePath, (err) => {
       if (err) {
         errorLogger.error(
-          colors.bgRed(`Failed to delete file: ${err.message}`),
+          colors.bgRed(`Failed to delete file: ${err?.message}`),
         );
       } else {
         logger.info(colors.bgGreen(`File deleted successfully: ${filePath}`));
