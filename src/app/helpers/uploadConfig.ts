@@ -11,7 +11,7 @@ import unlinkFiles from './unlinkFiles';
 const baseUploadDirectory = path.join(process.cwd(), 'uploads');
 
 // Track uploaded files for cleanup
-let uploadedFiles: string[] = [];
+const uploadedFiles: string[] = [];
 
 // Multer storage configuration
 const storage = multer.diskStorage({
@@ -60,11 +60,11 @@ const upload = multer({
 
     if (supportedFormats) {
       if (supportedFormats?.includes(mimetype)) {
-        uploadedFiles = []; // Clear the list for next batch
+        uploadedFiles.length = 0; // Clear the list for next batch
         return cb(null, true);
       } else {
         unlinkFiles(uploadedFiles);
-        uploadedFiles = []; // Remove all uploaded files if error
+        uploadedFiles.length = 0; // Remove all uploaded files if error
         return cb(
           new ApiError(
             httpStatus.NOT_ACCEPTABLE,
@@ -74,7 +74,7 @@ const upload = multer({
       }
     } else {
       unlinkFiles(uploadedFiles);
-      uploadedFiles = []; // Remove all uploaded files if error
+      uploadedFiles.length = 0; // Remove all uploaded files if error
       return cb(
         new ApiError(
           httpStatus.NOT_ACCEPTABLE,

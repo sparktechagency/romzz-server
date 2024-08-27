@@ -6,7 +6,10 @@ import { Property } from './property.model';
 import QueryBuilder from '../../builder/QueryBuilder';
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
-import { MAX_PROPERTY_IMAGES } from './property.constant';
+import {
+  MAX_PROPERTY_IMAGES,
+  propertyFieldsToExclude,
+} from './property.constant';
 import unlinkFile from '../../helpers/unlinkFile';
 
 const createPropertyToDB = async (
@@ -162,7 +165,7 @@ const updatePropertyByIdToDB = async (
   }
 
   // Update proof of ownership if new files are provided
-  if (files?.propertyImages) {
+  if (files?.propertyImages && files?.propertyImages?.length > 0) {
     const newImages = files?.propertyImages?.map(
       (file: any) => file?.path.replace(/\\/g, '/'), // Replace backslashes with forward slashes
     );
@@ -183,7 +186,7 @@ const updatePropertyByIdToDB = async (
   }
 
   // Update property video if a new file is provided
-  if (files && files?.propertyVideo > 0) {
+  if (files?.propertyVideo && files?.propertyVideo?.length > 0) {
     const newPropertyVideoPath = files?.propertyVideo[0]?.path.replace(
       /\\/g,
       '/',
@@ -194,6 +197,9 @@ const updatePropertyByIdToDB = async (
       unlinkFile(existingProperty?.propertyVideo);
     }
   }
+
+  // Exclude specific fields from being updated
+  propertyFieldsToExclude?.forEach((field) => delete payload[field]);
 
   // Save new data to the database
   const result = await Property.findByIdAndUpdate(propertyId, payload, {

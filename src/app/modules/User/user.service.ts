@@ -239,7 +239,7 @@ const updateUserProfileToDB = async (
   }
 
   // Exclude specific fields from being updated
-  userFieldsToExclude.forEach((field) => delete payload[field]);
+  userFieldsToExclude?.forEach((field) => delete payload[field]);
 
   // Update user profile with the filtered data and return the result
   const result = await User.findByIdAndUpdate(user?.userId, payload, {
