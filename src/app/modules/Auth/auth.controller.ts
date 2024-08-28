@@ -107,6 +107,19 @@ const resetPassword = catchAsync(async (req, res) => {
   });
 });
 
+const issueNewAccessToken = catchAsync(async (req, res) => {
+  const result = await AuthServices.issueNewAccessToken(
+    req?.cookies?.refreshToken,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Access token is retrieved successfully!',
+    data: result,
+  });
+});
+
 export const AuthControllers = {
   loginUser,
   requestPasswordReset,
@@ -116,4 +129,5 @@ export const AuthControllers = {
   verifyResetPassword,
   resendVerificationEmail,
   resendPasswordResetEmail,
+  issueNewAccessToken,
 };

@@ -393,6 +393,62 @@ const resetPasswordToDB = async (
   });
 };
 
+const issueNewAccessToken = async (token: string) => {
+  // Check if the token is provided
+  if (!token) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Token is required!');
+  }
+
+  // checking if the given token is valid
+  const decoded = verifyJwtToken(token, config.jwtRefreshSecret as string);
+
+  // Check if a user with the provided email exists in the database
+  const existingUser = await User.isUserExistsByEmail(decoded?.email);
+
+  // Handle case where no User is found
+  if (!existingUser) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `User with ID: ${decoded?.userId} not found!`,
+    );
+  }
+
+  // If the user is blocked, throw a FORBIDDEN error.
+  if (existingUser?.isBlocked) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
+  }
+
+  // If the user is deleted, throw a FORBIDDEN error.
+  if (existingUser?.isDeleted) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted!');
+  }
+
+  if (
+    existingUser.passwordChangedAt &&
+    (await User.isJWTIssuedBeforePasswordChanged(
+      existingUser?.passwordChangedAt,
+      decoded?.iat as number,
+    ))
+  ) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
+  }
+
+  const jwtPayload = {
+    userId: existingUser?._id,
+    role: existingUser?.role,
+  };
+
+  const accessToken = createJwtToken(
+    jwtPayload,
+    config.jwtAccessSecret as string,
+    config.jwtAccessExpiresIn as string,
+  );
+
+  return {
+    accessToken,
+  };
+};
+
 export const AuthServices = {
   loginUserToDB,
   resetPasswordToDB,
@@ -402,4 +458,5 @@ export const AuthServices = {
   verifyResetPasswordOtpToDB,
   resendPasswordResetEmailToDB,
   resendVerificationEmailToDB,
+  issueNewAccessToken,
 };

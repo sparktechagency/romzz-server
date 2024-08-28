@@ -45,4 +45,7 @@ router.post(
   AuthControllers.changePassword,
 );
 
+// Change password for authenticated users
+router.post('/refresh-token', AuthControllers.issueNewAccessToken);
+
 export const AuthRoutes = router;

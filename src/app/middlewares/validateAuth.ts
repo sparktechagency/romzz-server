@@ -34,14 +34,6 @@ const validateAuth = (...requiredRoles: TUserRole[]) => {
         );
       }
 
-      // If the user is not verified, throw a FORBIDDEN error
-      if (!existingUser?.isVerified) {
-        throw new ApiError(
-          httpStatus.FORBIDDEN,
-          'User account is not verified!',
-        );
-      }
-
       // If the user is blocked, throw a FORBIDDEN error.
       if (existingUser?.isBlocked) {
         throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
