@@ -8,7 +8,7 @@ import { JwtPayload } from 'jsonwebtoken';
 import path from 'path';
 import { sendEmail } from '../../helpers/emailService';
 import ejs from 'ejs';
-import generateRandomNumber from '../../helpers/generateRandomNumber';
+import generateOtp from '../../helpers/generateOtp';
 
 const verifyEmailAddressOtpToDB = async (payload: {
   email: string;
@@ -34,8 +34,8 @@ const resendVerificationEmailToDB = async (payload: { email: string }) => {
   }
 
   // Generate new OTP and set its expiration time
-  const otp = generateRandomNumber();
-  const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
+  const otp = generateOtp();
+  const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // OTP expires in 5 minutes
 
   // Load the email verification template and render it with user-specific data
   const verifyEmailTemplatePath = path.join(
@@ -184,10 +184,6 @@ const requestPasswordResetToDB = async (payload: { email: string }) => {
     );
   }
 
-  if (!existingUser?.isVerified) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'User account is not verified!');
-  }
-
   if (existingUser?.isBlocked) {
     throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
   }
@@ -197,8 +193,8 @@ const requestPasswordResetToDB = async (payload: { email: string }) => {
   }
 
   // Generate OTP for password reset and set its expiration
-  const otp = generateRandomNumber();
-  const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
+  const otp = generateOtp();
+  const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // OTP expires in 5 minutes
 
   // Load the password reset email template and render it with user-specific data
   const forgetPasswordTemplatePath = path.join(
@@ -244,11 +240,6 @@ const resendPasswordResetEmailToDB = async (payload: { email: string }) => {
     );
   }
 
-  // If the user is not verified, throw a FORBIDDEN error
-  if (!existingUser?.isVerified) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'User account is not verified!');
-  }
-
   // If the user is blocked, throw a FORBIDDEN error.
   if (existingUser?.isBlocked) {
     throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
@@ -260,8 +251,8 @@ const resendPasswordResetEmailToDB = async (payload: { email: string }) => {
   }
 
   // Generate a one-time password (OTP) for email verification
-  const otp = generateRandomNumber();
-  const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
+  const otp = generateOtp();
+  const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // OTP expires in 5 minutes
 
   // Define the path to the email template for password reset.
   const forgetPasswordTemplatePath = path.join(
@@ -356,10 +347,6 @@ const resetPasswordToDB = async (
     );
   }
 
-  if (!existingUser?.isVerified) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'User account is not verified!');
-  }
-
   if (existingUser?.isBlocked) {
     throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
   }
@@ -435,6 +422,7 @@ const issueNewAccessToken = async (token: string) => {
 
   const jwtPayload = {
     userId: existingUser?._id,
+    email: existingUser?.email,
     role: existingUser?.role,
   };
 

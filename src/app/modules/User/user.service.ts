@@ -14,7 +14,7 @@ import { JwtPayload } from 'jsonwebtoken';
 import path from 'path';
 import ejs from 'ejs';
 import cron from 'node-cron';
-import generateRandomNumber from '../../helpers/generateRandomNumber';
+import generateOtp from '../../helpers/generateOtp';
 import unlinkFile from '../../helpers/unlinkFile';
 import { errorLogger, logger } from '../../utils/winstonLogger';
 import colors from 'colors';
@@ -38,8 +38,8 @@ const createUserToDB = async (payload: IUser) => {
   payload.isDeleted = false;
 
   // Generate OTP and set expiration for email verification
-  const otp = generateRandomNumber();
-  const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
+  const otp = generateOtp();
+  const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // OTP expires in 5 minutes
 
   // Add OTP and expiration time to the payload
   payload.otp = Number(otp);
@@ -56,13 +56,13 @@ const createUserToDB = async (payload: IUser) => {
 
   // Render the email template with user's name and OTP
   const verifyEmailTemplate = await ejs.renderFile(verifyEmailTemplatePath, {
-    fullName: payload.fullName,
+    fullName: payload?.fullName,
     otp,
   });
 
   // Email options for sending the verification email
   const emailOptions = {
-    to: payload.email, // Receiver's email address (user's email)
+    to: payload?.email, // Receiver's email address (user's email)
     subject: 'Verify Your Email Address - Roomz', // Subject of the email
     html: verifyEmailTemplate, // HTML content of the email
   };
