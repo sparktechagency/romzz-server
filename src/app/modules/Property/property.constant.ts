@@ -79,6 +79,6 @@ export const OCCUPATION = {
 
 export const STATUS = {
   pending: 'pending',
-  approved: 'approved',
-  rejected: 'rejected',
+  approved: 'approve',
+  rejected: 'reject',
 } as const;

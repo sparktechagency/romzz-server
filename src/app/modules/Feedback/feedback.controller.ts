@@ -39,32 +39,6 @@ const getVisibleFeedbacks = catchAsync(async (req, res) => {
   });
 });
 
-const updateFeedbackStatusToShow = catchAsync(async (req, res) => {
-  const result = await FeedbackServices.updateFeedbackStatusToShowFromDB(
-    req?.params?.id,
-  );
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Feedback status updated successfully!',
-    data: result,
-  });
-});
-
-const updateFeedbackStatusToHide = catchAsync(async (req, res) => {
-  const result = await FeedbackServices.updateFeedbackStatusToHideFromDB(
-    req?.params?.id,
-  );
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Feedback status updated successfully!',
-    data: result,
-  });
-});
-
 const getUserProfileFeedbacks = catchAsync(async (req, res) => {
   const result = await FeedbackServices.getUserProfileFeedbacksFromDB(
     req?.params?.userId,
@@ -87,6 +61,32 @@ const getUserProfileFeedbackSummary = catchAsync(async (req, res) => {
     statusCode: httpStatus.OK,
     success: true,
     message: 'User profile feedback summary retrived successfully!',
+    data: result,
+  });
+});
+
+const updateFeedbackStatusToShow = catchAsync(async (req, res) => {
+  const result = await FeedbackServices.updateFeedbackStatusToShowToDB(
+    req?.params?.id,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Feedback status updated successfully!',
+    data: result,
+  });
+});
+
+const updateFeedbackStatusToHide = catchAsync(async (req, res) => {
+  const result = await FeedbackServices.updateFeedbackStatusToHideToDB(
+    req?.params?.id,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Feedback status updated successfully!',
     data: result,
   });
 });

@@ -57,44 +57,6 @@ const getVisibleFeedbacksFromDB = async () => {
   return result;
 };
 
-const updateFeedbackStatusToShowFromDB = async (feedbackId: string) => {
-  // Update the Feedback status to 'show'
-  const result = await Feedback.findByIdAndUpdate(
-    feedbackId,
-    { visibilityStatus: 'show' },
-    { new: true }, // Return the updated document
-  );
-
-  // Handle case where no Feedback is found
-  if (!result) {
-    throw new ApiError(
-      httpStatus.NOT_FOUND,
-      `Feedback with ID: ${feedbackId} not found!`,
-    );
-  }
-
-  return result;
-};
-
-const updateFeedbackStatusToHideFromDB = async (feedbackId: string) => {
-  // Update the Feedback status to 'hide'
-  const result = await Feedback.findByIdAndUpdate(
-    feedbackId,
-    { visibilityStatus: 'hide' },
-    { new: true }, // Return the updated document
-  );
-
-  // Handle case where no Feedback is found
-  if (!result) {
-    throw new ApiError(
-      httpStatus.NOT_FOUND,
-      `Feedback with ID: ${feedbackId} not found!`,
-    );
-  }
-
-  return result;
-};
-
 const getUserProfileFeedbacksFromDB = async (userId: string) => {
   // Find properties posted by the user
   const properties = await Property.find({ createdBy: userId });
@@ -165,12 +127,50 @@ const getUserProfileFeedbackSummaryFromDB = async (userId: string) => {
   };
 };
 
+const updateFeedbackStatusToShowToDB = async (feedbackId: string) => {
+  // Update the Feedback status to 'show'
+  const result = await Feedback.findByIdAndUpdate(
+    feedbackId,
+    { visibilityStatus: 'show' },
+    { new: true }, // Return the updated document
+  );
+
+  // Handle case where no Feedback is found
+  if (!result) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Feedback with ID: ${feedbackId} not found!`,
+    );
+  }
+
+  return result;
+};
+
+const updateFeedbackStatusToHideToDB = async (feedbackId: string) => {
+  // Update the Feedback status to 'hide'
+  const result = await Feedback.findByIdAndUpdate(
+    feedbackId,
+    { visibilityStatus: 'hide' },
+    { new: true }, // Return the updated document
+  );
+
+  // Handle case where no Feedback is found
+  if (!result) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Feedback with ID: ${feedbackId} not found!`,
+    );
+  }
+
+  return result;
+};
+
 export const FeedbackServices = {
   createFeedbackToDB,
   getAllFeedbacksFromDB,
   getVisibleFeedbacksFromDB,
-  updateFeedbackStatusToShowFromDB,
-  updateFeedbackStatusToHideFromDB,
+  updateFeedbackStatusToShowToDB,
+  updateFeedbackStatusToHideToDB,
   getUserProfileFeedbacksFromDB,
   getUserProfileFeedbackSummaryFromDB,
 };

@@ -48,4 +48,17 @@ router
     PropertyControllers.updatePropertyById,
   );
 
+// Route to update property status to "approve"
+router.patch(
+  '/approve/:id',
+  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  PropertyControllers.updatePropertyStatusToApprove,
+);
+
+// Route to update property status to "reject"
+router.patch(
+  '/reject/:id',
+  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  PropertyControllers.updatePropertyStatusToReject,
+);
 export const PropertyRoutes = router;

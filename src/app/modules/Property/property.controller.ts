@@ -78,6 +78,32 @@ const updatePropertyById = catchAsync(async (req, res) => {
   });
 });
 
+const updatePropertyStatusToApprove = catchAsync(async (req, res) => {
+  const result = await PropertyServices.updatePropertyStatusToApproveToDB(
+    req?.params?.id,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Property status updated successfully!',
+    data: result,
+  });
+});
+
+const updatePropertyStatusToReject = catchAsync(async (req, res) => {
+  const result = await PropertyServices.updatePropertyStatusToRejectToDB(
+    req?.params?.id,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Property status updated successfully!',
+    data: result,
+  });
+});
+
 export const PropertyControllers = {
   createProperty,
   getAllProperties,
@@ -85,4 +111,6 @@ export const PropertyControllers = {
   getPropertyById,
   getPropertyByUserId,
   updatePropertyById,
+  updatePropertyStatusToApprove,
+  updatePropertyStatusToReject,
 };

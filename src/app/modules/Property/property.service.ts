@@ -26,21 +26,21 @@ const createPropertyToDB = async (
   payload.isBooked = false;
 
   // Extract and map the image file paths
-  if (files && files?.ownershipImages) {
+  if (files?.ownershipImages && files?.ownershipImages?.length > 0) {
     payload.ownershipImages = files?.ownershipImages?.map(
       (file: any) => file?.path?.replace(/\\/g, '/'), // Replace backslashes with forward slashes,
     );
   }
 
   // Extract and map the image file paths
-  if (files && files?.propertyImages) {
+  if (files?.propertyImages && files?.propertyImages?.length > 0) {
     payload.propertyImages = files?.propertyImages?.map(
       (file: any) => file?.path?.replace(/\\/g, '/'), // Replace backslashes with forward slashes,
     );
   }
 
   // Extract and set the video file path
-  if (files && files?.propertyVideo) {
+  if (files?.propertyVideo && files?.propertyVideo?.length > 0) {
     payload.propertyVideo = files['propertyVideo'][0]?.path?.replace(
       /\\/g,
       '/',
@@ -210,6 +210,44 @@ const updatePropertyByIdToDB = async (
   return result;
 };
 
+const updatePropertyStatusToApproveToDB = async (propertyId: string) => {
+  // Update the Property status to 'approve'
+  const result = await Property.findByIdAndUpdate(
+    propertyId,
+    { status: 'approve' },
+    { new: true }, // Return the updated document
+  );
+
+  // Handle case where no Property is found
+  if (!result) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Property with ID: ${propertyId} not found!`,
+    );
+  }
+
+  return result;
+};
+
+const updatePropertyStatusToRejectToDB = async (propertyId: string) => {
+  // Update the Property status to 'reject'
+  const result = await Property.findByIdAndUpdate(
+    propertyId,
+    { status: 'reject' },
+    { new: true }, // Return the updated document
+  );
+
+  // Handle case where no Property is found
+  if (!result) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Property with ID: ${propertyId} not found!`,
+    );
+  }
+
+  return result;
+};
+
 export const PropertyServices = {
   createPropertyToDB,
   getAllPropertiesFromDB,
@@ -217,4 +255,6 @@ export const PropertyServices = {
   getPropertyByUserIdFromDB,
   getPropertyByIdFromDB,
   updatePropertyByIdToDB,
+  updatePropertyStatusToApproveToDB,
+  updatePropertyStatusToRejectToDB,
 };
