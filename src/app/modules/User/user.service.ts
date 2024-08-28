@@ -20,6 +20,7 @@ import { errorLogger, logger } from '../../utils/winstonLogger';
 import colors from 'colors';
 import { sendEmail } from '../../helpers/emailService';
 import { startOfMonth, endOfMonth } from 'date-fns';
+import { Favourite } from '../Favourite/favourite.model';
 
 const createUserToDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
@@ -95,8 +96,26 @@ const createAdminToDB = async (payload: IUser) => {
 
 const getUsersFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
-  const usersQuery = new QueryBuilder(User.find({ role: 'user' }), query)
+  const usersQuery = new QueryBuilder(
+    User.find({ role: 'user', isVerified: true }),
+    query,
+  )
     .search(UserSearchableFields) // Apply search conditions based on searchable fields
+    .sort() // Apply sorting based on the query parameter
+    .paginate() // Apply pagination based on the query parameter
+    .fields(); // Select specific fields to include/exclude in the result
+
+  // Get the total count of matching documents and total pages for pagination
+  const meta = await usersQuery.countTotal();
+  // Execute the query to retrieve the users
+  const result = await usersQuery.modelQuery;
+
+  return { meta, result };
+};
+
+const getAdminsFromDB = async (query: Record<string, unknown>) => {
+  // Build the query using QueryBuilder with the given query parameters
+  const usersQuery = new QueryBuilder(User.find({ role: 'admin' }), query)
     .sort() // Apply sorting based on the query parameter
     .paginate() // Apply pagination based on the query parameter
     .fields(); // Select specific fields to include/exclude in the result
@@ -165,21 +184,6 @@ const getUserCountByYearFromDB = async (year: number) => {
   }
 
   return monthlyUserCounts;
-};
-
-const getAdminsFromDB = async (query: Record<string, unknown>) => {
-  // Build the query using QueryBuilder with the given query parameters
-  const usersQuery = new QueryBuilder(User.find({ role: 'admin' }), query)
-    .sort() // Apply sorting based on the query parameter
-    .paginate() // Apply pagination based on the query parameter
-    .fields(); // Select specific fields to include/exclude in the result
-
-  // Get the total count of matching documents and total pages for pagination
-  const meta = await usersQuery.countTotal();
-  // Execute the query to retrieve the users
-  const result = await usersQuery.modelQuery;
-
-  return { meta, result };
 };
 
 const getUserProfileFromDB = async (user: JwtPayload) => {
@@ -255,6 +259,23 @@ const updateUserProfileToDB = async (
   return result;
 };
 
+const getUserFavouritesPropertyFromDB = async (user: JwtPayload) => {
+  // Find all favorites for the user
+  const favorites = await Favourite.find({ userId: user?.userId }).populate({
+    path: 'propertyId',
+    select: 'propertyImages price title category address createdBy', // Include createdBy field
+    populate: {
+      path: 'createdBy',
+      select: 'avatar', // Select only the user image (avatar) field
+    },
+  });
+
+  // Extract the properties from the favorite records
+  const result = favorites.map((favorite) => favorite.propertyId);
+
+  return result;
+};
+
 // Schedule a cron job to delete expired, unverified users every 12 hours
 cron.schedule('0 */12 * * *', async () => {
   const now = new Date();
@@ -292,4 +313,5 @@ export const UserServices = {
   getAdminsFromDB,
   getUserProfileFromDB,
   updateUserProfileToDB,
+  getUserFavouritesPropertyFromDB,
 };

@@ -32,7 +32,7 @@ const propertySchema = new Schema<IProperty>(
       type: String,
       required: true,
     },
-    propertyTitle: {
+    title: {
       type: String,
       required: true,
     },
@@ -61,7 +61,7 @@ const propertySchema = new Schema<IProperty>(
       enum: Object.values(PRICE_TYPE),
       required: true,
     },
-    propertyDetails: {
+    description: {
       type: String,
       required: true,
     },

@@ -26,14 +26,14 @@ export interface IProperty {
   ownerType: TOwnerType;
   ownershipImages: string[];
   ownerNumber: string;
-  propertyTitle: string;
+  title: string;
   propertyImages: string[];
   propertyVideo: string;
   address: string;
   category: TCategory;
   price: string;
   priceType: TPriceType;
-  propertyDetails: string;
+  description: string;
   size: string;
   decorationType: TDecorationType;
   flore: string;

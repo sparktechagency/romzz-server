@@ -97,6 +97,17 @@ const updateUserProfile = catchAsync(async (req, res) => {
   });
 });
 
+const getUserFavouritesProperty = catchAsync(async (req, res) => {
+  const result = await UserServices?.getUserFavouritesPropertyFromDB(req?.user);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User favorite properties retrived successfully!',
+    data: result,
+  });
+});
+
 export const UserControllers = {
   createUser,
   createAdmin,
@@ -106,4 +117,5 @@ export const UserControllers = {
   getAdmins,
   getUserProfile,
   updateUserProfile,
+  getUserFavouritesProperty,
 };
