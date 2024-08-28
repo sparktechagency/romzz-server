@@ -97,13 +97,15 @@ const createAdminToDB = async (payload: IUser) => {
 const getUsersFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const usersQuery = new QueryBuilder(
-    User.find({ role: 'user', isVerified: true }),
+    User.find({
+      role: 'user',
+      isVerified: true,
+    }).select('avatar fullName email presentAddress permanentAddress'),
     query,
   )
     .search(UserSearchableFields) // Apply search conditions based on searchable fields
     .sort() // Apply sorting based on the query parameter
-    .paginate() // Apply pagination based on the query parameter
-    .fields(); // Select specific fields to include/exclude in the result
+    .paginate(); // Apply pagination based on the query parameter
 
   // Get the total count of matching documents and total pages for pagination
   const meta = await usersQuery.countTotal();
@@ -115,10 +117,12 @@ const getUsersFromDB = async (query: Record<string, unknown>) => {
 
 const getAdminsFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
-  const usersQuery = new QueryBuilder(User.find({ role: 'admin' }), query)
+  const usersQuery = new QueryBuilder(
+    User.find({ role: 'admin' }).select('avatar fullName email'),
+    query,
+  )
     .sort() // Apply sorting based on the query parameter
-    .paginate() // Apply pagination based on the query parameter
-    .fields(); // Select specific fields to include/exclude in the result
+    .paginate(); // Apply pagination based on the query parameter
 
   // Get the total count of matching documents and total pages for pagination
   const meta = await usersQuery.countTotal();
@@ -263,7 +267,7 @@ const getUserFavouritesPropertyFromDB = async (user: JwtPayload) => {
   // Find all favorites for the user
   const favorites = await Favourite.find({ userId: user?.userId }).populate({
     path: 'propertyId',
-    select: 'propertyImages price title category address createdBy', // Include createdBy field
+    select: 'propertyImages price priceType title category address createdBy', // Include createdBy field
     populate: {
       path: 'createdBy',
       select: 'avatar', // Select only the user image (avatar) field

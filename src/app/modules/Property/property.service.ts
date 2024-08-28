@@ -56,7 +56,7 @@ const createPropertyToDB = async (
 const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const propertiesQuery = new QueryBuilder(
-    Property.find().populate({
+    Property.find().select('status').populate({
       path: 'createdBy',
       select: 'fullName email phoneNumber avatar',
     }),
@@ -65,8 +65,7 @@ const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
     .search(['address']) // Apply search conditions based on searchable fields
     .filter()
     .sort() // Apply sorting based on the query parameter
-    .paginate() // Apply pagination based on the query parameter
-    .fields(); // Select specific fields to include/exclude in the result
+    .paginate(); // Apply pagination based on the query parameter
 
   // Get the total count of matching documents and total pages for pagination
   const meta = await propertiesQuery.countTotal();
@@ -80,16 +79,17 @@ const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
 const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const propertiesQuery = new QueryBuilder(
-    Property.find({ isApproved: true, isBooked: false }).populate({
-      path: 'createdBy',
-      select: 'avatar',
-    }),
+    Property.find({ isApproved: true, isBooked: false })
+      .select('propertyImages price priceType title category address')
+      .populate({
+        path: 'createdBy',
+        select: 'avatar',
+      }),
     query,
   )
     .search(['address']) // Apply search conditions based on searchable fields
     .sort() // Apply sorting based on the query parameter
-    .paginate() // Apply pagination based on the query parameter
-    .fields(); // Select specific fields to include/exclude in the result
+    .paginate(); // Apply pagination based on the query parameter
 
   // Get the total count of matching documents and total pages for pagination
   const meta = await propertiesQuery.countTotal();
@@ -254,12 +254,20 @@ const togglePropertyFavouriteStatusToDB = async (
   propertyId: string,
 ) => {
   // Check if the property exists
-  const existingProperty = await Property.findById(propertyId);
+  const existingProperty =
+    await Property.findById(propertyId).select('isApproved');
 
   if (!existingProperty) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
       `Property with ID: ${propertyId} not found!`,
+    );
+  }
+
+  if (!existingProperty?.isApproved) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      `Property with ID: ${propertyId} is not approved and cannot be favorited!`,
     );
   }
 
