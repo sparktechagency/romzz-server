@@ -6,10 +6,17 @@ import { upload } from '../../helpers/uploadConfig';
 
 const router = Router();
 
+// Route to get all properties and create a new property
 router
   .route('/')
 
-  .get(PropertyControllers.getAllProperties)
+  // Route to get all properties
+  .get(
+    validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+    PropertyControllers.getAllProperties,
+  )
+
+  // Route to create a new property
   .post(
     validateAuth(USER_ROLE.user),
     upload.fields([
@@ -24,7 +31,10 @@ router
     PropertyControllers.createProperty,
   );
 
+// Route to get only approved properties
 router.get('/approved-properties', PropertyControllers.getApprovedProperties);
+
+// Route to get properties created by the user
 router.get(
   '/user-properties',
   validateAuth(USER_ROLE.user),
@@ -34,7 +44,10 @@ router.get(
 router
   .route('/:id')
 
+  // Route to get a property by ID
   .get(PropertyControllers.getPropertyById)
+
+  // Route to update a property by ID
   .patch(
     validateAuth(USER_ROLE.user),
     upload.fields([
@@ -61,4 +74,12 @@ router.patch(
   validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
   PropertyControllers.updatePropertyStatusToReject,
 );
+
+// Route to toggle favorite status for a property
+router.patch(
+  '/favourite/:id',
+  validateAuth(USER_ROLE.user),
+  PropertyControllers.togglePropertyFavouriteStatus,
+);
+
 export const PropertyRoutes = router;

@@ -208,6 +208,14 @@ const updateUserProfileToDB = async (
   // Find the existing user to get the current avatar path
   const existingUser = await User.findById(user?.userId);
 
+  // Ensure the user trying to update the profile is the creator
+  if (existingUser?._id?.toString() !== user?.userId) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      'You do not have permission to update this property!',
+    );
+  }
+
   // Handle avatar update if a new avatar is uploaded
   if (files?.avatar && files?.avatar?.length > 0) {
     const newAvatarPath = files?.avatar[0]?.path.replace(/\\/g, '/'); // Replace backslashes with forward slashes

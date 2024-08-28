@@ -11,6 +11,7 @@ import {
   propertyFieldsToExclude,
 } from './property.constant';
 import unlinkFile from '../../helpers/unlinkFile';
+import { Favourite } from '../Favourite/favourite.model';
 
 const createPropertyToDB = async (
   user: JwtPayload,
@@ -142,7 +143,7 @@ const updatePropertyByIdToDB = async (
   }
 
   // Ensure the user trying to update the property is the creator
-  if (existingProperty.createdBy.toString() !== user.userId) {
+  if (existingProperty?.createdBy?.toString() !== user?.userId) {
     throw new ApiError(
       httpStatus.FORBIDDEN,
       'You do not have permission to update this property!',
@@ -248,6 +249,37 @@ const updatePropertyStatusToRejectToDB = async (propertyId: string) => {
   return result;
 };
 
+const togglePropertyFavouriteStatusToDB = async (
+  user: JwtPayload,
+  propertyId: string,
+) => {
+  // Check if the property exists
+  const existingProperty = await Property.findById(propertyId);
+
+  if (!existingProperty) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Property with ID: ${propertyId} not found!`,
+    );
+  }
+
+  // Check if the user has already favourited the property
+  const existingFavorite = await Favourite.findOne({
+    userId: user?.userId,
+    propertyId,
+  });
+
+  if (existingFavorite) {
+    // If already favourited, remove it
+    await Favourite.deleteOne({ userId: user?.userId, propertyId });
+    return { propertyId, isFavourited: false };
+  } else {
+    // If not favourited, add to favorites
+    await Favourite.create({ userId: user?.userId, propertyId });
+    return { propertyId, isFavourited: true };
+  }
+};
+
 export const PropertyServices = {
   createPropertyToDB,
   getAllPropertiesFromDB,
@@ -257,4 +289,5 @@ export const PropertyServices = {
   updatePropertyByIdToDB,
   updatePropertyStatusToApproveToDB,
   updatePropertyStatusToRejectToDB,
+  togglePropertyFavouriteStatusToDB,
 };

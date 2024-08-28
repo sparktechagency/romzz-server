@@ -104,6 +104,20 @@ const updatePropertyStatusToReject = catchAsync(async (req, res) => {
   });
 });
 
+const togglePropertyFavouriteStatus = catchAsync(async (req, res) => {
+  const result = await PropertyServices.togglePropertyFavouriteStatusToDB(
+    req?.user,
+    req?.params?.id,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Property favorite status updated successfully!',
+    data: result,
+  });
+});
+
 export const PropertyControllers = {
   createProperty,
   getAllProperties,
@@ -113,4 +127,5 @@ export const PropertyControllers = {
   updatePropertyById,
   updatePropertyStatusToApprove,
   updatePropertyStatusToReject,
+  togglePropertyFavouriteStatus,
 };

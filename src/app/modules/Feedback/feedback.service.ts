@@ -61,13 +61,6 @@ const getUserProfileFeedbacksFromDB = async (userId: string) => {
   // Find properties posted by the user
   const properties = await Property.find({ createdBy: userId });
 
-  if (!properties) {
-    throw new ApiError(
-      httpStatus.NOT_FOUND,
-      'No properties found for this user!',
-    );
-  }
-
   // Extract property IDs
   const propertyIds = properties?.map((property) => property?._id);
 
@@ -94,13 +87,6 @@ const getUserProfileFeedbackSummaryFromDB = async (userId: string) => {
 
   // Find properties posted by the user
   const properties = await Property.find({ createdBy: userId });
-
-  if (!properties) {
-    throw new ApiError(
-      httpStatus.NOT_FOUND,
-      'No properties found for this user',
-    );
-  }
 
   // Extract property IDs
   const propertyIds = properties?.map((property) => property?._id);
