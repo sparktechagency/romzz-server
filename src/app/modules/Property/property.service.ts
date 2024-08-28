@@ -63,7 +63,6 @@ const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
     query,
   )
     .search(['address']) // Apply search conditions based on searchable fields
-    .filter()
     .sort() // Apply sorting based on the query parameter
     .paginate(); // Apply pagination based on the query parameter
 
@@ -89,6 +88,8 @@ const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
   )
     .search(['address']) // Apply search conditions based on searchable fields
     .sort() // Apply sorting based on the query parameter
+    .filter()
+    .rangeFilter(['price'])
     .paginate(); // Apply pagination based on the query parameter
 
   // Get the total count of matching documents and total pages for pagination
@@ -215,7 +216,7 @@ const updatePropertyStatusToApproveToDB = async (propertyId: string) => {
   // Update the Property status to 'approve'
   const result = await Property.findByIdAndUpdate(
     propertyId,
-    { status: 'approve' },
+    { isApproved: true, status: 'approve' },
     { new: true }, // Return the updated document
   );
 
@@ -234,7 +235,7 @@ const updatePropertyStatusToRejectToDB = async (propertyId: string) => {
   // Update the Property status to 'reject'
   const result = await Property.findByIdAndUpdate(
     propertyId,
-    { status: 'reject' },
+    { isApproved: false, status: 'reject' },
     { new: true }, // Return the updated document
   );
 

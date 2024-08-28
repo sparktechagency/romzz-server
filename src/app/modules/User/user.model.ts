@@ -25,7 +25,6 @@ const userSchema = new Schema<IUser, UserModel>(
     },
     coverImage: {
       type: String,
-      default: 'https://i.ibb.co/z5YHLV9/profile.png',
     },
     phoneNumber: {
       type: String,

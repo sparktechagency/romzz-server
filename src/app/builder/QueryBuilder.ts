@@ -27,6 +27,24 @@ class QueryBuilder<T> {
     return this;
   }
 
+  // Method to apply sorting based on query parameter
+  sort() {
+    const sort =
+      (this?.query?.sort as string)?.split(',')?.join(' ') || '-createdAt';
+    this.modelQuery = this.modelQuery.sort(sort as string);
+
+    return this;
+  }
+
+  // Method to select specific fields to include/exclude from the result
+  fields() {
+    const fields = (this?.query?.fields as string)?.split(',')?.join(' ');
+
+    this.modelQuery = this.modelQuery.select(fields);
+
+    return this;
+  }
+
   // Method to apply filters based on query parameters
   filter() {
     const queryObj = { ...this.query };
@@ -49,11 +67,25 @@ class QueryBuilder<T> {
     return this;
   }
 
-  // Method to apply sorting based on query parameter
-  sort() {
-    const sort =
-      (this?.query?.sort as string)?.split(',')?.join(' ') || '-createdAt';
-    this.modelQuery = this.modelQuery.sort(sort as string);
+  // Method for range filtering, e.g., price, age, etc.
+  rangeFilter(rangeFields: string[]) {
+    rangeFields.forEach((field) => {
+      const range = this.query[field] as string;
+
+      if (range) {
+        const [min, max] = range.split(',').map(Number);
+        const filter: Record<string, unknown> = {};
+
+        if (!isNaN(min)) filter.$gte = min;
+        if (!isNaN(max)) filter.$lte = max;
+
+        if (Object?.keys(filter)?.length) {
+          this.modelQuery = this.modelQuery.find({
+            [field]: filter,
+          } as FilterQuery<T>);
+        }
+      }
+    });
 
     return this;
   }
@@ -65,15 +97,6 @@ class QueryBuilder<T> {
     const skip = (page - 1) * limit;
 
     this.modelQuery = this.modelQuery.skip(skip).limit(limit);
-
-    return this;
-  }
-
-  // Method to select specific fields to include/exclude from the result
-  fields() {
-    const fields = (this?.query?.fields as string)?.split(',')?.join(' ');
-
-    this.modelQuery = this.modelQuery.select(fields);
 
     return this;
   }
