@@ -7,7 +7,7 @@ import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
 import { unlinkFile } from '../../helpers/fileHandler';
 
-const createSliderIntoDB = async (
+const createSliderToDB = async (
   user: JwtPayload,
   payload: ISlider,
   file: any,
@@ -97,7 +97,7 @@ const deleteSliderByIdFromDB = async (sliderId: string) => {
 };
 
 export const SliderServices = {
-  createSliderIntoDB,
+  createSliderToDB,
   getSlidersFromDB,
   updateSliderByIdFromDB,
   deleteSliderByIdFromDB,

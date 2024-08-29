@@ -4,32 +4,30 @@ import sendResponse from '../../utils/sendResponse';
 import { AuthServices } from './auth.service';
 import config from '../../config';
 
-const verifyEmailAddress = catchAsync(async (req, res) => {
-  const result = await AuthServices.verifyEmailAddressOtpToDB(req?.body);
-
-  return sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Email address verified successfully!',
-    data: result,
-  });
-});
-
-const resendVerificationOrPasswordReset = catchAsync(async (req, res) => {
-  const result = await AuthServices.resendVerificationOrPasswordResetEmailToDB(
-    req?.body,
-  );
+const verifyOtp = catchAsync(async (req, res) => {
+  const result = await AuthServices.verifyOtpToDB(req?.body);
 
   // Determine the response message based on the requestType
   const message =
-    req?.body?.requestType === 'verification'
-      ? 'Verification email sent successfully!'
-      : 'Password reset email sent successfully!';
+    req?.body?.requestType === 'passwordReset'
+      ? 'OTP verified successfully for password reset!'
+      : 'Email address verified successfully!';
 
   return sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message,
+    data: result,
+  });
+});
+
+const resendVerificationEmail = catchAsync(async (req, res) => {
+  const result = await AuthServices.resendVerificationEmailToDB(req?.body);
+
+  return sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Verification email sent successfully!',
     data: result,
   });
 });
@@ -79,17 +77,6 @@ const requestPasswordReset = catchAsync(async (req, res) => {
   });
 });
 
-const verifyResetPassword = catchAsync(async (req, res) => {
-  const result = await AuthServices.verifyResetPasswordOtpToDB(req?.body);
-
-  return sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'OTP verified successfully for password reset!',
-    data: result,
-  });
-});
-
 const resetPassword = catchAsync(async (req, res) => {
   const result = await AuthServices.resetPasswordToDB(
     req?.headers?.authorization as string,
@@ -118,12 +105,11 @@ const issueNewAccessToken = catchAsync(async (req, res) => {
 });
 
 export const AuthControllers = {
+  verifyOtp,
+  resendVerificationEmail,
   loginUser,
+  changePassword,
   requestPasswordReset,
   resetPassword,
-  changePassword,
-  verifyEmailAddress,
-  verifyResetPassword,
-  resendVerificationOrPasswordReset,
   issueNewAccessToken,
 };
