@@ -130,6 +130,7 @@ const updatePropertyByIdToDB = async (
   files: any,
   payload: Partial<IProperty> & {
     propertyImagesToDelete?: string[];
+    requestApproval?: boolean;
   },
 ) => {
   // Find the existing property
@@ -201,6 +202,11 @@ const updatePropertyByIdToDB = async (
   // Exclude specific fields from being updated
   propertyFieldsToExclude?.forEach((field) => delete payload[field]);
 
+  // Set the status to 'pending' if requestApproval is true
+  if (payload?.requestApproval) {
+    payload.status = 'pending';
+  }
+
   // Save new data to the database
   const result = await Property.findByIdAndUpdate(propertyId, payload, {
     new: true,
@@ -225,8 +231,6 @@ const updatePropertyStatusToApproveToDB = async (propertyId: string) => {
       `Property with ID: ${propertyId} not found!`,
     );
   }
-
-  return result;
 };
 
 const updatePropertyStatusToRejectToDB = async (propertyId: string) => {
@@ -244,8 +248,6 @@ const updatePropertyStatusToRejectToDB = async (propertyId: string) => {
       `Property with ID: ${propertyId} not found!`,
     );
   }
-
-  return result;
 };
 
 const togglePropertyFavouriteStatusToDB = async (
