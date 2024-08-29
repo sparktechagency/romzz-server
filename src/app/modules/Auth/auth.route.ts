@@ -26,17 +26,8 @@ router.post('/verify-email', AuthControllers.verifyEmailAddress);
 // Verify OTP for password reset
 router.post('/verify-reset-otp', AuthControllers.verifyResetPassword);
 
-// Resend email verification
-router.post(
-  '/resend-verification-email',
-  AuthControllers.resendVerificationEmail,
-);
-
-// Resend password reset email
-router.post(
-  '/resend-password-reset-email',
-  AuthControllers.resendPasswordResetEmail,
-);
+// Resend verification or password reset email
+router.post('/resend-email', AuthControllers.resendVerificationOrPasswordReset);
 
 // Change password for authenticated users
 router.post(

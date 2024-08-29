@@ -15,13 +15,21 @@ const verifyEmailAddress = catchAsync(async (req, res) => {
   });
 });
 
-const resendVerificationEmail = catchAsync(async (req, res) => {
-  const result = await AuthServices.resendVerificationEmailToDB(req?.body);
+const resendVerificationOrPasswordReset = catchAsync(async (req, res) => {
+  const result = await AuthServices.resendVerificationOrPasswordResetEmailToDB(
+    req?.body,
+  );
+
+  // Determine the response message based on the requestType
+  const message =
+    req?.body?.requestType === 'verification'
+      ? 'Verification email sent successfully!'
+      : 'Password reset email sent successfully!';
 
   return sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Verification email sent successfully!',
+    message,
     data: result,
   });
 });
@@ -82,17 +90,6 @@ const verifyResetPassword = catchAsync(async (req, res) => {
   });
 });
 
-const resendPasswordResetEmail = catchAsync(async (req, res) => {
-  const result = await AuthServices.resendPasswordResetEmailToDB(req?.body);
-
-  return sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Password reset email sent successfully!',
-    data: result,
-  });
-});
-
 const resetPassword = catchAsync(async (req, res) => {
   const result = await AuthServices.resetPasswordToDB(
     req?.headers?.authorization as string,
@@ -127,7 +124,6 @@ export const AuthControllers = {
   changePassword,
   verifyEmailAddress,
   verifyResetPassword,
-  resendVerificationEmail,
-  resendPasswordResetEmail,
+  resendVerificationOrPasswordReset,
   issueNewAccessToken,
 };

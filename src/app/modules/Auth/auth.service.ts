@@ -18,10 +18,14 @@ const verifyEmailAddressOtpToDB = async (payload: {
   await User.verifyOtp(payload?.email, payload?.otp);
 };
 
-const resendVerificationEmailToDB = async (payload: { email: string }) => {
-  // Find the user by ID
-  const existingUser = await User.isUserExistsByEmail(payload?.email);
+const resendVerificationOrPasswordResetEmailToDB = async (payload: {
+  email: string;
+  requestType: 'verification' | 'passwordReset';
+}) => {
+  // Find the user by email
+  const existingUser = await User.isUserExistsByEmail(payload.email);
 
+  // Handle case where user is not found
   if (!existingUser) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
@@ -29,38 +33,63 @@ const resendVerificationEmailToDB = async (payload: { email: string }) => {
     );
   }
 
-  if (existingUser?.isVerified) {
+  // Check for account status based on request type
+  if (payload?.requestType === 'passwordReset') {
+    if (existingUser?.isBlocked) {
+      throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
+    }
+
+    if (existingUser?.isDeleted) {
+      throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted!');
+    }
+  } else if (existingUser?.isVerified) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User is already verified!');
   }
 
-  // Generate new OTP and set its expiration time
+  // Generate OTP and expiration time
   const otp = generateOtp();
   const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // OTP expires in 5 minutes
 
-  // Load the email verification template and render it with user-specific data
-  const verifyEmailTemplatePath = path.join(
-    process.cwd(),
-    'src',
-    'app',
-    'templates',
-    'verifyEmailTemplate.ejs',
-  );
+  // Define the template path and email subject based on request type
+  const templatePath =
+    payload?.requestType === 'verification'
+      ? path.join(
+          process.cwd(),
+          'src',
+          'app',
+          'templates',
+          'verifyEmailTemplate.ejs',
+        )
+      : path.join(
+          process.cwd(),
+          'src',
+          'app',
+          'templates',
+          'forgetPasswordTemplate.ejs',
+        );
 
-  const verifyEmailTemplate = await ejs.renderFile(verifyEmailTemplatePath, {
+  const subject =
+    payload?.requestType === 'verification'
+      ? 'Verify Your Email Address - Romzz'
+      : 'Reset Your Password - Romzz';
+
+  // Render the appropriate email template
+  const template = await ejs.renderFile(templatePath, {
     fullName: existingUser?.fullName,
     otp,
   });
 
+  // Define email options
   const emailOptions = {
-    to: existingUser?.email, // Receiver's email address
-    subject: 'Verify Your Email Address - Roomz',
-    html: verifyEmailTemplate, // HTML content of the email
+    to: existingUser?.email,
+    subject: subject,
+    html: template,
   };
 
-  // Send verification email to user
+  // Send the email
   await sendEmail(emailOptions);
 
-  // Save OTP and expiration time to user document
+  // Save OTP and expiration time to the user document
   await User.findByIdAndUpdate(existingUser?._id, {
     $set: { otp, otpExpiresAt },
   });
@@ -215,7 +244,7 @@ const requestPasswordResetToDB = async (payload: { email: string }) => {
 
   const emailOptions = {
     to: payload?.email,
-    subject: 'Reset Your Password - Roomz',
+    subject: 'Reset Your Password - Romzz',
     html: forgetPasswordTemplate, // HTML content of the email
   };
 
@@ -223,65 +252,6 @@ const requestPasswordResetToDB = async (payload: { email: string }) => {
   await sendEmail(emailOptions);
 
   // Save OTP and expiration time to user document
-  await User.findByIdAndUpdate(existingUser?._id, {
-    $set: { otp, otpExpiresAt },
-  });
-};
-
-const resendPasswordResetEmailToDB = async (payload: { email: string }) => {
-  // Check if a user with the provided email exists in the database
-  const existingUser = await User.isUserExistsByEmail(payload?.email);
-
-  // If no user is found with the given email, throw a NOT_FOUND error
-  if (!existingUser) {
-    throw new ApiError(
-      httpStatus.NOT_FOUND,
-      'User with this email does not exist!',
-    );
-  }
-
-  // If the user is blocked, throw a FORBIDDEN error.
-  if (existingUser?.isBlocked) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
-  }
-
-  // If the user is deleted, throw a FORBIDDEN error.
-  if (existingUser?.isDeleted) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted!');
-  }
-
-  // Generate a one-time password (OTP) for email verification
-  const otp = generateOtp();
-  const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // OTP expires in 5 minutes
-
-  // Define the path to the email template for password reset.
-  const forgetPasswordTemplatePath = path.join(
-    process.cwd(),
-    'src',
-    'app',
-    'templates',
-    'forgetPasswordTemplate.ejs',
-  );
-
-  // Render the email template with the OTP and user details.
-  const forgetPasswordTemplate = await ejs.renderFile(
-    forgetPasswordTemplatePath,
-    {
-      fullName: existingUser?.fullName,
-      otp,
-    },
-  );
-
-  // Define the mail options for sending the OTP email.
-  const emailOptions = {
-    to: existingUser?.email,
-    subject: 'Reset Your Password - Roomz',
-    html: forgetPasswordTemplate, // HTML content of the email
-  };
-
-  // Send the OTP email to the user.
-  await sendEmail(emailOptions);
-
   await User.findByIdAndUpdate(existingUser?._id, {
     $set: { otp, otpExpiresAt },
   });
@@ -444,7 +414,6 @@ export const AuthServices = {
   requestPasswordResetToDB,
   verifyEmailAddressOtpToDB,
   verifyResetPasswordOtpToDB,
-  resendPasswordResetEmailToDB,
-  resendVerificationEmailToDB,
+  resendVerificationOrPasswordResetEmailToDB,
   issueNewAccessToken,
 };
