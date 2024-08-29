@@ -5,7 +5,7 @@ import { ISlider } from './slider.interface';
 import { Slider } from './slider.model';
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
-import unlinkFile from '../../helpers/unlinkFile';
+import { unlinkFile } from '../../helpers/fileHandler';
 
 const createSliderIntoDB = async (
   user: JwtPayload,

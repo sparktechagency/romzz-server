@@ -5,7 +5,7 @@ import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
 import { IOurStory } from './ourStory.interface';
 import { OurStory } from './ourStory.model';
-import unlinkFile from '../../helpers/unlinkFile';
+import { unlinkFile } from '../../helpers/fileHandler';
 
 const createOurStoryToDB = async (
   user: JwtPayload,

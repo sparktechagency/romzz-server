@@ -10,8 +10,8 @@ import {
   MAX_PROPERTY_IMAGES,
   propertyFieldsToExclude,
 } from './property.constant';
-import unlinkFile from '../../helpers/unlinkFile';
 import { Favourite } from '../Favourite/favourite.model';
+import { unlinkFile, unlinkFiles } from '../../helpers/fileHandler';
 
 const createPropertyToDB = async (
   user: JwtPayload,
@@ -161,9 +161,7 @@ const updatePropertyByIdToDB = async (
     );
 
     // Delete specified images from storage
-    for (const propertyImage of payload.propertyImagesToDelete) {
-      unlinkFile(propertyImage);
-    }
+    unlinkFiles(payload?.propertyImagesToDelete);
   }
 
   // Update proof of ownership if new files are provided

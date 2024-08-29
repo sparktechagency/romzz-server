@@ -6,7 +6,7 @@ import { Blog } from './blog.model';
 import QueryBuilder from '../../builder/QueryBuilder';
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
-import unlinkFile from '../../helpers/unlinkFile';
+import { unlinkFile } from '../../helpers/fileHandler';
 
 const createBlogToDB = async (user: JwtPayload, payload: IBlog, file: any) => {
   // If a new image is uploaded, update the image path in the payload

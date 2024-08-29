@@ -5,7 +5,7 @@ import httpStatus from 'http-status';
 import createDirectory from './createDirectory';
 import { FIELD_NAME_TO_FORMATS } from '../constants/file.constant';
 import getUploadFolder from './getUploadFolder';
-import unlinkFiles from './unlinkFiles';
+import { unlinkFiles } from './fileHandler';
 
 // Base directory for uploads
 const baseUploadDirectory = path.join(process.cwd(), 'uploads');

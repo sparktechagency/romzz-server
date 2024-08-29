@@ -4,7 +4,6 @@ import express, { Request, Response } from 'express';
 import router from './app/routes';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
 import notFound from './app/middlewares/notFound';
-import corsConfig from './app/utils/corsConfig';
 import requestLogger from './app/middlewares/requestLogger';
 
 const app = express();

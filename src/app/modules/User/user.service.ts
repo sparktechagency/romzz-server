@@ -15,12 +15,12 @@ import path from 'path';
 import ejs from 'ejs';
 import cron from 'node-cron';
 import generateOtp from '../../helpers/generateOtp';
-import unlinkFile from '../../helpers/unlinkFile';
 import { errorLogger, logger } from '../../utils/winstonLogger';
 import colors from 'colors';
 import { sendEmail } from '../../helpers/emailService';
 import { startOfMonth, endOfMonth } from 'date-fns';
 import { Favourite } from '../Favourite/favourite.model';
+import { unlinkFile } from '../../helpers/fileHandler';
 
 const createUserToDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists

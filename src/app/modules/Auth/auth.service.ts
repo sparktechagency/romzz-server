@@ -3,7 +3,7 @@ import ApiError from '../../errors/ApiError';
 import bcrypt from 'bcrypt';
 import config from '../../config';
 import { User } from '../User/user.model';
-import { createJwtToken, verifyJwtToken } from '../../helpers/jwtUtils';
+import { createJwtToken, verifyJwtToken } from '../../helpers/tokenUtils';
 import { JwtPayload } from 'jsonwebtoken';
 import path from 'path';
 import { sendEmail } from '../../helpers/emailService';
