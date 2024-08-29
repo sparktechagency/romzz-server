@@ -46,11 +46,11 @@ export interface IProperty {
   dining: number;
   drawing: number;
   moveOn: Date;
-  unavailableDay: Date;
+  unavailableDay: Date[];
   allowedGender: TAllowedGender;
   guestType: TGuestType;
   occupation: TOccupation;
-  facilities: string[];
+  facilities: ObjectId[];
   status: TStatus;
   isApproved: boolean;
   isBooked: boolean;

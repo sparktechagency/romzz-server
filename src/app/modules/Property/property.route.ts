@@ -3,6 +3,8 @@ import validateAuth from '../../middlewares/validateAuth';
 import { USER_ROLE } from '../User/user.constant';
 import { PropertyControllers } from './property.controller';
 import { upload } from '../../helpers/uploadConfig';
+import validateRequest from '../../middlewares/validateRequest';
+import { propertyValidationSchema } from './property.validation';
 
 const router = Router();
 
@@ -28,6 +30,7 @@ router
       req.body = JSON.parse(req?.body?.data);
       next();
     },
+    validateRequest(propertyValidationSchema),
     PropertyControllers.createProperty,
   );
 

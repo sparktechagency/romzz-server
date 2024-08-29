@@ -13,7 +13,7 @@ export const propertyValidationSchema = z.object({
       invalid_type_error: 'Owner number must be a string.',
     }),
 
-    propertyTitle: z.string({
+    title: z.string({
       required_error: 'Property title is required.',
       invalid_type_error: 'Property title must be a string.',
     }),
@@ -40,9 +40,9 @@ export const propertyValidationSchema = z.object({
         'Price type must be one of the following: "day", "week", "month", or "year".',
     }),
 
-    propertyDetails: z.string({
-      required_error: 'Property details are required.',
-      invalid_type_error: 'Property details must be a string.',
+    description: z.string({
+      required_error: 'Property description are required.',
+      invalid_type_error: 'Property description must be a string.',
     }),
 
     size: z.string({
@@ -50,7 +50,7 @@ export const propertyValidationSchema = z.object({
       invalid_type_error: 'Size must be a string.',
     }),
 
-    decoration: z.enum(['furnished', 'unfurnished'], {
+    decorationType: z.enum(['furnished', 'unfurnished'], {
       required_error: 'Decoration type is required.',
       invalid_type_error:
         'Decoration type must be either "furnished" or "unfurnished".',
@@ -123,39 +123,14 @@ export const propertyValidationSchema = z.object({
       .int()
       .min(0, 'Number of drawing rooms cannot be negative.'),
 
-    moveOn: z.date({
-      required_error: 'Move-on date is required.',
-      invalid_type_error: 'Move-on date must be a valid date.',
-    }),
+    // moveOn: z.date({
+    //   required_error: 'Move-on date is required.',
+    //   invalid_type_error: 'Move-on date must be a valid date.',
+    // }),
 
-    unavailableDay: z
-      .date({
-        required_error: 'Unavailable day is required.',
-        invalid_type_error: 'Unavailable day must be a valid date.',
-      })
-      .optional(),
-
-    allowedGender: z.enum(['all', 'male', 'female', 'others'], {
-      required_error: 'Allowed gender is required.',
-      invalid_type_error:
-        'Allowed gender must be one of the following: "all", "male", "female", or "others".',
-    }),
-
-    guestType: z.enum(['all', 'single', 'couple', 'family'], {
-      required_error: 'Guest type is required.',
-      invalid_type_error:
-        'Guest type must be one of the following: "all", "single", "couple", or "family".',
-    }),
-
-    occupation: z.enum(['all', 'student', 'professional'], {
-      required_error: 'Occupation type is required.',
-      invalid_type_error:
-        'Occupation type must be one of the following: "all", "student", or "professional".',
-    }),
-
-    facilities: z.array(z.string(), {
-      required_error: 'Facilities are required.',
-      invalid_type_error: 'Facilities must be an array of strings.',
-    }),
+    // facilities: z.array(z.string(), {
+    //   required_error: 'Facilities are required.',
+    //   invalid_type_error: 'Facilities must be an array of strings.',
+    // }),
   }),
 });

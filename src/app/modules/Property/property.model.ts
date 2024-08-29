@@ -11,6 +11,7 @@ import {
   PROPERTY_TYPE,
   STATUS,
 } from './property.constant';
+import { nonEmptyArray, nonEmptyStrings } from '../../helpers/validators';
 
 const propertySchema = new Schema<IProperty>(
   {
@@ -25,8 +26,18 @@ const propertySchema = new Schema<IProperty>(
       required: true,
     },
     ownershipImages: {
-      type: [String], // Array of strings for ownership proof documents
+      type: [String],
       required: true,
+      validate: [
+        {
+          validator: nonEmptyArray,
+          message: 'At least one owenership image is required.',
+        },
+        {
+          validator: nonEmptyStrings,
+          message: 'Each image path must be a non-empty string.',
+        },
+      ],
     },
     ownerNumber: {
       type: String,
@@ -37,8 +48,18 @@ const propertySchema = new Schema<IProperty>(
       required: true,
     },
     propertyImages: {
-      type: [String], // Array of strings for image URLs
+      type: [String],
       required: true,
+      validate: [
+        {
+          validator: nonEmptyArray,
+          message: 'At least one property image is required.',
+        },
+        {
+          validator: nonEmptyStrings,
+          message: 'Each image path must be a non-empty string.',
+        },
+      ],
     },
     propertyVideo: {
       type: String,
@@ -113,9 +134,10 @@ const propertySchema = new Schema<IProperty>(
     },
     moveOn: {
       type: Date,
+      required: true,
     },
     unavailableDay: {
-      type: Date,
+      type: [Date],
     },
     allowedGender: {
       type: String,
@@ -130,7 +152,7 @@ const propertySchema = new Schema<IProperty>(
       enum: Object.values(OCCUPATION),
     },
     facilities: {
-      type: [String], // Array of strings for facilities
+      type: [{ type: Schema.Types.ObjectId, ref: 'Facility' }],
       required: true,
     },
     isApproved: {
