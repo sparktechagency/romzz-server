@@ -87,9 +87,9 @@ const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
     query,
   )
     .search(['address']) // Apply search conditions based on searchable fields
-    .sort() // Apply sorting based on the query parameter
     .filter()
-    .rangeFilter(['price'])
+    .rangeFilter()
+    .sort() // Apply sorting based on the query parameter
     .paginate(); // Apply pagination based on the query parameter
 
   // Get the total count of matching documents and total pages for pagination

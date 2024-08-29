@@ -53,7 +53,7 @@ const propertySchema = new Schema<IProperty>(
       required: true,
     },
     price: {
-      type: String,
+      type: Number,
       required: true,
     },
     priceType: {

@@ -27,28 +27,18 @@ class QueryBuilder<T> {
     return this;
   }
 
-  // Method to apply sorting based on query parameter
-  sort() {
-    const sort =
-      (this?.query?.sort as string)?.split(',')?.join(' ') || '-createdAt';
-    this.modelQuery = this.modelQuery.sort(sort as string);
-
-    return this;
-  }
-
-  // Method to select specific fields to include/exclude from the result
-  fields() {
-    const fields = (this?.query?.fields as string)?.split(',')?.join(' ');
-
-    this.modelQuery = this.modelQuery.select(fields);
-
-    return this;
-  }
-
   // Method to apply filters based on query parameters
   filter() {
     const queryObj = { ...this.query };
-    const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
+
+    const excludeFields = [
+      'searchTerm',
+      'price',
+      'sort',
+      'fields',
+      'limit',
+      'page',
+    ];
 
     excludeFields.forEach((el) => delete queryObj[el]);
 
@@ -68,24 +58,38 @@ class QueryBuilder<T> {
   }
 
   // Method for range filtering, e.g., price, age, etc.
-  rangeFilter(rangeFields: string[]) {
-    rangeFields.forEach((field) => {
-      const range = this.query[field] as string;
+  rangeFilter() {
+    const priceRange = this.query['price'] as string;
 
-      if (range) {
-        const [min, max] = range.split(',').map(Number);
-        const filter: Record<string, unknown> = {};
+    // Check if priceRange exists and contains a hyphen for range
+    if (priceRange && priceRange?.includes('-')) {
+      const [minStr, maxStr] = priceRange.split('-');
+      const min = Number(minStr); // Default min to 0 if not provided
+      const max = Number(maxStr);
 
-        if (!isNaN(min)) filter.$gte = min;
-        if (!isNaN(max)) filter.$lte = max;
+      // Apply the filter for the price range
+      this.modelQuery = this.modelQuery.find({
+        price: { $gte: min, $lte: max },
+      });
+    }
 
-        if (Object?.keys(filter)?.length) {
-          this.modelQuery = this.modelQuery.find({
-            [field]: filter,
-          } as FilterQuery<T>);
-        }
-      }
-    });
+    return this;
+  }
+
+  // Method to apply sorting based on query parameter
+  sort() {
+    const sort =
+      (this?.query?.sort as string)?.split(',')?.join(' ') || '-createdAt';
+    this.modelQuery = this.modelQuery.sort(sort as string);
+
+    return this;
+  }
+
+  // Method to select specific fields to include/exclude from the result
+  fields() {
+    const fields = (this?.query?.fields as string)?.split(',')?.join(' ');
+
+    this.modelQuery = this.modelQuery.select(fields);
 
     return this;
   }

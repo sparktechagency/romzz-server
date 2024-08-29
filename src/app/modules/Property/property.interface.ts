@@ -31,7 +31,7 @@ export interface IProperty {
   propertyVideo: string;
   address: string;
   category: TCategory;
-  price: string;
+  price: number;
   priceType: TPriceType;
   description: string;
   size: string;
