@@ -8,7 +8,7 @@ const ourStorySchema = new Schema<IOurStory>(
       ref: 'User', // Reference to the 'User' model
       required: true,
     },
-    storyDetails: {
+    storyContent: {
       type: String,
       required: true,
     },

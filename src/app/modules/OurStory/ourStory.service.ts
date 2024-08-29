@@ -77,6 +77,7 @@ const updateOurStoryByIdFromDB = async (
   // Update the our story entry in the database with the new data
   const result = await OurStory.findByIdAndUpdate(ourStoryId, payload, {
     new: true, // Return the updated document
+    runValidators: true,
   });
 
   return result;

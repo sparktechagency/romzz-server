@@ -40,6 +40,7 @@ const updateSocialMediaByIdFromDB = async (
   // Update the SocialMedia with the provided status
   const result = await SocialMedia.findByIdAndUpdate(SocialmediaId, payload, {
     new: true, // Return the updated document
+    runValidators: true,
   });
 
   // Handle case where no SocialMedia is found

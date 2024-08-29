@@ -83,6 +83,7 @@ const updateBlogByIdFromDB = async (
   // Update the blog with the provided status
   const result = await Blog.findByIdAndUpdate(blogId, payload, {
     new: true, // Return the updated document
+    runValidators: true,
   });
 
   return result;

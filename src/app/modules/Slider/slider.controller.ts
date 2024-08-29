@@ -4,7 +4,7 @@ import sendResponse from '../../utils/sendResponse';
 import { SliderServices } from './slider.service';
 
 const createSlider = catchAsync(async (req, res) => {
-  const result = await SliderServices.createSliderIntoDB(
+  const result = await SliderServices.createSliderToDB(
     req?.user,
     req?.body,
     req?.file,

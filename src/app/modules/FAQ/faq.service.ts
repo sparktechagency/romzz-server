@@ -23,6 +23,7 @@ const updateFaqByIdFromDB = async (faqId: string, payload: Partial<IFaq>) => {
   // Update the Faq with the provided status
   const result = await Faq.findByIdAndUpdate(faqId, payload, {
     new: true, // Return the updated document
+    runValidators: true,
   });
 
   // Handle case where no Faq is found

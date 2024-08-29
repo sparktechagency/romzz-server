@@ -15,7 +15,6 @@ const verifyOtpToDB = async (payload: {
   otp: number;
   verificationType: 'emailVerification' | 'passwordReset';
 }) => {
-  console.log(payload);
   // Check if a user with the provided email exists in the database
   const existingUser = await User.isUserExistsByEmail(payload?.email);
 

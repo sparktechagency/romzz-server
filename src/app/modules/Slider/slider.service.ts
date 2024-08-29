@@ -74,6 +74,7 @@ const updateSliderByIdFromDB = async (
   // Update the slider entry in the database with the new data
   const result = await Slider.findByIdAndUpdate(sliderId, payload, {
     new: true, // Return the updated document
+    runValidators: true,
   });
   return result;
 };
