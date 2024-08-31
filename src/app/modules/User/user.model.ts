@@ -102,7 +102,6 @@ userSchema.methods.toJSON = function (options?: { includeRole?: boolean }) {
   // Remove sensitive fields
   delete userObject?.password;
   delete userObject?.passwordChangedAt;
-  delete userObject?.status;
   delete userObject?.isBlocked;
   delete userObject?.isDeleted;
   delete userObject?.isVerified;

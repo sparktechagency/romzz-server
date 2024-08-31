@@ -100,7 +100,7 @@ const getUsersFromDB = async (query: Record<string, unknown>) => {
     User.find({
       role: 'user',
       isVerified: true,
-    }).select('avatar fullName email presentAddress permanentAddress'),
+    }).select('avatar fullName email presentAddress permanentAddress status'),
     query,
   )
     .search(UserSearchableFields) // Apply search conditions based on searchable fields
@@ -118,7 +118,7 @@ const getUsersFromDB = async (query: Record<string, unknown>) => {
 const getAdminsFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const usersQuery = new QueryBuilder(
-    User.find({ role: 'admin' }).select('avatar fullName email'),
+    User.find({ role: 'admin' }).select('avatar fullName email status'),
     query,
   )
     .sort() // Apply sorting based on the query parameter
