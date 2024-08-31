@@ -1,5 +1,6 @@
 export const IMAGE_FIELD_NAMES = [
   'image',
+  'icon',
   'avatar',
   'coverImage',
   'propertyImages',
@@ -18,6 +19,7 @@ export const SUPPORTED_PDF_FORMATS = ['application/pdf'];
 // Create a map for field names and their corresponding supported formats
 export const FIELD_NAME_TO_FORMATS: { [key: string]: string[] } = {
   image: SUPPORTED_IMAGE_FORMATS,
+  icon: SUPPORTED_IMAGE_FORMATS,
   avatar: SUPPORTED_IMAGE_FORMATS,
   coverImage: SUPPORTED_IMAGE_FORMATS,
   propertyImages: SUPPORTED_IMAGE_FORMATS,
