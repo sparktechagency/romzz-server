@@ -6,7 +6,7 @@ import { IFacility } from './facility.interface';
 import { Facility } from './facility.model';
 import { unlinkFile } from '../../helpers/fileHandler';
 
-const createFacilityToDB = async (file: any, payload: IFacility) => {
+const createFacilityToDB = async (payload: IFacility, file: any) => {
   // If a new image is uploaded, update the image path in the payload
   if (file && file?.path) {
     payload.icon = file?.path?.replace(/\\/g, '/'); // Normalize the file path to use forward slashes
@@ -23,7 +23,7 @@ const getFacilitiesFromDB = async () => {
 
 const updateFacilityByIdFromDB = async (
   facilityId: string,
-  payload: Partial<IFacility>,
+  payload: IFacility,
   file: any,
 ) => {
   // Fetch the existing facility entry from the database by its ID
@@ -52,6 +52,7 @@ const updateFacilityByIdFromDB = async (
   // Update the Facility with the provided status
   const result = await Facility.findByIdAndUpdate(facilityId, payload, {
     new: true, // Return the updated document
+    runValidators: true,
   });
 
   // Handle case where no Facility is found

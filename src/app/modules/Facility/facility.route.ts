@@ -21,6 +21,7 @@ router
 
   .patch(
     validateAuth(USER_ROLE.superAdmin),
+    upload.single('icon'),
     FacilityControllers.updateFacilityById,
   )
   .delete(

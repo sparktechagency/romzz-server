@@ -16,7 +16,7 @@ router.get(
 
 router.get(
   '/admins',
-  validateAuth(USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
   UserControllers.getAdmins,
 );
 
@@ -32,8 +32,16 @@ router.get(
   UserControllers.getUserFavouritesProperty,
 );
 
-router.get('/user-count', UserControllers.getVerifiedUsersCount);
-router.get('/user-count/:year', UserControllers.getUserCountByYear);
+router.get(
+  '/user-count',
+  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  UserControllers.getVerifiedUsersCount,
+);
+router.get(
+  '/user-count/:year',
+  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  UserControllers.getUserCountByYear,
+);
 
 router.post(
   '/create-user',
@@ -43,7 +51,7 @@ router.post(
 
 router.post(
   '/create-admin',
-  // validateAuth(USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.superAdmin),
   validateRequest(userValidationSchema.createAdminSchema),
   UserControllers.createAdmin,
 );

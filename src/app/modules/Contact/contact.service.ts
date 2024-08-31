@@ -2,8 +2,8 @@ import QueryBuilder from '../../builder/QueryBuilder';
 import { IContact } from './contact.interface';
 import { Contact } from './contact.model';
 
-const saveUserEmailToDB = async (emailDetails: IContact) => {
-  const result = await Contact.create(emailDetails);
+const saveUserEmailToDB = async (payload: IContact) => {
+  const result = await Contact.create(payload);
   return result;
 };
 

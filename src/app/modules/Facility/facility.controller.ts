@@ -4,7 +4,10 @@ import sendResponse from '../../utils/sendResponse';
 import { FacilityServices } from './facility.service';
 
 const createFacility = catchAsync(async (req, res) => {
-  const result = await FacilityServices.createFacilityToDB(req?.body);
+  const result = await FacilityServices.createFacilityToDB(
+    req?.body,
+    req?.file,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -29,6 +32,7 @@ const updateFacilityById = catchAsync(async (req, res) => {
   const result = await FacilityServices.updateFacilityByIdFromDB(
     req?.params?.id,
     req?.body,
+    req?.file,
   );
 
   sendResponse(res, {
