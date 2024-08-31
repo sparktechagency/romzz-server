@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { IFeedback } from './feedback.interface';
+import { nonEmptyArray, nonEmptyStrings } from '../../helpers/validators';
 
 const feedbackSchema = new Schema<IFeedback>(
   {
@@ -27,8 +28,23 @@ const feedbackSchema = new Schema<IFeedback>(
       max: 5, // Maximum value for rating is 5
     },
     facilities: {
-      type: [String],
+      type: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: 'Facility',
+        },
+      ],
       required: true,
+      validate: [
+        {
+          validator: nonEmptyArray,
+          message: 'At least one facilities is required.',
+        },
+        {
+          validator: nonEmptyStrings,
+          message: 'Each facilities must be a non-empty string.',
+        },
+      ],
     },
     visibilityStatus: {
       type: String,

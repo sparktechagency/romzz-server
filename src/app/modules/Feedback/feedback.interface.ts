@@ -6,6 +6,6 @@ export interface IFeedback {
   feedback: string;
   image: string;
   rating: number;
-  facilities: string[];
+  facilities: ObjectId[];
   visibilityStatus: 'show' | 'hide';
 }
