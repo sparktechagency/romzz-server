@@ -7,7 +7,7 @@ const facilitySchema = new Schema<IFacility>(
       type: String,
       required: true,
     },
-    iconUrl: {
+    icon: {
       type: String,
       required: true,
     },

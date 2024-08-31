@@ -54,7 +54,7 @@ const updateBlogByIdFromDB = async (
   payload: Partial<IBlog>,
   file: any,
 ) => {
-  // Fetch the existing our stories entry from the database by its ID
+  // Fetch the existing blog entry from the database by its ID
   const existingBlog = await Blog.findById(blogId);
 
   // If the Blog entry does not exist, throw an error
@@ -93,17 +93,17 @@ const deleteBlogByIdFromDB = async (blogId: string) => {
   // Delete the Blog entry from the database by its ID
   const result = await Blog.findByIdAndDelete(blogId);
 
+  // If the Blog entry has an associated image, remove the image file
+  if (result?.image) {
+    unlinkFile(result?.image);
+  }
+
   // If the Blog entry does not exist, throw an error
   if (!result) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
       `Blog with ID: ${blogId} not found!`,
     );
-  }
-
-  // If the Blog entry has an associated image, remove the image file
-  if (result?.image) {
-    unlinkFile(result?.image);
   }
 };
 

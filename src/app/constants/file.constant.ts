@@ -12,7 +12,7 @@ export const PDF_FIELD_NAMES = ['pdf'];
 
 export const SUPPORTED_IMAGE_FORMATS = ['image/jpg', 'image/jpeg', 'image/png'];
 export const SUPPORTED_VIDEO_FORMATS = ['video/mp4'];
-export const SUPPORTED_AUDIO_FORMATS = ['audio/mpeg'];
+export const SUPPORTED_AUDIO_FORMATS = ['audio/mp3'];
 export const SUPPORTED_PDF_FORMATS = ['application/pdf'];
 
 // Create a map for field names and their corresponding supported formats
