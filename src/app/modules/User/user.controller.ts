@@ -36,13 +36,13 @@ const getUsers = catchAsync(async (req, res) => {
   });
 });
 
-const getVerifiedUsersCount = catchAsync(async (req, res) => {
-  const result = await UserServices?.getVerifiedUsersCountFromDB();
+const getUsersCount = catchAsync(async (req, res) => {
+  const result = await UserServices?.getUsersCountFromDB();
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Count of verified users retrieved successfully!',
+    message: 'Count of users retrieved successfully!',
     data: result,
   });
 });
@@ -108,14 +108,29 @@ const getUserFavouritesProperty = catchAsync(async (req, res) => {
   });
 });
 
+const updateUserStatus = catchAsync(async (req, res) => {
+  const result = await UserServices.updateUserStatusToDB(
+    req?.params?.id,
+    req?.body,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User status updated successfully!',
+    data: result,
+  });
+});
+
 export const UserControllers = {
   createUser,
   createAdmin,
   getUsers,
-  getVerifiedUsersCount,
+  getUsersCount,
   getUserCountByYear,
   getAdmins,
   getUserProfile,
   updateUserProfile,
   getUserFavouritesProperty,
+  updateUserStatus,
 };

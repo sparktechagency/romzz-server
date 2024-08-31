@@ -132,7 +132,7 @@ const getAdminsFromDB = async (query: Record<string, unknown>) => {
   return { meta, result };
 };
 
-const getVerifiedUsersCountFromDB = async () => {
+const getUsersCountFromDB = async () => {
   const totalUser = await User.countDocuments({
     role: 'user',
     isVerified: true,
@@ -280,6 +280,42 @@ const getUserFavouritesPropertyFromDB = async (user: JwtPayload) => {
   return result;
 };
 
+const updateUserStatusToDB = async (
+  userId: string,
+  payload: { action: 'block' | 'unblock' },
+) => {
+  // Define update fields based on the action
+  const updateFields: Partial<{ status: string; isBlocked: boolean }> = {};
+
+  if (payload?.action === 'block') {
+    updateFields.status = 'blocked';
+    updateFields.isBlocked = true;
+  } else if (payload?.action === 'unblock') {
+    updateFields.status = 'active';
+    updateFields.isBlocked = false;
+  } else {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `Invalid action: ${payload?.action}. Must be "block" or "unblock".`,
+    );
+  }
+
+  // Update the user document
+  const result = await User.findByIdAndUpdate(
+    userId,
+    updateFields,
+    { new: true }, // Return the updated document
+  );
+
+  // Handle case where no User is found
+  if (!result) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `User with ID: ${userId} not found!`,
+    );
+  }
+};
+
 // Schedule a cron job to delete expired, unverified users every 12 hours
 cron.schedule('0 */12 * * *', async () => {
   const now = new Date();
@@ -312,10 +348,11 @@ export const UserServices = {
   createUserToDB,
   createAdminToDB,
   getUsersFromDB,
-  getVerifiedUsersCountFromDB,
+  getUsersCountFromDB,
   getUserCountByYearFromDB,
   getAdminsFromDB,
   getUserProfileFromDB,
   updateUserProfileToDB,
   getUserFavouritesPropertyFromDB,
+  updateUserStatusToDB,
 };

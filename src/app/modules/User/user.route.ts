@@ -35,7 +35,7 @@ router.get(
 router.get(
   '/user-count',
   validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
-  UserControllers.getVerifiedUsersCount,
+  UserControllers.getUsersCount,
 );
 router.get(
   '/user-count/:year',
@@ -68,6 +68,13 @@ router.patch(
     next();
   },
   UserControllers.updateUserProfile,
+);
+
+// Route to update user status to block or unblock
+router.patch(
+  '/update-status/:id',
+  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  UserControllers.updateUserStatus,
 );
 
 export const UserRoutes = router;

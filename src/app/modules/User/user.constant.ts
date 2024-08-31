@@ -45,7 +45,6 @@ export const USER_STATUS = {
   'in-progress': 'in-progress',
   active: 'active',
   blocked: 'blocked',
-  deleted: 'deleted',
 } as const;
 
 // Gender options available for users.

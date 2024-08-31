@@ -123,10 +123,6 @@ const loginUserToDB = async (payload: {
     throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
   }
 
-  if (existingUser?.isDeleted) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'User account is deleted.');
-  }
-
   // Verify the provided password
   const isPasswordValid = await User.isPasswordMatched(
     payload?.password as string,
