@@ -65,28 +65,22 @@ const getUserProfileFeedbackSummary = catchAsync(async (req, res) => {
   });
 });
 
-const updateFeedbackStatusToShow = catchAsync(async (req, res) => {
-  const result = await FeedbackServices.updateFeedbackStatusToShowToDB(
+const updateFeedbackVisibilityStatus = catchAsync(async (req, res) => {
+  const result = await FeedbackServices.updateFeedbackVisibilityStatusToDB(
     req?.params?.id,
+    req?.body,
   );
+
+  // Determine the appropriate message based on the feedback status
+  const statusMessage =
+    req?.body?.visibilityStatus === 'show'
+      ? 'Feedback is now visible to all users.'
+      : 'Feedback has been hidden from users.';
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Feedback status updated successfully!',
-    data: result,
-  });
-});
-
-const updateFeedbackStatusToHide = catchAsync(async (req, res) => {
-  const result = await FeedbackServices.updateFeedbackStatusToHideToDB(
-    req?.params?.id,
-  );
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Feedback status updated successfully!',
+    message: statusMessage,
     data: result,
   });
 });
@@ -95,8 +89,7 @@ export const FeedbackControllers = {
   createFeedback,
   getAllFeedbacks,
   getVisibleFeedbacks,
-  updateFeedbackStatusToShow,
-  updateFeedbackStatusToHide,
+  updateFeedbackVisibilityStatus,
   getUserProfileFeedbacks,
   getUserProfileFeedbackSummary,
 };

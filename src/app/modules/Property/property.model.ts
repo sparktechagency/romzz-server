@@ -132,10 +132,10 @@ const propertySchema = new Schema<IProperty>(
       type: Number,
       required: true,
     },
-    // moveOn: {
-    //   type: Date,
-    //   required: true,
-    // },
+    moveOn: {
+      type: Date,
+      required: true,
+    },
     unavailableDay: {
       type: [Date],
     },
@@ -151,20 +151,20 @@ const propertySchema = new Schema<IProperty>(
       type: String,
       enum: Object.values(OCCUPATION),
     },
-    // facilities: {
-    //   type: [{ type: Schema.Types.ObjectId, ref: 'Facility' }],
-    //   required: true,
-    //   validate: [
-    //     {
-    //       validator: nonEmptyArray,
-    //       message: 'At least one facilities is required.',
-    //     },
-    //     {
-    //       validator: nonEmptyStrings,
-    //       message: 'Each facilities must be a non-empty string.',
-    //     },
-    //   ],
-    // },
+    facilities: {
+      type: [{ type: Schema.Types.ObjectId, ref: 'Facility' }],
+      required: true,
+      validate: [
+        {
+          validator: nonEmptyArray,
+          message: 'At least one facilities is required.',
+        },
+        {
+          validator: nonEmptyStrings,
+          message: 'Each facilities must be a non-empty string.',
+        },
+      ],
+    },
     isApproved: {
       type: Boolean,
       default: false,

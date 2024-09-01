@@ -28,18 +28,11 @@ router.get(
   FeedbackControllers.getUserProfileFeedbackSummary,
 );
 
-// Route to update feedback visibility to "show"
-router.patch(
-  '/show/:id',
-  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
-  FeedbackControllers.updateFeedbackStatusToShow,
-);
-
 // Route to update feedback visibility to "hide"
 router.patch(
-  '/hide/:id',
+  '/update-status/:id',
   validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
-  FeedbackControllers.updateFeedbackStatusToHide,
+  FeedbackControllers.updateFeedbackVisibilityStatus,
 );
 
 export const FeedbackRoutes = router;

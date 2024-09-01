@@ -55,13 +55,5 @@ const feedbackSchema = new Schema<IFeedback>(
   { timestamps: true },
 );
 
-// Method to remove sensitive fields before returning user object as JSON
-feedbackSchema.methods.toJSON = function () {
-  const feedbackObject = this.toObject();
-
-  delete feedbackObject?.visibilityStatus;
-  return feedbackObject;
-};
-
 // Create the Feedback model using the schema
 export const Feedback = model<IFeedback>('Feedback', feedbackSchema);

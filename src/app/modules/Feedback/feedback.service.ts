@@ -113,13 +113,25 @@ const getUserProfileFeedbackSummaryFromDB = async (userId: string) => {
   };
 };
 
-const updateFeedbackStatusToShowToDB = async (feedbackId: string) => {
-  // Update the Feedback status to 'show'
-  const result = await Feedback.findByIdAndUpdate(
-    feedbackId,
-    { visibilityStatus: 'show' },
-    { new: true }, // Return the updated document
-  );
+const updateFeedbackVisibilityStatusToDB = async (
+  feedbackId: string,
+  payload: { visibilityStatus: 'show' | 'hide' },
+) => {
+  // Validate visibility status
+  if (
+    payload?.visibilityStatus !== 'show' &&
+    payload?.visibilityStatus !== 'hide'
+  ) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `Invalid visibility status! Must be 'show' or 'hide'.`,
+    );
+  }
+
+  // Update the Feedback status
+  const result = await Feedback.findByIdAndUpdate(feedbackId, {
+    visibilityStatus: payload?.visibilityStatus,
+  });
 
   // Handle case where no Feedback is found
   if (!result) {
@@ -128,35 +140,13 @@ const updateFeedbackStatusToShowToDB = async (feedbackId: string) => {
       `Feedback with ID: ${feedbackId} not found!`,
     );
   }
-
-  return result;
-};
-
-const updateFeedbackStatusToHideToDB = async (feedbackId: string) => {
-  // Update the Feedback status to 'hide'
-  const result = await Feedback.findByIdAndUpdate(
-    feedbackId,
-    { visibilityStatus: 'hide' },
-    { new: true }, // Return the updated document
-  );
-
-  // Handle case where no Feedback is found
-  if (!result) {
-    throw new ApiError(
-      httpStatus.NOT_FOUND,
-      `Feedback with ID: ${feedbackId} not found!`,
-    );
-  }
-
-  return result;
 };
 
 export const FeedbackServices = {
   createFeedbackToDB,
   getAllFeedbacksFromDB,
   getVisibleFeedbacksFromDB,
-  updateFeedbackStatusToShowToDB,
-  updateFeedbackStatusToHideToDB,
+  updateFeedbackVisibilityStatusToDB,
   getUserProfileFeedbacksFromDB,
   getUserProfileFeedbackSummaryFromDB,
 };
