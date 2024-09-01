@@ -19,13 +19,18 @@ const sendNotificationToAdminsFromDB = async (message: string, url: string) => {
   await Notification.insertMany(notifications);
 };
 
-const sendNotificationToUsersFromDB = async (message: string, url: string) => {
-  const users = await User.find({
+const sendNotificationToUsersFromDB = async (
+  message: string,
+  url: string,
+  excludedUserId?: string,
+) => {
+  const allUsers = await User.find({
     role: 'user',
     status: 'active',
+    _id: { $ne: excludedUserId },
   });
 
-  const notifications = users.map((user) => ({
+  const notifications = allUsers.map((user) => ({
     userId: user?._id,
     message,
     url,
@@ -69,7 +74,7 @@ const notifyPropertyApprovalFromDB = async (
   await sendNotificationToUserFromDB(userId, approvalMessage, url);
 
   // Notify all users
-  await sendNotificationToUsersFromDB(newPropertyMessage, url);
+  await sendNotificationToUsersFromDB(newPropertyMessage, url, userId);
 };
 
 const notifyPropertyRejectionFromDB = async (
@@ -105,11 +110,10 @@ const getAllNotificationsByIdFromDB = async (
 };
 
 const markAllNotificationsAsSeenByIdFromDB = async (user: JwtPayload) => {
-  const result = await Notification.updateMany(
-    { _id: user?.userId, isSeen: false }, // Criteria for selecting notifications
+  await Notification.updateMany(
+    { userId: user?.userId, isSeen: false }, // Criteria for selecting notifications
     { isSeen: true }, // Update operation to mark as read
   );
-  return result;
 };
 
 export const NotificationServices = {
