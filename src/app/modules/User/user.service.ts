@@ -321,6 +321,8 @@ const updateUserStatusToDB = async (
       `User with ID: ${userId} not found!`,
     );
   }
+
+  return result;
 };
 
 // Schedule a cron job to delete expired, unverified users every 12 hours

@@ -116,15 +116,19 @@ const updateUserStatus = catchAsync(async (req, res) => {
 
   // Determine the appropriate message based on the user's status
   const statusMessage =
-    req?.body?.status === 'block'
-      ? 'User has been blocked successfully!'
-      : 'User has been unblocked successfully!';
+    req?.body?.action === 'block'
+      ? result.role === 'admin'
+        ? 'Admin user has been blocked successfully!'
+        : 'User has been blocked successfully!'
+      : result.role === 'admin'
+        ? 'Admin user has been unblocked successfully!'
+        : 'User has been unblocked successfully!';
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: statusMessage,
-    data: result,
+    data: null,
   });
 });
 
