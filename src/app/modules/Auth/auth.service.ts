@@ -19,7 +19,7 @@ const verifyOtpToDB = async (payload: {
   const existingUser = await User.isUserExistsByEmail(payload?.email);
 
   // Handle case where the user does not exist
-  if (!existingUser && payload?.verificationType === 'passwordReset') {
+  if (!existingUser) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
       'User with this email does not exist!',
