@@ -116,6 +116,13 @@ const markAllNotificationsAsSeenByIdFromDB = async (user: JwtPayload) => {
   );
 };
 
+const markAllNotificationsAsReadByIdFromDB = async (user: JwtPayload) => {
+  await Notification.updateMany(
+    { userId: user?.userId, isRead: false }, // Criteria for selecting notifications
+    { isRead: true }, // Update operation to mark as read
+  );
+};
+
 export const NotificationServices = {
   sendNotificationToAdminsFromDB,
   sendNotificationToUsersFromDB,
@@ -124,4 +131,5 @@ export const NotificationServices = {
   notifyPropertyRejectionFromDB,
   getAllNotificationsByIdFromDB,
   markAllNotificationsAsSeenByIdFromDB,
+  markAllNotificationsAsReadByIdFromDB,
 };

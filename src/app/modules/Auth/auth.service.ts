@@ -42,7 +42,7 @@ const verifyOtpToDB = async (payload: {
     const accessToken = createJwtToken(
       jwtPayload,
       config.jwtAccessSecret as string,
-      '10m',
+      '5m',
     );
 
     return {

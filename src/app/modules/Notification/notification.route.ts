@@ -17,4 +17,10 @@ router.patch(
   NotificationControllers.markAllNotificationsAsSeenById,
 );
 
+router.patch(
+  '/mark-as-read',
+  validateAuth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
+  NotificationControllers.markAllNotificationsAsReadById,
+);
+
 export const NotificationRoutes = router;
