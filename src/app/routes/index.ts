@@ -11,6 +11,7 @@ import { FeedbackRoutes } from '../modules/Feedback/feedback.route';
 import { ContactRoutes } from '../modules/Contact/contact.route';
 import { MediaRoutes } from '../modules/SocialMedia/socialMedia.route';
 import { FacilityRoutes } from '../modules/Facility/facility.route';
+import { NotificationRoutes } from '../modules/Notification/notification.route';
 
 const router = Router();
 
@@ -18,6 +19,7 @@ const routes = [
   { path: '/users', route: UserRoutes },
   { path: '/auth', route: AuthRoutes },
   { path: '/properties', route: PropertyRoutes },
+  { path: '/notifications', route: NotificationRoutes },
 
   // Dashboard
   { path: '/facilities', route: FacilityRoutes },

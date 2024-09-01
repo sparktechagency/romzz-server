@@ -40,7 +40,7 @@ export interface IProperty {
   propertyType: TPropertyType;
   bedType: string;
   bedrooms: number;
-  bathroooms: number;
+  bathrooms: number;
   balcony: number;
   kitchen: number;
   dining: number;

@@ -12,6 +12,7 @@ import {
 } from './property.constant';
 import { Favourite } from '../Favourite/favourite.model';
 import { unlinkFile, unlinkFiles } from '../../helpers/fileHandler';
+import { NotificationServices } from '../Notification/notification.service';
 
 const createPropertyToDB = async (
   user: JwtPayload,
@@ -50,6 +51,12 @@ const createPropertyToDB = async (
 
   // Create the property in the database
   const result = await Property.create(payload);
+
+  // Notify admins and superadmins of new property creation
+  await NotificationServices.notifyPropertyCreationFromDB(
+    result?._id?.toString(),
+  );
+
   return result;
 };
 
@@ -231,6 +238,12 @@ const updatePropertyStatusToApproveToDB = async (propertyId: string) => {
       `Property with ID: ${propertyId} not found!`,
     );
   }
+
+  // Notify the user and all users about property approval
+  await NotificationServices.notifyPropertyApprovalFromDB(
+    result?._id?.toString(),
+    result?.createdBy?.toString(),
+  );
 };
 
 const updatePropertyStatusToRejectToDB = async (propertyId: string) => {
@@ -248,6 +261,12 @@ const updatePropertyStatusToRejectToDB = async (propertyId: string) => {
       `Property with ID: ${propertyId} not found!`,
     );
   }
+
+  // Notify the user about property rejection
+  await NotificationServices.notifyPropertyRejectionFromDB(
+    result?._id?.toString(),
+    result?.createdBy?.toString(),
+  );
 };
 
 const togglePropertyFavouriteStatusToDB = async (
