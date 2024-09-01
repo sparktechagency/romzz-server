@@ -11,7 +11,6 @@ export const userFieldsToExclude: (keyof IUser)[] = [
   'role',
   'status',
   'isBlocked',
-  'isDeleted',
   'isVerified',
   'otp',
   'otpExpiresAt',

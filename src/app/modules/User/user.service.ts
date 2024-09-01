@@ -282,30 +282,37 @@ const getUserFavouritesPropertyFromDB = async (user: JwtPayload) => {
 
 const updateUserStatusToDB = async (
   userId: string,
-  payload: { action: 'block' | 'unblock' },
+  payload: { status: 'block' | 'unblock' },
 ) => {
-  // Define update fields based on the action
+  // Fetch the user to check the role before updating
+  const existingUser = await User.findById(userId);
+
+  // Check if the user is a superAdmin
+  if (existingUser?.role === 'superAdmin') {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      `Cannot update status for user with role 'superAdmin'.`,
+    );
+  }
+
+  // Define update fields based on the status
   const updateFields: Partial<{ status: string; isBlocked: boolean }> = {};
 
-  if (payload?.action === 'block') {
+  if (payload?.status === 'block') {
     updateFields.status = 'blocked';
     updateFields.isBlocked = true;
-  } else if (payload?.action === 'unblock') {
+  } else if (payload?.status === 'unblock') {
     updateFields.status = 'active';
     updateFields.isBlocked = false;
   } else {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      `Invalid action: ${payload?.action}. Must be "block" or "unblock".`,
+      `Invalid status: ${payload?.status}. Must be "block" or "unblock".`,
     );
   }
 
   // Update the user document
-  const result = await User.findByIdAndUpdate(
-    userId,
-    updateFields,
-    { new: true }, // Return the updated document
-  );
+  const result = await User.findByIdAndUpdate(userId, updateFields);
 
   // Handle case where no User is found
   if (!result) {

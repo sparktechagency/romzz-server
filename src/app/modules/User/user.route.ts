@@ -73,7 +73,7 @@ router.patch(
 // Route to update user status to block or unblock
 router.patch(
   '/update-status/:id',
-  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.superAdmin),
   UserControllers.updateUserStatus,
 );
 
