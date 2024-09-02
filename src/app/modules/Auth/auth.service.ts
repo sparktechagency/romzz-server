@@ -15,8 +15,24 @@ const verifyOtpToDB = async (payload: {
   otp: number;
   verificationType: 'emailVerification' | 'passwordReset';
 }) => {
+  // Check if the provided verificationType is valid
+  const validVerificationTypes = new Set([
+    'emailVerification',
+    'passwordReset',
+  ]);
+
+  if (
+    !payload?.verificationType ||
+    !validVerificationTypes?.has(payload?.verificationType)
+  ) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'Invalid or missing verification type provided!',
+    );
+  }
+
   // Check if a user with the provided email exists in the database
-  const existingUser = await User.isUserExistsByEmail(payload?.email);
+  const existingUser = await User.isUserExistsByEmail(payload.email);
 
   // Handle case where the user does not exist
   if (!existingUser) {
@@ -26,16 +42,27 @@ const verifyOtpToDB = async (payload: {
     );
   }
 
-  // Verify the OTP
-  await User.verifyOtp(payload?.email, payload?.otp);
+  if (payload.verificationType === 'emailVerification') {
+    // Check if the email is already verified
+    if (existingUser?.isVerified) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Email is already verified!');
+    }
 
-  // If verification type is password reset, generate an access token
-  if (payload?.verificationType === 'passwordReset') {
+    // Verify the OTP for email verification
+    await User.verifyOtp(payload.email, payload.otp);
+  } else if (payload?.verificationType === 'passwordReset') {
+    if (!existingUser.isVerified) {
+      throw new ApiError(httpStatus.FORBIDDEN, 'User account is not verified!');
+    }
+
+    // Verify the OTP for password reset
+    await User.verifyOtp(payload.email, payload.otp);
+
     // Prepare the payload for JWT token generation
     const jwtPayload = {
-      userId: existingUser?._id,
-      email: existingUser?.email,
-      role: existingUser?.role,
+      userId: existingUser._id,
+      email: existingUser.email,
+      role: existingUser.role,
     };
 
     // Generate a JWT access token for the authenticated user

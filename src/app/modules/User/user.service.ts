@@ -284,8 +284,25 @@ const updateUserStatusToDB = async (
   userId: string,
   payload: { status: 'block' | 'unblock' },
 ) => {
+  // Check if the provided status is valid
+  const validStatusTypes = new Set(['block', 'unblock']);
+
+  if (!payload?.status || !validStatusTypes?.has(payload?.status)) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'Invalid or missing status provided!',
+    );
+  }
+
   // Fetch the user to check the role before updating
   const existingUser = await User.findById(userId);
+
+  if (!existingUser) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `User with ID: ${userId} not found!`,
+    );
+  }
 
   // Check if the user is a superAdmin
   if (existingUser?.role === 'superAdmin') {
@@ -295,34 +312,19 @@ const updateUserStatusToDB = async (
     );
   }
 
-  // Define update fields based on the status
-  const updateFields: Partial<{ status: string; isBlocked: boolean }> = {};
-
+  // Update user status
   if (payload?.status === 'block') {
-    updateFields.status = 'blocked';
-    updateFields.isBlocked = true;
+    existingUser.status = 'blocked';
+    existingUser.isBlocked = true;
   } else if (payload?.status === 'unblock') {
-    updateFields.status = 'active';
-    updateFields.isBlocked = false;
-  } else {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      `Invalid status: ${payload?.status}. Must be "block" or "unblock".`,
-    );
+    existingUser.status = 'active';
+    existingUser.isBlocked = false;
   }
 
-  // Update the user document
-  const result = await User.findByIdAndUpdate(userId, updateFields);
+  // Save the updated user
+  await existingUser.save();
 
-  // Handle case where no User is found
-  if (!result) {
-    throw new ApiError(
-      httpStatus.NOT_FOUND,
-      `User with ID: ${userId} not found!`,
-    );
-  }
-
-  return result;
+  return existingUser;
 };
 
 // Schedule a cron job to delete expired, unverified users every 12 hours
