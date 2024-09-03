@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { JwtPayload } from 'jsonwebtoken';
 import { IFeedback } from './feedback.interface';
 import { Feedback } from './feedback.model';
@@ -6,10 +8,15 @@ import httpStatus from 'http-status';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { Property } from '../Property/property.model';
 import { User } from '../User/user.model';
+import getPathAfterUploads from '../../helpers/getPathAfterUploads';
 
-const createFeedbackToDB = async (user: JwtPayload, payload: IFeedback) => {
+const createFeedbackToDB = async (
+  user: JwtPayload,
+  payload: IFeedback,
+  file: any,
+) => {
   // Check if the property with the provided propertyId exists
-  const propertyExists = await Property.findById(payload.propertyId);
+  const propertyExists = await Property.findById(payload?.propertyId);
 
   // Handle case where no Feedback is found
   if (!propertyExists) {
@@ -21,6 +28,10 @@ const createFeedbackToDB = async (user: JwtPayload, payload: IFeedback) => {
 
   payload.userId = user?.userId; // Set the userId field from the JWT payload
   payload.visibilityStatus = 'hide'; // Set default status for the Feedback
+
+  if (file && file?.path) {
+    payload.image = getPathAfterUploads(file?.path);
+  }
 
   const result = await Feedback.create(payload);
   return result;

@@ -7,6 +7,7 @@ const createFeedback = catchAsync(async (req, res) => {
   const result = await FeedbackServices.createFeedbackToDB(
     req?.user,
     req?.body,
+    req?.file,
   );
 
   sendResponse(res, {
