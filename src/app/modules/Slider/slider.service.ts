@@ -45,6 +45,9 @@ const updateSliderByIdFromDB = async (
   payload: Partial<ISlider>,
   file: any,
 ) => {
+  // Prevent modification of the createdBy field to maintain integrity
+  delete payload.createdBy;
+
   // Fetch the existing slider entry from the database by its ID
   const existingSlider = await Slider.findById(sliderId);
 
@@ -66,9 +69,6 @@ const updateSliderByIdFromDB = async (
       payload.image = newImagePath; // Update the payload with the new image path
     }
   }
-
-  // Prevent modification of the createdBy field to maintain integrity
-  delete payload.createdBy;
 
   // Update the slider entry in the database with the new data
   const result = await Slider.findByIdAndUpdate(sliderId, payload, {

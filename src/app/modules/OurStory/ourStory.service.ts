@@ -6,6 +6,7 @@ import httpStatus from 'http-status';
 import { IOurStory } from './ourStory.interface';
 import { OurStory } from './ourStory.model';
 import { unlinkFile } from '../../helpers/fileHandler';
+import getPathAfterUploads from '../../helpers/getPathAfterUploads';
 
 const createOurStoryToDB = async (
   user: JwtPayload,
@@ -24,9 +25,8 @@ const createOurStoryToDB = async (
     );
   }
 
-  // If a new image is uploaded, update the image path in the payload
   if (file && file?.path) {
-    payload.image = file?.path?.replace(/\\/g, '/'); // Normalize the file path to use forward slashes
+    payload.image = getPathAfterUploads(file?.path);
   }
 
   // Set the createdBy field to the ID of the user who is creating the our story
@@ -48,6 +48,9 @@ const updateOurStoryByIdFromDB = async (
   payload: Partial<IOurStory>,
   file: any,
 ) => {
+  // Prevent modification of the createdBy field to maintain integrity
+  delete payload.createdBy;
+
   // Fetch the existing our stories entry from the database by its ID
   const existingOurStory = await OurStory.findById(ourStoryId);
 
@@ -62,7 +65,7 @@ const updateOurStoryByIdFromDB = async (
 
   // If a new image is uploaded, update the image path in the payload
   if (file && file?.path) {
-    const newImagePath = file?.path?.replace(/\\/g, '/'); // Normalize the file path
+    const newImagePath = getPathAfterUploads(file?.path);
 
     // If a new image file is uploaded, update the image path in the payload
     if (existingOurStory?.image !== newImagePath) {
@@ -70,9 +73,6 @@ const updateOurStoryByIdFromDB = async (
       payload.image = newImagePath; // Update the payload with the new image path
     }
   }
-
-  // Prevent modification of the createdBy field to maintain integrity
-  delete payload.createdBy;
 
   // Update the our story entry in the database with the new data
   const result = await OurStory.findByIdAndUpdate(ourStoryId, payload, {
