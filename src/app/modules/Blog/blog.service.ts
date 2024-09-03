@@ -54,20 +54,19 @@ const updateBlogByIdFromDB = async (
   payload: Partial<IBlog>,
   file: any,
 ) => {
-  // Prevent modification of the createdBy field to maintain integrity
-  delete payload.createdBy;
-
   // Fetch the existing blog entry from the database by its ID
   const existingBlog = await Blog.findById(blogId);
 
   // If the Blog entry does not exist, throw an error
   if (!existingBlog) {
-    unlinkFile(file?.path); // Remove the uploaded file to clean up
     throw new ApiError(
       httpStatus.NOT_FOUND,
       `Blog with ID: ${blogId} not found!`,
     );
   }
+
+  // Prevent modification of the createdBy field to maintain integrity
+  delete payload.createdBy;
 
   // If a new image is uploaded, update the image path in the payload
   if (file && file?.path) {

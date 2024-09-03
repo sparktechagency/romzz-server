@@ -193,16 +193,16 @@ const updatePropertyByIdToDB = async (
     payload.propertyImages = updatedPropertyImages;
   }
 
-  // Update property video if a new file is provided
+  // If a new image is uploaded, update the image path in the payload
   if (files && files?.propertyVideo) {
     const newPropertyVideoPath = getPathAfterUploads(
       files?.propertyVideo[0]?.path,
     );
 
-    payload.propertyVideo = newPropertyVideoPath;
-
-    if (existingProperty && existingProperty?.propertyVideo) {
-      unlinkFile(existingProperty?.propertyVideo);
+    // If a new image file is uploaded, update the image path in the payload
+    if (existingProperty?.propertyVideo !== newPropertyVideoPath) {
+      payload.propertyVideo = newPropertyVideoPath; // Update the payload with the new image path
+      unlinkFile(existingProperty?.propertyVideo); // Remove the old image file
     }
   }
 
