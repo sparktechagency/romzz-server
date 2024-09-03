@@ -7,11 +7,11 @@ import QueryBuilder from '../../builder/QueryBuilder';
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
 import { unlinkFile } from '../../helpers/fileHandler';
+import getPathAfterUploads from '../../helpers/getPathAfterUploads';
 
 const createBlogToDB = async (user: JwtPayload, payload: IBlog, file: any) => {
-  // If a new image is uploaded, update the image path in the payload
   if (file && file?.path) {
-    payload.image = file?.path?.replace(/\\/g, '/'); // Normalize the file path to use forward slashes
+    payload.image = getPathAfterUploads(file?.path);
   }
 
   // Set the createdBy field to the ID of the user who is creating the our story
@@ -54,6 +54,9 @@ const updateBlogByIdFromDB = async (
   payload: Partial<IBlog>,
   file: any,
 ) => {
+  // Prevent modification of the createdBy field to maintain integrity
+  delete payload.createdBy;
+
   // Fetch the existing blog entry from the database by its ID
   const existingBlog = await Blog.findById(blogId);
 
@@ -68,7 +71,7 @@ const updateBlogByIdFromDB = async (
 
   // If a new image is uploaded, update the image path in the payload
   if (file && file?.path) {
-    const newImagePath = file?.path.replace(/\\/g, '/'); // Normalize the file path
+    const newImagePath = getPathAfterUploads(file?.path);
 
     // If a new image file is uploaded, update the image path in the payload
     if (existingBlog?.image !== newImagePath) {
@@ -76,9 +79,6 @@ const updateBlogByIdFromDB = async (
       unlinkFile(existingBlog?.image); // Remove the old image file
     }
   }
-
-  // Prevent modification of the createdBy field to maintain integrity
-  delete payload.createdBy;
 
   // Update the blog with the provided status
   const result = await Blog.findByIdAndUpdate(blogId, payload, {
