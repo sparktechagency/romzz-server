@@ -82,17 +82,17 @@ const deleteSliderByIdFromDB = async (sliderId: string) => {
   // Delete the slider entry from the database by its ID
   const result = await Slider.findByIdAndDelete(sliderId);
 
+  // Delete the images if they exist
+  if (result?.image) {
+    unlinkFile(result?.image);
+  }
+
   // If the slider entry does not exist, throw an error
   if (!result) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
       `Slider with ID: ${sliderId} not found!`,
     );
-  }
-
-  // Delete the images if they exist
-  if (result?.image) {
-    unlinkFile(result?.image);
   }
 };
 

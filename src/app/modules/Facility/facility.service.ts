@@ -5,11 +5,11 @@ import httpStatus from 'http-status';
 import { IFacility } from './facility.interface';
 import { Facility } from './facility.model';
 import { unlinkFile } from '../../helpers/fileHandler';
+import getPathAfterUploads from '../../helpers/getPathAfterUploads';
 
 const createFacilityToDB = async (payload: IFacility, file: any) => {
-  // If a new image is uploaded, update the image path in the payload
   if (file && file?.path) {
-    payload.icon = file?.path?.replace(/\\/g, '/'); // Normalize the file path to use forward slashes
+    payload.icon = getPathAfterUploads(file?.path);
   }
 
   const result = await Facility.create(payload);
@@ -40,7 +40,7 @@ const updateFacilityByIdFromDB = async (
 
   // If a new image is uploaded, update the image path in the payload
   if (file && file?.path) {
-    const newImagePath = file?.path.replace(/\\/g, '/'); // Normalize the file path
+    const newImagePath = getPathAfterUploads(file?.path);
 
     // If a new image file is uploaded, update the image path in the payload
     if (existingFacility?.icon !== newImagePath) {
@@ -54,14 +54,6 @@ const updateFacilityByIdFromDB = async (
     new: true, // Return the updated document
     runValidators: true,
   });
-
-  // Handle case where no Facility is found
-  if (!result) {
-    throw new ApiError(
-      httpStatus.NOT_FOUND,
-      `Facility with ID: ${facilityId} not found!`,
-    );
-  }
 
   return result;
 };
