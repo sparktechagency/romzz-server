@@ -6,6 +6,7 @@ import { Slider } from './slider.model';
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
 import { unlinkFile } from '../../helpers/fileHandler';
+import getPathAfterUploads from '../../helpers/getPathAfterUploads';
 
 const createSliderToDB = async (
   user: JwtPayload,
@@ -21,9 +22,8 @@ const createSliderToDB = async (
     throw new ApiError(httpStatus.CONFLICT, 'Slider creation limit reached!');
   }
 
-  // If a file is uploaded, update the image path in the payload
   if (file && file?.path) {
-    payload.image = file?.path?.replace(/\\/g, '/'); // Normalize the file path to use forward slashes
+    payload.image = getPathAfterUploads(file?.path);
   }
 
   // Set the createdBy field to the ID of the user who is creating the slider
@@ -59,8 +59,7 @@ const updateSliderByIdFromDB = async (
 
   // If a new image is uploaded, update the image path in the payload
   if (file && file?.path) {
-    const newImagePath = file?.path?.replace(/\\/g, '/'); // Normalize the file path
-
+    const newImagePath = getPathAfterUploads(file?.path);
     // If a new image file is uploaded, update the image path in the payload
     if (existingSlider?.image !== newImagePath) {
       unlinkFile(existingSlider?.image); // Remove the old image file
@@ -91,7 +90,7 @@ const deleteSliderByIdFromDB = async (sliderId: string) => {
     );
   }
 
-  // If the slider entry has an associated image, remove the image file
+  // Delete the images if they exist
   if (result?.image) {
     unlinkFile(result?.image);
   }
