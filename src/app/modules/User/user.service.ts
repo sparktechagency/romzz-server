@@ -21,6 +21,7 @@ import { sendEmail } from '../../helpers/emailService';
 import { startOfMonth, endOfMonth } from 'date-fns';
 import { Favourite } from '../Favourite/favourite.model';
 import { unlinkFile } from '../../helpers/fileHandler';
+import getPathAfterUploads from '../../helpers/getPathAfterUploads';
 
 const createUserToDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
@@ -217,7 +218,7 @@ const updateUserProfileToDB = async (
   const existingUser = await User.findById(user?.userId);
 
   // Ensure the user trying to update the profile is the creator
-  if (existingUser?._id !== user?.userId) {
+  if (existingUser?._id?.toString() !== user?.userId) {
     throw new ApiError(
       httpStatus.FORBIDDEN,
       'You do not have permission to update this property!',
@@ -226,29 +227,21 @@ const updateUserProfileToDB = async (
 
   // Handle avatar update if a new avatar is uploaded
   if (files && files?.avatar) {
-    const newAvatarPath = files?.avatar[0]?.path.replace(/\\/g, '/'); // Replace backslashes with forward slashes
-    payload.avatar = newAvatarPath;
+    const newAvatarPath = getPathAfterUploads(files?.avatar[0]?.path);
 
-    // Delete the old avatar file if it exists and is not the default
-    if (
-      existingUser?.avatar &&
-      existingUser?.avatar !== 'https://i.ibb.co/z5YHLV9/profile.png'
-    ) {
-      unlinkFile(existingUser?.avatar);
+    if (existingUser?.avatar !== newAvatarPath) {
+      unlinkFile(existingUser?.avatar as string); // Remove the old image file
+      payload.avatar = newAvatarPath; // Update the payload with the new image path
     }
   }
 
   // Handle cover image update if a new cover image is uploaded
   if (files && files?.coverImage) {
-    const newCoverImagePath = files?.coverImage[0]?.path.replace(/\\/g, '/'); // Replace backslashes with forward slashes
-    payload.coverImage = newCoverImagePath;
+    const newCoverImagePath = getPathAfterUploads(files?.coverImage[0]?.path);
 
-    // Delete the old cover image file if it exists and is not the default
-    if (
-      existingUser?.coverImage &&
-      existingUser?.coverImage !== 'https://i.ibb.co/z5YHLV9/profile.png'
-    ) {
-      unlinkFile(existingUser?.coverImage);
+    if (existingUser?.coverImage !== newCoverImagePath) {
+      unlinkFile(existingUser?.coverImage as string); // Remove the old image file
+      payload.coverImage = newCoverImagePath; // Update the payload with the new image path
     }
   }
 
