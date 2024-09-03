@@ -217,7 +217,7 @@ const updateUserProfileToDB = async (
   const existingUser = await User.findById(user?.userId);
 
   // Ensure the user trying to update the profile is the creator
-  if (existingUser?._id?.toString() !== user?.userId) {
+  if (existingUser?._id !== user?.userId) {
     throw new ApiError(
       httpStatus.FORBIDDEN,
       'You do not have permission to update this property!',
@@ -225,7 +225,7 @@ const updateUserProfileToDB = async (
   }
 
   // Handle avatar update if a new avatar is uploaded
-  if (files?.avatar && files?.avatar?.length > 0) {
+  if (files && files?.avatar) {
     const newAvatarPath = files?.avatar[0]?.path.replace(/\\/g, '/'); // Replace backslashes with forward slashes
     payload.avatar = newAvatarPath;
 
@@ -239,7 +239,7 @@ const updateUserProfileToDB = async (
   }
 
   // Handle cover image update if a new cover image is uploaded
-  if (files?.coverImage && files?.coverImage?.length > 0) {
+  if (files && files?.coverImage) {
     const newCoverImagePath = files?.coverImage[0]?.path.replace(/\\/g, '/'); // Replace backslashes with forward slashes
     payload.coverImage = newCoverImagePath;
 
