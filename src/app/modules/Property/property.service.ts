@@ -13,6 +13,7 @@ import {
 import { Favourite } from '../Favourite/favourite.model';
 import { unlinkFile, unlinkFiles } from '../../helpers/fileHandler';
 import { NotificationServices } from '../Notification/notification.service';
+import getPathAfterUploads from '../../helpers/getPathAfterUploads';
 
 const createPropertyToDB = async (
   user: JwtPayload,
@@ -28,25 +29,24 @@ const createPropertyToDB = async (
   payload.isBooked = false;
 
   // Extract and map the image file paths
-  if (files?.ownershipImages && files?.ownershipImages?.length > 0) {
-    payload.ownershipImages = files?.ownershipImages?.map(
-      (file: any) => file?.path?.replace(/\\/g, '/'), // Replace backslashes with forward slashes,
+  if (files && files?.ownershipImages) {
+    payload.ownershipImages = files?.ownershipImages?.map((file: any) =>
+      getPathAfterUploads(file?.path),
     );
   }
 
   // Extract and map the image file paths
-  if (files?.propertyImages && files?.propertyImages?.length > 0) {
-    payload.propertyImages = files?.propertyImages?.map(
-      (file: any) => file?.path?.replace(/\\/g, '/'), // Replace backslashes with forward slashes,
+  if (files && files?.propertyImages) {
+    payload.propertyImages = files?.propertyImages?.map((file: any) =>
+      getPathAfterUploads(file?.path),
     );
   }
 
   // Extract and set the video file path
-  if (files?.propertyVideo && files?.propertyVideo?.length > 0) {
-    payload.propertyVideo = files['propertyVideo'][0]?.path?.replace(
-      /\\/g,
-      '/',
-    ); // Replace backslashes with forward slashes;
+  if (files && files?.propertyVideo) {
+    payload.propertyVideo = getPathAfterUploads(
+      files?.propertyVideo?.[0]?.path,
+    );
   }
 
   // Create the property in the database
@@ -173,9 +173,9 @@ const updatePropertyByIdToDB = async (
   }
 
   // Update proof of ownership if new files are provided
-  if (files?.propertyImages && files?.propertyImages?.length > 0) {
-    const newImages = files?.propertyImages?.map(
-      (file: any) => file?.path.replace(/\\/g, '/'), // Replace backslashes with forward slashes
+  if (files && files?.propertyImages) {
+    const newImages = files?.propertyImages?.map((file: any) =>
+      getPathAfterUploads(file?.path),
     );
 
     // Combine existing and new images
@@ -194,11 +194,11 @@ const updatePropertyByIdToDB = async (
   }
 
   // Update property video if a new file is provided
-  if (files?.propertyVideo && files?.propertyVideo?.length > 0) {
-    const newPropertyVideoPath = files?.propertyVideo[0]?.path.replace(
-      /\\/g,
-      '/',
-    ); // Replace backslashes with forward slashes
+  if (files && files?.propertyVideo) {
+    const newPropertyVideoPath = getPathAfterUploads(
+      files?.propertyVideo[0]?.path,
+    );
+
     payload.propertyVideo = newPropertyVideoPath;
 
     if (existingProperty && existingProperty?.propertyVideo) {
