@@ -63,7 +63,7 @@ const createPropertyToDB = async (
 const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const propertiesQuery = new QueryBuilder(
-    Property.find().select('status').populate({
+    Property.find().populate({
       path: 'createdBy',
       select: 'fullName email phoneNumber avatar',
     }),
