@@ -11,7 +11,7 @@ router
 
   .get(FacilityControllers.getFacilities)
   .post(
-    validateAuth(USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE['SUPER-ADMIN']),
     upload.single('icon'),
     FacilityControllers.createFacility,
   );
@@ -20,12 +20,12 @@ router
   .route('/:id')
 
   .patch(
-    validateAuth(USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE['SUPER-ADMIN']),
     upload.single('icon'),
     FacilityControllers.updateFacilityById,
   )
   .delete(
-    validateAuth(USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE['SUPER-ADMIN']),
     FacilityControllers.deleteFacilityById,
   );
 

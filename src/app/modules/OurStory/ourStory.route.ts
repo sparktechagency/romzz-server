@@ -14,7 +14,7 @@ router
 
   // POST request to create a new "Our Story" entry
   .post(
-    validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
     upload.single('image'),
     OurStoryControllers.createOurStory,
   );
@@ -22,7 +22,7 @@ router
 // PATCH request to update an existing "Our Story" entry by its ID
 router.patch(
   '/:id',
-  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   upload.single('image'),
   OurStoryControllers.updateOurStoryById,
 );

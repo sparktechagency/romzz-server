@@ -11,7 +11,7 @@ router
 
   .get(BlogControllers.getBlogs)
   .post(
-    validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
     upload.single('image'),
     BlogControllers.createBlog,
   );
@@ -21,12 +21,12 @@ router
 
   .get(BlogControllers.getBlogById)
   .patch(
-    validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
     upload.single('image'),
     BlogControllers.updateBlogById,
   )
   .delete(
-    validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
     BlogControllers.deleteBlogById,
   );
 

@@ -25,7 +25,7 @@ const sendNotificationToUsersFromDB = async (
   excludedUserId?: string,
 ) => {
   const allUsers = await User.find({
-    role: 'user',
+    role: 'USER',
     status: 'active',
     _id: { $ne: excludedUserId },
   });

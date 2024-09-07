@@ -14,13 +14,13 @@ router
 
   // Route to get all properties
   .get(
-    validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
     PropertyControllers.getAllProperties,
   )
 
   // Route to create a new property
   .post(
-    validateAuth(USER_ROLE.user),
+    validateAuth(USER_ROLE.USER),
     upload.fields([
       { name: 'ownershipImages', maxCount: 2 }, // Array of images, max 2 files
       { name: 'propertyImages', maxCount: 11 }, // Array of images, max 11 files
@@ -40,7 +40,7 @@ router.get('/approved-properties', PropertyControllers.getApprovedProperties);
 // Route to get properties created by the user
 router.get(
   '/user-properties',
-  validateAuth(USER_ROLE.user),
+  validateAuth(USER_ROLE.USER),
   PropertyControllers.getPropertyByUserId,
 );
 
@@ -52,7 +52,7 @@ router
 
   // Route to update a property by ID
   .patch(
-    validateAuth(USER_ROLE.user),
+    validateAuth(USER_ROLE.USER),
     upload.fields([
       { name: 'propertyImages', maxCount: 11 }, // Array of images, max 11 files
       { name: 'propertyVideo', maxCount: 1 }, // Single video file
@@ -67,21 +67,21 @@ router
 // Route to update property status to "approve"
 router.patch(
   '/approve/:id',
-  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   PropertyControllers.updatePropertyStatusToApprove,
 );
 
 // Route to update property status to "reject"
 router.patch(
   '/reject/:id',
-  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   PropertyControllers.updatePropertyStatusToReject,
 );
 
 // Route to toggle favorite status for a property
 router.patch(
   '/favourite/:id',
-  validateAuth(USER_ROLE.user),
+  validateAuth(USER_ROLE.USER),
   PropertyControllers.togglePropertyFavouriteStatus,
 );
 

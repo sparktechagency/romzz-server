@@ -11,11 +11,11 @@ router
   .route('/')
 
   .get(
-    validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
     FeedbackControllers.getAllFeedbacks,
   )
   .post(
-    validateAuth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
     upload.single('image'),
     FeedbackControllers.createFeedback,
   );
@@ -33,7 +33,7 @@ router.get(
 // Route to update feedback visibility status
 router.patch(
   '/update-status/:id',
-  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   FeedbackControllers.updateFeedbackVisibilityStatus,
 );
 

@@ -34,9 +34,9 @@ export const monthNames = [
 
 // User roles within the system.
 export const USER_ROLE = {
-  user: 'user',
-  admin: 'admin',
-  superAdmin: 'superAdmin',
+  USER: 'USER',
+  ADMIN: 'ADMIN',
+  'SUPER-ADMIN': 'SUPER-ADMIN',
 } as const;
 
 // Possible user account statuses.

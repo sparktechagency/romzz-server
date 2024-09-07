@@ -10,36 +10,36 @@ const router = Router();
 
 router.get(
   '/',
-  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   UserControllers.getUsers,
 );
 
 router.get(
   '/admins',
-  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   UserControllers.getAdmins,
 );
 
 router.get(
   '/profile',
-  validateAuth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   UserControllers.getUserProfile,
 );
 
 router.get(
   '/favourites',
-  validateAuth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   UserControllers.getUserFavouritesProperty,
 );
 
 router.get(
   '/user-count',
-  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   UserControllers.getUsersCount,
 );
 router.get(
   '/user-count/:year',
-  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   UserControllers.getUserCountByYear,
 );
 
@@ -51,14 +51,14 @@ router.post(
 
 router.post(
   '/create-admin',
-  validateAuth(USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE['SUPER-ADMIN']),
   validateRequest(userValidationSchema.createAdminSchema),
   UserControllers.createAdmin,
 );
 
 router.patch(
   '/update-profile',
-  validateAuth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   upload.fields([
     { name: 'avatar', maxCount: 1 }, // Single avatar image
     { name: 'coverImage', maxCount: 1 }, // Single cover image
@@ -73,7 +73,7 @@ router.patch(
 // Route to update user status to block or unblock
 router.patch(
   '/update-status/:id',
-  validateAuth(USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE['SUPER-ADMIN']),
   UserControllers.updateUserStatus,
 );
 

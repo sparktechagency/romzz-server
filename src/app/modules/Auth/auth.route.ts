@@ -29,7 +29,7 @@ router.post(
 // Change password for authenticated users
 router.post(
   '/change-password',
-  validateAuth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   AuthControllers.changePassword,
 );
 

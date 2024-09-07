@@ -7,19 +7,19 @@ const router = Router();
 
 router.get(
   '/',
-  validateAuth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   NotificationControllers.getAllNotificationsById,
 );
 
 router.patch(
   '/mark-as-seen',
-  validateAuth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   NotificationControllers.markAllNotificationsAsSeenById,
 );
 
 router.patch(
   '/mark-as-read',
-  validateAuth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   NotificationControllers.markAllNotificationsAsReadById,
 );
 

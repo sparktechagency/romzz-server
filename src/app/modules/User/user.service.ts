@@ -33,7 +33,7 @@ const createUserToDB = async (payload: IUser) => {
   }
 
   // Set default values for new users
-  payload.role = 'user';
+  payload.role = 'USER';
   payload.status = 'in-progress';
   payload.isBlocked = false;
   payload.isDeleted = false;
@@ -85,7 +85,7 @@ const createAdminToDB = async (payload: IUser) => {
   }
 
   // Set default values for new admins
-  payload.role = 'admin';
+  payload.role = 'ADMIN';
   payload.status = 'active';
   payload.isVerified = true;
   payload.isBlocked = false;
@@ -99,7 +99,7 @@ const getUsersFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const usersQuery = new QueryBuilder(
     User.find({
-      role: 'user',
+      role: 'USER',
       isVerified: true,
     }).select('avatar fullName email presentAddress permanentAddress status'),
     query,
@@ -135,7 +135,7 @@ const getAdminsFromDB = async (query: Record<string, unknown>) => {
 
 const getUsersCountFromDB = async () => {
   const totalUser = await User.countDocuments({
-    role: 'user',
+    role: 'USER',
     isVerified: true,
   });
 
@@ -145,7 +145,7 @@ const getUsersCountFromDB = async () => {
 
   // Count users created in the current month
   const currentMonthTotal = await User.countDocuments({
-    role: 'user',
+    role: 'USER',
     isVerified: true,
     createdAt: {
       $gte: start,
@@ -169,7 +169,7 @@ const getUserCountByYearFromDB = async (year: number) => {
       {
         $match: {
           createdAt: { $gte: startDate, $lte: endDate },
-          role: 'user',
+          role: 'USER',
           isVerified: true,
         },
       },
@@ -298,7 +298,7 @@ const updateUserStatusToDB = async (
   }
 
   // Check if the user is a superAdmin
-  if (existingUser?.role === 'superAdmin') {
+  if (existingUser?.role === 'SUPER-ADMIN') {
     throw new ApiError(
       httpStatus.FORBIDDEN,
       `Cannot update status for user with role 'superAdmin'.`,

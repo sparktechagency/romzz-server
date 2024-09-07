@@ -14,7 +14,7 @@ router
 
   // POST request to create a new "Slider" entry
   .post(
-    validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
     upload.single('image'),
     SliderControllers.createSlider,
   );
@@ -24,14 +24,14 @@ router
 
   // PATCH request to update an existing "Slider" entry by its ID
   .patch(
-    validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
     upload.single('image'),
     SliderControllers.updateSliderById,
   )
 
   // DELETE request to delete an existing "Slider" entry by its ID
   .delete(
-    validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
     SliderControllers.deleteSliderById,
   );
 

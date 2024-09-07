@@ -9,7 +9,7 @@ router
   .route('/')
 
   .get(
-    validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
     ContactControllers.getUserEmailList,
   )
   .post(ContactControllers.saveUserEmail);

@@ -10,13 +10,13 @@ router
 
   .get(SocialMediaControllers.getSocialMedias)
   .post(
-    validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+    validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
     SocialMediaControllers.createSocialMedia,
   );
 
 router.patch(
   '/:id',
-  validateAuth(USER_ROLE.admin, USER_ROLE.superAdmin),
+  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   SocialMediaControllers.updateSocialMediaById,
 );
 

@@ -56,7 +56,7 @@ const userSchema = new Schema<IUser, UserModel>(
     role: {
       type: String,
       enum: Object.values(USER_ROLE),
-      default: 'user',
+      default: 'USER',
     },
     status: {
       type: String,
@@ -174,7 +174,7 @@ userSchema.statics.verifyOtp = async function (email: string, otp: number) {
   }
 
   // If OTP is correct, remove OTP fields and verify the user
-  await User.findByIdAndUpdate(existingUser._id, {
+  await User.findByIdAndUpdate(existingUser?._id, {
     $unset: {
       otp: '',
       otpExpiresAt: '',
