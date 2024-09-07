@@ -152,16 +152,13 @@ const propertySchema = new Schema<IProperty>(
       enum: Object.values(OCCUPATION),
     },
     facilities: {
-      type: [{ type: Schema.Types.ObjectId, ref: 'Facility' }],
+      type: [Schema.Types.ObjectId],
+      ref: 'Facility',
       required: true,
       validate: [
         {
           validator: nonEmptyArray,
-          message: 'At least one facilities is required.',
-        },
-        {
-          validator: nonEmptyStrings,
-          message: 'Each facilities must be a non-empty string.',
+          message: 'At least one facility is required.',
         },
       ],
     },

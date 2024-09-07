@@ -68,7 +68,7 @@ const createPropertyToDB = async (
 const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const propertiesQuery = new QueryBuilder(
-    Property.find().populate({
+    Property.find().select('status').populate({
       path: 'createdBy',
       select: 'fullName email phoneNumber avatar',
     }),
@@ -90,7 +90,7 @@ const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
 const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const propertiesQuery = new QueryBuilder(
-    Property.find({ isApproved: true, isBooked: false })
+    Property.find({ status: 'approved', isApproved: true, isBooked: false })
       .select('propertyImages price priceType title category address')
       .populate({
         path: 'createdBy',
@@ -115,10 +115,16 @@ const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
 
 const getPropertyByIdFromDB = async (propertyId: string) => {
   // Find the Review by ID and populate the userId field
-  const result = await Property.findById(propertyId).populate({
-    path: 'createdBy',
-    select: 'fullName avatar',
-  });
+  const result = await Property.findById(propertyId)
+    .select('-status')
+    .populate({
+      path: 'createdBy',
+      select: 'fullName avatar',
+    })
+    .populate({
+      path: 'facilities',
+      select: 'name icon',
+    });
 
   // Handle the case where the review is not found
   if (!result) {
@@ -132,7 +138,9 @@ const getPropertyByIdFromDB = async (propertyId: string) => {
 };
 
 const getPropertyByUserIdFromDB = async (user: JwtPayload) => {
-  const result = await Property.find({ createdBy: user?.userId });
+  const result = await Property.find({ createdBy: user?.userId }).select(
+    'propertyImages price priceType title category address createdAt',
+  );
   return result;
 };
 
@@ -230,11 +238,10 @@ const updatePropertyByIdToDB = async (
 
 const updatePropertyStatusToApproveToDB = async (propertyId: string) => {
   // Update the Property status to 'approve'
-  const result = await Property.findByIdAndUpdate(
-    propertyId,
-    { isApproved: true, status: 'approve' },
-    { new: true }, // Return the updated document
-  );
+  const result = await Property.findByIdAndUpdate(propertyId, {
+    status: 'approved',
+    isApproved: true,
+  });
 
   // Handle case where no Property is found
   if (!result) {
@@ -253,11 +260,10 @@ const updatePropertyStatusToApproveToDB = async (propertyId: string) => {
 
 const updatePropertyStatusToRejectToDB = async (propertyId: string) => {
   // Update the Property status to 'reject'
-  const result = await Property.findByIdAndUpdate(
-    propertyId,
-    { isApproved: false, status: 'reject' },
-    { new: true }, // Return the updated document
-  );
+  const result = await Property.findByIdAndUpdate(propertyId, {
+    status: 'rejected',
+    isApproved: false,
+  });
 
   // Handle case where no Property is found
   if (!result) {
