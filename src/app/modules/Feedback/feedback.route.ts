@@ -25,11 +25,6 @@ router.get('/visible', FeedbackControllers.getVisibleFeedbacks);
 
 router.get('/:userId', FeedbackControllers.getUserProfileFeedbacks);
 
-router.get(
-  '/summary/:userId',
-  FeedbackControllers.getUserProfileFeedbackSummary,
-);
-
 // Route to update feedback visibility status
 router.patch(
   '/update-status/:id',

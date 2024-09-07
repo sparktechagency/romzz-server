@@ -9,32 +9,76 @@ import QueryBuilder from '../../builder/QueryBuilder';
 import { Property } from '../Property/property.model';
 import { User } from '../User/user.model';
 import getPathAfterUploads from '../../helpers/getPathAfterUploads';
+import mongoose from 'mongoose';
 
 const createFeedbackToDB = async (
   user: JwtPayload,
   payload: IFeedback,
   file: any,
 ) => {
-  // Check if the property with the provided propertyId exists
-  const propertyExists = await Property.findById(payload?.propertyId);
+  const session = await mongoose.startSession();
 
-  // Handle case where no Feedback is found
-  if (!propertyExists) {
+  // Check if the property with the provided propertyId exists
+  const existingProperty = await Property.findById(payload?.propertyId);
+
+  // Handle case where no property is found
+  if (!existingProperty) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
       `Property with ID: ${payload?.propertyId} not found!`,
     );
   }
 
-  payload.userId = user?.userId; // Set the userId field from the JWT payload
-  payload.visibilityStatus = 'hide'; // Set default status for the Feedback
+  try {
+    // Add userId from the JWT payload to the feedback
+    payload.userId = user?.userId;
+    payload.visibilityStatus = 'hide'; // Set default visibility status
 
-  if (file && file?.path) {
-    payload.image = getPathAfterUploads(file?.path);
+    if (file && file?.path) {
+      payload.image = getPathAfterUploads(file?.path); // If image file exists, set it
+    }
+
+    // Create the new feedback entry
+    const feedback = await Feedback.create(payload);
+
+    // Recalculate the average rating for the property owner (user who owns the property)
+    const propertyOwnerId = existingProperty?.createdBy; // Assuming `createdBy` is the owner of the property
+
+    // Find all feedbacks for this user's properties
+    const userProperties = await Property.find({
+      createdBy: propertyOwnerId,
+    });
+
+    const propertyIds = userProperties?.map((property) => property?._id);
+
+    const feedbacks = await Feedback.find({
+      propertyId: { $in: propertyIds },
+    });
+
+    // Calculate the average rating
+    const userRatings = feedbacks?.map((feedback) => feedback?.rating);
+    const averageRating =
+      userRatings?.length > 0
+        ? (
+            userRatings?.reduce((sum, rating) => sum + rating, 0) /
+            userRatings?.length
+          ).toFixed(1)
+        : 0;
+
+    // Update the user's rating
+    await User.findByIdAndUpdate(propertyOwnerId, {
+      rating: averageRating,
+    });
+
+    return feedback;
+  } catch (error) {
+    // Abort the transaction in case of an error
+    await session.abortTransaction();
+    await session.endSession();
+
+    // Re-throw the error to be handled by the caller
+    throw error;
   }
-
-  const result = await Feedback.create(payload);
-  return result;
 };
 
 const getAllFeedbacksFromDB = async (query: Record<string, unknown>) => {
@@ -80,48 +124,10 @@ const getUserProfileFeedbacksFromDB = async (userId: string) => {
     propertyId: { $in: propertyIds },
   }).populate({
     path: 'userId', // Populate the user who gave the feedback
-    select: '-_id fullName avatar', // Adjust the fields to select the user's details
+    select: 'fullName avatar', // Adjust the fields to select the user's details
   });
 
   return result;
-};
-
-const getUserProfileFeedbackSummaryFromDB = async (userId: string) => {
-  // Fetch user profile
-  const existingUser = await User.findById(userId).select(
-    '-_id fullName email avater coverImage address',
-  ); // Adjust fields as necessary
-
-  if (!existingUser) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found!');
-  }
-
-  // Find properties posted by the user
-  const properties = await Property.find({ createdBy: userId });
-
-  // Extract property IDs
-  const propertyIds = properties?.map((property) => property?._id);
-
-  // Find feedback for these properties
-  const feedbacks = await Feedback.find({
-    propertyId: { $in: propertyIds },
-  });
-
-  // Calculate the average rating given by the user
-  const userRatings = feedbacks?.map((feedback) => feedback?.rating);
-  const averageRating =
-    userRatings?.length > 0
-      ? (
-          userRatings?.reduce((sum, rating) => sum + rating, 0) /
-          userRatings?.length
-        ).toFixed(1)
-      : 0;
-
-  // Return user profile and average rating
-  return {
-    userInfo: existingUser,
-    averageRating,
-  };
 };
 
 const updateFeedbackVisibilityStatusToDB = async (
@@ -159,5 +165,4 @@ export const FeedbackServices = {
   getVisibleFeedbacksFromDB,
   updateFeedbackVisibilityStatusToDB,
   getUserProfileFeedbacksFromDB,
-  getUserProfileFeedbackSummaryFromDB,
 };

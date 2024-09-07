@@ -139,7 +139,7 @@ const getPropertyByIdFromDB = async (propertyId: string) => {
 
 const getPropertyByUserIdFromDB = async (user: JwtPayload) => {
   const result = await Property.find({ createdBy: user?.userId }).select(
-    'propertyImages price priceType title category address createdAt',
+    'propertyImages price priceType title category address status createdAt',
   );
   return result;
 };

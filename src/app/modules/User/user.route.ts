@@ -29,18 +29,7 @@ router.get(
 router.get(
   '/favourites',
   validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
-  UserControllers.getUserFavouritesProperty,
-);
-
-router.get(
-  '/user-count',
-  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
-  UserControllers.getUsersCount,
-);
-router.get(
-  '/user-count/:year',
-  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
-  UserControllers.getUserCountByYear,
+  UserControllers.getUserFavouriteProperties,
 );
 
 router.post(

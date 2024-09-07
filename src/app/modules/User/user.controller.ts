@@ -36,30 +36,6 @@ const getUsers = catchAsync(async (req, res) => {
   });
 });
 
-const getUsersCount = catchAsync(async (req, res) => {
-  const result = await UserServices?.getUsersCountFromDB();
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Count of users retrieved successfully!',
-    data: result,
-  });
-});
-
-const getUserCountByYear = catchAsync(async (req, res) => {
-  const result = await UserServices?.getUserCountByYearFromDB(
-    Number(req?.params?.year),
-  );
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: `Monthly user counts for ${req?.params?.year} retrieved successfully!`,
-    data: result,
-  });
-});
-
 const getAdmins = catchAsync(async (req, res) => {
   const result = await UserServices?.getAdminsFromDB(req?.query);
 
@@ -97,8 +73,10 @@ const updateUserProfile = catchAsync(async (req, res) => {
   });
 });
 
-const getUserFavouritesProperty = catchAsync(async (req, res) => {
-  const result = await UserServices?.getUserFavouritesPropertyFromDB(req?.user);
+const getUserFavouriteProperties = catchAsync(async (req, res) => {
+  const result = await UserServices?.getUserFavouritePropertiesFromDB(
+    req?.user,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -117,10 +95,10 @@ const updateUserStatus = catchAsync(async (req, res) => {
   // Determine the appropriate message based on the user's status
   const statusMessage =
     req?.body?.action === 'block'
-      ? result.role === 'admin'
+      ? result.role === 'ADMIN'
         ? 'Admin user has been blocked successfully!'
         : 'User has been blocked successfully!'
-      : result.role === 'admin'
+      : result.role === 'ADMIN'
         ? 'Admin user has been unblocked successfully!'
         : 'User has been unblocked successfully!';
 
@@ -136,11 +114,9 @@ export const UserControllers = {
   createUser,
   createAdmin,
   getUsers,
-  getUsersCount,
-  getUserCountByYear,
   getAdmins,
   getUserProfile,
   updateUserProfile,
-  getUserFavouritesProperty,
+  getUserFavouriteProperties,
   updateUserStatus,
 };

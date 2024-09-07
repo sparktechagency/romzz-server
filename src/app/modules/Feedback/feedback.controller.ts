@@ -53,19 +53,6 @@ const getUserProfileFeedbacks = catchAsync(async (req, res) => {
   });
 });
 
-const getUserProfileFeedbackSummary = catchAsync(async (req, res) => {
-  const result = await FeedbackServices.getUserProfileFeedbackSummaryFromDB(
-    req?.params?.userId,
-  );
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'User profile feedback summary retrived successfully!',
-    data: result,
-  });
-});
-
 const updateFeedbackVisibilityStatus = catchAsync(async (req, res) => {
   const result = await FeedbackServices.updateFeedbackVisibilityStatusToDB(
     req?.params?.id,
@@ -92,5 +79,4 @@ export const FeedbackControllers = {
   getVisibleFeedbacks,
   updateFeedbackVisibilityStatus,
   getUserProfileFeedbacks,
-  getUserProfileFeedbackSummary,
 };

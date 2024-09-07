@@ -53,6 +53,10 @@ const userSchema = new Schema<IUser, UserModel>(
     presentAddress: {
       type: String,
     },
+    rating: {
+      type: Number,
+      default: 0,
+    },
     role: {
       type: String,
       enum: Object.values(USER_ROLE),

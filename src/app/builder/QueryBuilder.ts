@@ -57,6 +57,13 @@ class QueryBuilder<T> {
     return this;
   }
 
+  // Method for filtering inside populated fields
+  populateAndFilter(populateOptions: { path: string; select?: string }) {
+    // Example: pass `populateOptions` like `{ path: 'createdBy', match: { isActive: true }, select: 'avatar name' }`
+    this.modelQuery = this.modelQuery.populate(populateOptions);
+    return this;
+  }
+
   // Method for range filtering, e.g., price, age, etc.
   rangeFilter() {
     const priceRange = this.query['price'] as string;

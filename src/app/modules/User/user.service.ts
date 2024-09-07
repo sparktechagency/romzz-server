@@ -5,11 +5,7 @@ import { IUser } from './user.interface';
 import ApiError from '../../errors/ApiError';
 import { User } from './user.model';
 import QueryBuilder from '../../builder/QueryBuilder';
-import {
-  monthNames,
-  userFieldsToExclude,
-  UserSearchableFields,
-} from './user.constant';
+import { userFieldsToExclude, UserSearchableFields } from './user.constant';
 import { JwtPayload } from 'jsonwebtoken';
 import path from 'path';
 import ejs from 'ejs';
@@ -18,7 +14,6 @@ import generateOtp from '../../helpers/generateOtp';
 import { errorLogger, logger } from '../../utils/winstonLogger';
 import colors from 'colors';
 import { sendEmail } from '../../helpers/emailService';
-import { startOfMonth, endOfMonth } from 'date-fns';
 import { Favourite } from '../Favourite/favourite.model';
 import { unlinkFile } from '../../helpers/fileHandler';
 import getPathAfterUploads from '../../helpers/getPathAfterUploads';
@@ -119,7 +114,7 @@ const getUsersFromDB = async (query: Record<string, unknown>) => {
 const getAdminsFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const usersQuery = new QueryBuilder(
-    User.find({ role: 'admin' }).select('avatar fullName email status'),
+    User.find({ role: 'ADMIN' }).select('avatar fullName email status'),
     query,
   )
     .sort() // Apply sorting based on the query parameter
@@ -131,64 +126,6 @@ const getAdminsFromDB = async (query: Record<string, unknown>) => {
   const result = await usersQuery.modelQuery;
 
   return { meta, result };
-};
-
-const getUsersCountFromDB = async () => {
-  const totalUser = await User.countDocuments({
-    role: 'USER',
-    isVerified: true,
-  });
-
-  // Define start and end dates for the current month
-  const start = startOfMonth(new Date());
-  const end = endOfMonth(new Date());
-
-  // Count users created in the current month
-  const currentMonthTotal = await User.countDocuments({
-    role: 'USER',
-    isVerified: true,
-    createdAt: {
-      $gte: start,
-      $lte: end,
-    },
-  });
-
-  return { totalUser, currentMonthTotal };
-};
-
-const getUserCountByYearFromDB = async (year: number) => {
-  const monthlyUserCounts = [];
-
-  for (let month = 1; month <= 12; month++) {
-    // Define the start and end dates for the current month
-    const startDate = startOfMonth(new Date(year, month - 1, 1));
-    const endDate = endOfMonth(new Date(year, month - 1, 1));
-
-    // Aggregate user counts for the specified month
-    const userCount = await User.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: startDate, $lte: endDate },
-          role: 'USER',
-          isVerified: true,
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          count: { $sum: 1 },
-        },
-      },
-    ]);
-
-    // Add the result to monthly User Counts
-    monthlyUserCounts.push({
-      month: monthNames[month - 1],
-      totalUser: userCount?.length > 0 ? userCount[0].count : 0,
-    });
-  }
-
-  return monthlyUserCounts;
 };
 
 const getUserProfileFromDB = async (user: JwtPayload) => {
@@ -207,6 +144,19 @@ const getUserProfileFromDB = async (user: JwtPayload) => {
       `User with ID: ${user?.userId} not found!`,
     );
   }
+};
+
+const getPartialUserProfileFromDB = async (userId: string) => {
+  // Fetch user profile
+  const existingUser = await User.findById(userId).select(
+    '-_id fullName email avatar coverImage address',
+  ); // Adjust fields as necessary
+
+  if (!existingUser) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found!');
+  }
+
+  return existingUser;
 };
 
 const updateUserProfileToDB = async (
@@ -249,14 +199,12 @@ const updateUserProfileToDB = async (
   userFieldsToExclude?.forEach((field) => delete payload[field]);
 
   // Update user profile with the filtered data and return the result
-  const result = await User.findByIdAndUpdate(user?.userId, payload, {
-    new: true,
-  });
+  const result = await User.findByIdAndUpdate(user?.userId, payload);
 
   return result;
 };
 
-const getUserFavouritesPropertyFromDB = async (user: JwtPayload) => {
+const getUserFavouritePropertiesFromDB = async (user: JwtPayload) => {
   // Find all favorites for the user
   const favorites = await Favourite.find({ userId: user?.userId }).populate({
     path: 'propertyId',
@@ -352,11 +300,10 @@ export const UserServices = {
   createUserToDB,
   createAdminToDB,
   getUsersFromDB,
-  getUsersCountFromDB,
-  getUserCountByYearFromDB,
   getAdminsFromDB,
   getUserProfileFromDB,
+  getPartialUserProfileFromDB,
   updateUserProfileToDB,
-  getUserFavouritesPropertyFromDB,
   updateUserStatusToDB,
+  getUserFavouritePropertiesFromDB,
 };
