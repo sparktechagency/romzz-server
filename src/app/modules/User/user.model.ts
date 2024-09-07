@@ -96,6 +96,11 @@ userSchema.pre('save', async function (next) {
     this.password,
     Number(config.bcryptSaltRounds),
   );
+
+  // Remove rating field if the role is admin or superadmin
+  if (this.role === USER_ROLE['SUPER-ADMIN'] || this.role === USER_ROLE.ADMIN) {
+    this.set('rating', undefined, { strict: false }); // Remove rating
+  }
   next();
 });
 
