@@ -5,6 +5,8 @@ import config from './app/config';
 import seedSuperAdmin from './app/DB';
 import { errorLogger, logger } from './app/utils/winstonLogger';
 import colors from 'colors';
+import seedUsers from './app/Seeds/user.seeds';
+import seedFacilities from './app/Seeds/facility.seeds';
 
 let server: Server;
 
@@ -14,6 +16,8 @@ async function main() {
       `${config.dbURL}/${config.collectionName}`,
     );
     seedSuperAdmin();
+    seedUsers();
+    seedFacilities();
 
     logger.info(
       colors.bgGreen.bold(
@@ -23,7 +27,7 @@ async function main() {
 
     server = app.listen(Number(config.port), config.ipAddress as string, () => {
       logger.info(
-        colors.bgYellow.bold(
+        colors.bgGreen.bold(
           `🚀 Server running on: ${config.ipAddress}:${config.port}`,
         ),
       );

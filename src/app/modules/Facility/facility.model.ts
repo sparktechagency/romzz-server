@@ -6,6 +6,7 @@ const facilitySchema = new Schema<IFacility>(
     name: {
       type: String,
       required: true,
+      unique: true,
     },
     icon: {
       type: String,

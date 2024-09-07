@@ -58,6 +58,17 @@ const getUserProfile = catchAsync(async (req, res) => {
   });
 });
 
+const getPartialUserProfile = catchAsync(async (req, res) => {
+  const result = await UserServices.getPartialUserProfileFromDB(req?.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User profile retrieved successfully!',
+    data: result,
+  });
+});
+
 const updateUserProfile = catchAsync(async (req, res) => {
   const result = await UserServices?.updateUserProfileToDB(
     req?.user,
@@ -116,6 +127,7 @@ export const UserControllers = {
   getUsers,
   getAdmins,
   getUserProfile,
+  getPartialUserProfile,
   updateUserProfile,
   getUserFavouriteProperties,
   updateUserStatus,

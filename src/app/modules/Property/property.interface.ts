@@ -36,7 +36,7 @@ export interface IProperty {
   description: string;
   size: string;
   decorationType: TDecorationType;
-  flore: string;
+  flore: number;
   propertyType: TPropertyType;
   bedType: string;
   bedrooms: number;

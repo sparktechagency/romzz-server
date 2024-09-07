@@ -96,7 +96,7 @@ const propertySchema = new Schema<IProperty>(
       required: true,
     },
     flore: {
-      type: String,
+      type: Number,
       required: true,
     },
     propertyType: {

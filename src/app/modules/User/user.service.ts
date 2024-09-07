@@ -146,9 +146,9 @@ const getUserProfileFromDB = async (user: JwtPayload) => {
   }
 };
 
-const getUserPartialProfileFromDB = async (userId: string) => {
+const getPartialUserProfileFromDB = async (payload: { userId: string }) => {
   // Fetch user profile
-  const existingUser = await User.findById(userId).select(
+  const existingUser = await User.findById(payload?.userId).select(
     'fullName email avatar coverImage address rating',
   ); // Adjust fields as necessary
 
@@ -302,7 +302,7 @@ export const UserServices = {
   getUsersFromDB,
   getAdminsFromDB,
   getUserProfileFromDB,
-  getUserPartialProfileFromDB,
+  getPartialUserProfileFromDB,
   updateUserProfileToDB,
   updateUserStatusToDB,
   getUserFavouritePropertiesFromDB,
