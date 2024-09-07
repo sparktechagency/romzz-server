@@ -49,6 +49,11 @@ const createPropertyToDB = async (
     );
   }
 
+  // Set the price to be 20% more than the actual price
+  if (payload.price) {
+    payload.price = payload.price * 1.2; // Increase the price by 20%
+  }
+
   // Create the property in the database
   const result = await Property.create(payload);
 
