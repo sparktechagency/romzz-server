@@ -282,17 +282,21 @@ cron.schedule('0 */12 * * *', async () => {
     // Log results of the deletion operation using custom logger with colors
     if (result?.deletedCount > 0) {
       logger.info(
-        colors.bgGreen(
-          `${result?.deletedCount} expired unverified users were deleted.`,
+        colors.bgGreen.bold(
+          `✅ ${result?.deletedCount} expired unverified users were deleted.`,
         ),
       );
     } else {
       logger.info(
-        colors.bgYellow('No expired unverified users found for deletion.'),
+        colors.bgYellow.bold(
+          '⚠️ No expired unverified users found for deletion.',
+        ),
       );
     }
   } catch (error) {
-    errorLogger.error(colors.bgRed(`Error deleting expired users: ${error}`));
+    errorLogger.error(
+      colors.bgRed.bold(`❌ Error deleting expired users: ${error}`),
+    );
   }
 });
 

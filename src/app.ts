@@ -5,13 +5,14 @@ import router from './app/routes';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
 import notFound from './app/middlewares/notFound';
 import requestLogger from './app/middlewares/requestLogger';
+import corsConfig from './app/utils/corsConfig';
 
 const app = express();
 
 // middlewares
-app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
+app.use(express.json());
 app.use(requestLogger);
 app.use(express.static('uploads'));
 
@@ -38,7 +39,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // Application routes under the '/api/v1' path
-app.use('/api/v1', router);
+app.use('/api/v1', cors(corsConfig), router);
 
 // Error-handling middlewares
 app.use(globalErrorHandler); // Global error handler middleware

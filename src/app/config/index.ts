@@ -7,6 +7,7 @@ export default {
   port: process.env.PORT,
   ipAddress: process.env.IP_ADDRESS,
   nodeEnv: process.env.NODE_ENV,
+  corsOrigin: process.env.CORS_ORIGIN,
   dbURL: process.env.DATABASE_URL,
   collectionName: process.env.COLLECTION_NAME,
 

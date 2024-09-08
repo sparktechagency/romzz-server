@@ -1,14 +1,12 @@
 import { CorsOptions } from 'cors';
 import ApiError from '../errors/ApiError';
 import httpStatus from 'http-status';
-
-// whitelist of allowed origins for CORS
-const whitelist = ['http://localhost:3000', 'http://localhost:5173'];
+import config from '../config';
 
 // CORS options to allow requests only from whitelisted origins
 const corsConfig: CorsOptions = {
   origin: function (origin, callback) {
-    if (whitelist?.indexOf(origin as string) !== -1 || !origin) {
+    if (config.corsOrigin?.indexOf(origin as string) !== -1 || !origin) {
       callback(null, true); // Allow request
     } else {
       callback(

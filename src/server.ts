@@ -1,21 +1,36 @@
-import { Server } from 'http';
 import mongoose from 'mongoose';
 import app from './app';
 import config from './app/config';
 import seedSuperAdmin from './app/DB';
 import { errorLogger, logger } from './app/utils/winstonLogger';
 import colors from 'colors';
-import seedUsers from './app/Seeds/user.seeds';
-import seedFacilities from './app/Seeds/facility.seeds';
-import seedProperties from './app/Seeds/property.seeds';
+import seedUsers from './app/seeds/user.seeds';
+import seedFacilities from './app/seeds/facility.seeds';
+import seedProperties from './app/seeds/property.seeds';
+import { Server } from 'socket.io';
+import { createServer, Server as HttpServer } from 'http';
 
-let server: Server;
+let server: HttpServer;
+
+// Create HTTP server and Socket.io server
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  pingTimeout: 60000,
+  cors: {
+    origin: config.corsOrigin,
+    credentials: true,
+  },
+});
+
+app.set('io', io);
 
 async function main() {
   try {
     const connectionInstance = await mongoose.connect(
       `${config.dbURL}/${config.collectionName}`,
     );
+
+    // Seed data
     seedSuperAdmin();
     seedUsers();
     seedFacilities();
