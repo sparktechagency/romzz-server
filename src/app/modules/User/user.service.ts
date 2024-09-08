@@ -11,7 +11,7 @@ import path from 'path';
 import ejs from 'ejs';
 import cron from 'node-cron';
 import generateOtp from '../../helpers/generateOtp';
-import { errorLogger, logger } from '../../utils/winstonLogger';
+import { errorLogger, logger } from '../../logger/winstonLogger';
 import colors from 'colors';
 import { sendEmail } from '../../helpers/emailService';
 import { Favourite } from '../Favourite/favourite.model';

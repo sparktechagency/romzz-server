@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import app from './app';
 import config from './app/config';
 import seedSuperAdmin from './app/DB';
-import { errorLogger, logger } from './app/utils/winstonLogger';
+import { errorLogger, logger } from './app/logger/winstonLogger';
 import colors from 'colors';
 import seedUsers from './app/seeds/user.seeds';
 import seedFacilities from './app/seeds/facility.seeds';

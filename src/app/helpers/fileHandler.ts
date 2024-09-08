@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { errorLogger, logger } from '../utils/winstonLogger';
+import { errorLogger, logger } from '../logger/winstonLogger';
 import colors from 'colors';
 import path from 'path';
 

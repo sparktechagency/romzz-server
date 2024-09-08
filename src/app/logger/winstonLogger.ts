@@ -11,7 +11,7 @@ const myLogFormat = format.combine(
       new Date(timestamp),
       'EEEE, yyyy-MM-dd HH:mm:ss',
     );
-    return `${level}: ${message} - ${formattedDate}`;
+    return `${level}: ${message} - [${formattedDate}]`;
   }),
 );
 

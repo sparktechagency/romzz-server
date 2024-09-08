@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import config from '../config';
 import { ISendEmail } from '../interfaces/sendEmail.interface';
-import { errorLogger, logger } from '../utils/winstonLogger';
+import { errorLogger, logger } from '../logger/winstonLogger';
 import colors from 'colors';
 
 const transporter = nodemailer.createTransport({

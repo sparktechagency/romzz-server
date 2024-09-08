@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { Property } from '../modules/Property/property.model';
-import { errorLogger, logger } from '../utils/winstonLogger';
+import { errorLogger, logger } from '../logger/winstonLogger';
 import colors from 'colors';
 import {
   ALLOWED_GENDER,

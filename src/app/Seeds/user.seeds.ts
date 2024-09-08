@@ -1,5 +1,5 @@
 import { User } from '../modules/User/user.model';
-import { errorLogger, logger } from '../utils/winstonLogger';
+import { errorLogger, logger } from '../logger/winstonLogger';
 import colors from 'colors';
 import { faker } from '@faker-js/faker';
 import config from '../config';

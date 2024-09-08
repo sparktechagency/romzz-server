@@ -1,5 +1,5 @@
 import morgan from 'morgan';
-import { logger } from '../utils/winstonLogger';
+import { logger } from './winstonLogger';
 
 // Define a custom Morgan format
 const morganFormat = ':method :url :status :response-time ms';
