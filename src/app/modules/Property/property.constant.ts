@@ -57,21 +57,21 @@ export const PROPERTY_TYPE = {
 } as const;
 
 export const ALLOWED_GENDER = {
-  all: 'all',
+  any: 'any',
   male: 'male',
   female: 'female',
   others: 'others',
 } as const;
 
 export const GUEST_TYPE = {
-  all: 'all',
+  any: 'any',
   single: 'single',
   couple: 'couple',
   family: 'family',
 } as const;
 
 export const OCCUPATION = {
-  all: 'all',
+  any: 'any',
   student: 'student',
   professional: 'professional',
 } as const;

@@ -51,7 +51,7 @@ const seedFacilities = async () => {
     // Check if there are less than 10 Facility in the database
     const facilityCounts = await Facility.countDocuments();
 
-    if (facilityCounts < 20) {
+    if (facilityCounts < 10) {
       // Bulk insert the Facility with hashed passwords
       await Facility.insertMany(data);
       logger.info(colors.bgGreen.bold('✅ Facility inserted successfully!'));

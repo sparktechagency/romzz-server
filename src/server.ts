@@ -7,6 +7,7 @@ import { errorLogger, logger } from './app/utils/winstonLogger';
 import colors from 'colors';
 import seedUsers from './app/Seeds/user.seeds';
 import seedFacilities from './app/Seeds/facility.seeds';
+import seedProperties from './app/Seeds/property.seeds';
 
 let server: Server;
 
@@ -18,6 +19,7 @@ async function main() {
     seedSuperAdmin();
     seedUsers();
     seedFacilities();
+    seedProperties();
 
     logger.info(
       colors.bgGreen.bold(

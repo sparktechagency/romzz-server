@@ -94,7 +94,7 @@ const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
       .select('propertyImages price priceType title category address')
       .populate({
         path: 'createdBy',
-        select: 'avatar',
+        select: 'avatar rating',
       }),
     query,
   )
