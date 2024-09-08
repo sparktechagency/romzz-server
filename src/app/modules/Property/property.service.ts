@@ -90,19 +90,24 @@ const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
 const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const propertiesQuery = new QueryBuilder(
-    Property.find({ status: 'approved', isApproved: true, isBooked: false })
-      .select('propertyImages price priceType title category address')
-      .populate({
-        path: 'createdBy',
-        select: 'avatar rating',
-      }),
+    Property.find().select(
+      'propertyImages price priceType title category address',
+    ),
+    // .populate({
+    //   path: 'createdBy',
+    //   select: 'avatar rating',
+    // })
+    // .populate({
+    //   path: 'facilities',
+    //   select: 'name',
+    // }),
     query,
   )
-    .search(['address']) // Apply search conditions based on searchable fields
-    .filter()
-    .rangeFilter()
-    .sort() // Apply sorting based on the query parameter
-    .paginate(); // Apply pagination based on the query parameter
+    .search(['address']) // Search within searchable fields
+    .filter() // Apply general filters
+    .rangeFilter() // Apply range filters
+    .sort() // Apply sorting
+    .paginate(); // Apply pagination
 
   // Get the total count of matching documents and total pages for pagination
   const meta = await propertiesQuery.countTotal();
