@@ -769,6 +769,22 @@ const data = [
   },
 ];
 
+// Generate fake property data with userId for createdBy field
+const generateFakeProperty = (userId: string) => ({
+  title: faker.lorem.words(3),
+  description: faker.lorem.paragraph(),
+  price: faker.datatype.number({ min: 50000, max: 1000000 }),
+  ownerName: faker.name.fullName(),
+  address: faker.address.streetAddress(),
+  city: faker.address.city(),
+  country: faker.address.country(),
+  ownerEmail: faker.internet.email(),
+  facilities: [faker.lorem.word(), faker.lorem.word()], // Replace with actual facilities as needed
+  status: faker.helpers.arrayElement(['AVAILABLE', 'SOLD', 'PENDING']), // Example status enum
+  propertyType: faker.helpers.arrayElement(['HOUSE', 'APARTMENT']), // Example property type enum
+  createdBy: userId, // Dynamically add createdBy field from user
+});
+
 // Function insert Property into the database
 const seedProperties = async () => {
   try {
