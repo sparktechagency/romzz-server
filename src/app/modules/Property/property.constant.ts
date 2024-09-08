@@ -56,6 +56,12 @@ export const PROPERTY_TYPE = {
   cottage: 'cottage',
 } as const;
 
+export const BED_TYPE = {
+  sofa: 'sofa',
+  'single-bed': 'single-bed',
+  'double-bed': 'double-bed',
+} as const;
+
 export const ALLOWED_GENDER = {
   any: 'any',
   male: 'male',

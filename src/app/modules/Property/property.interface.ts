@@ -1,6 +1,7 @@
 import { ObjectId } from 'mongoose';
 import {
   ALLOWED_GENDER,
+  BED_TYPE,
   CATEGORY,
   DECORATION_TYPE,
   GUEST_TYPE,
@@ -16,6 +17,7 @@ export type TCategory = keyof typeof CATEGORY;
 export type TPriceType = keyof typeof PRICE_TYPE;
 export type TDecorationType = keyof typeof DECORATION_TYPE;
 export type TPropertyType = keyof typeof PROPERTY_TYPE;
+export type TBedType = keyof typeof BED_TYPE;
 export type TAllowedGender = keyof typeof ALLOWED_GENDER;
 export type TGuestType = keyof typeof GUEST_TYPE;
 export type TOccupation = keyof typeof OCCUPATION;
@@ -38,7 +40,7 @@ export interface IProperty {
   decorationType: TDecorationType;
   flore: number;
   propertyType: TPropertyType;
-  bedType: string;
+  bedType: TBedType;
   bedrooms: number;
   bathrooms: number;
   balcony: number;

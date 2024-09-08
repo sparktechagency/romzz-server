@@ -2,6 +2,7 @@ import { Schema, model } from 'mongoose';
 import { IProperty } from './property.interface';
 import {
   ALLOWED_GENDER,
+  BED_TYPE,
   CATEGORY,
   DECORATION_TYPE,
   GUEST_TYPE,
@@ -106,6 +107,7 @@ const propertySchema = new Schema<IProperty>(
     },
     bedType: {
       type: String,
+      enum: Object.values(BED_TYPE),
       required: true,
     },
     bedrooms: {
