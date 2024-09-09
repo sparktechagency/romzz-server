@@ -43,7 +43,7 @@ async function main() {
     const io = new Server(server, {
       pingTimeout: 60000,
       cors: {
-        origin: '*',
+        origin: config.corsOrigin,
         credentials: true,
       },
     });

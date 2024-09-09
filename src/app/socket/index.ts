@@ -4,11 +4,11 @@ import { logger } from '../logger/winstonLogger';
 
 const initializeSocket = (io: Server) => {
   io.on('connection', (socket) => {
-    logger.info(colors.bgBlue.bold('A user connected'));
+    logger.info(colors.bgBlue.bold(`A User is connected: ${socket?.id}`));
 
     //disconnect
     socket.on('disconnect', () => {
-      logger.warn(colors.bgYellow.bold('A user disconnect'));
+      logger.warn(colors.bgYellow.bold(`A User is disconnected: ${socket.id}`));
     });
   });
 };
