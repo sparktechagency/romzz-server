@@ -8,21 +8,10 @@ import seedUsers from './app/seeds/user.seeds';
 import seedFacilities from './app/seeds/facility.seeds';
 import seedProperties from './app/seeds/property.seeds';
 import { Server } from 'socket.io';
-import { createServer, Server as HttpServer } from 'http';
+import { Server as HttpServer } from 'http';
+import { initializeSocket } from './app/socket';
 
 let server: HttpServer;
-
-// Create HTTP server and Socket.io server
-const httpServer = createServer(app);
-const io = new Server(httpServer, {
-  pingTimeout: 60000,
-  cors: {
-    origin: config.corsOrigin,
-    credentials: true,
-  },
-});
-
-app.set('io', io);
 
 async function main() {
   try {
@@ -49,6 +38,18 @@ async function main() {
         ),
       );
     });
+
+    // Create HTTP server and Socket.io server
+    const io = new Server(server, {
+      pingTimeout: 60000,
+      cors: {
+        origin: '*',
+        credentials: true,
+      },
+    });
+
+    initializeSocket(io);
+    global.io = io;
   } catch (error) {
     errorLogger.error(
       colors.bgCyan.bold(`❌ MongoDB connection error: ${error}`),
