@@ -142,8 +142,8 @@ const getPropertyByIdFromDB = async (propertyId: string) => {
   return result;
 };
 
-const getPropertyByUserIdFromDB = async (user: JwtPayload) => {
-  const result = await Property.find({ createdBy: user?.userId }).select(
+const getPropertyByUserIdFromDB = async (payload: { userId: string }) => {
+  const result = await Property.find({ createdBy: payload?.userId }).select(
     'propertyImages price priceType title category address status createdAt',
   );
   return result;
@@ -316,11 +316,11 @@ const togglePropertyFavouriteStatusToDB = async (
   if (existingFavorite) {
     // If already favourited, remove it
     await Favourite.deleteOne({ userId: user?.userId, propertyId });
-    return { propertyId, isFavourited: false };
+    return { isFavourited: false };
   } else {
     // If not favourited, add to favorites
     await Favourite.create({ userId: user?.userId, propertyId });
-    return { propertyId, isFavourited: true };
+    return { isFavourited: true };
   }
 };
 

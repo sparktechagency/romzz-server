@@ -2,21 +2,27 @@ import path from 'path';
 import { format as formatDate } from 'date-fns';
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
+import config from '../config';
 
 // Define your severity levels.
 const levels = {
-  info: 0,
+  error: 0,
   warn: 1,
-  http: 2,
-  error: 3,
+  info: 2,
+  http: 3,
+};
+
+const level = () => {
+  const isDevelopment = config.nodeEnv === 'development';
+  return isDevelopment ? 'http' : 'warn';
 };
 
 // Define colors for each log level
 const colors = {
-  info: 'green',
-  warn: 'yellow',
-  http: 'cyan',
   error: 'red',
+  warn: 'yellow',
+  info: 'green',
+  http: 'cyan',
 };
 
 // Link the colors to the severity levels
@@ -37,9 +43,8 @@ const myLogFormat = winston.format.combine(
 
 // Define transports
 const transports = [
-  new winston.transports.Console({
-    level: 'error', // Console should capture all levels starting from 'error' and above
-  }),
+  new winston.transports.Console(),
+
   new DailyRotateFile({
     filename: path.join(process.cwd(), 'logs', 'info', '%DATE%.log'),
     datePattern: 'DD-MM-YYYY-HH',
@@ -71,14 +76,14 @@ const transports = [
     maxFiles: '1d',
     level: 'error', // Log only 'error'
   }),
-].filter(Boolean);
+];
 
 // Create a logger instance
 const logger = winston.createLogger({
   levels,
+  level: level(),
   format: myLogFormat,
   transports,
-  level: 'error', // Set global logger level to capture all logs starting from 'error' and above
 });
 
 export default logger;

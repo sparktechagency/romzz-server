@@ -52,7 +52,7 @@ const getPropertyById = catchAsync(async (req, res) => {
 });
 
 const getPropertyByUserId = catchAsync(async (req, res) => {
-  const result = await PropertyServices.getPropertyByUserIdFromDB(req?.user);
+  const result = await PropertyServices.getPropertyByUserIdFromDB(req?.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -110,11 +110,16 @@ const togglePropertyFavouriteStatus = catchAsync(async (req, res) => {
     req?.params?.id,
   );
 
+  // Set the message based on the favorite status
+  const message = result.isFavourited
+    ? 'Property has been added to your favorites.'
+    : 'Property has been removed from your favorites.';
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Property favorite status updated successfully!',
-    data: result,
+    message,
+    data: null,
   });
 });
 

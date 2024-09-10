@@ -38,11 +38,7 @@ router
 router.get('/approved-properties', PropertyControllers.getApprovedProperties);
 
 // Route to get properties created by the user
-router.get(
-  '/user-properties',
-  validateAuth(USER_ROLE.USER),
-  PropertyControllers.getPropertyByUserId,
-);
+router.get('/user-properties', PropertyControllers.getPropertyByUserId);
 
 router
   .route('/:id')

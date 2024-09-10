@@ -1,29 +1,25 @@
 import { Router } from 'express';
 import validateAuth from '../../middlewares/validateAuth';
 import { USER_ROLE } from '../User/user.constant';
-import { FaqControllers } from './message.controller';
+import { MessageControllers } from './message.controller';
 
 const router = Router();
 
 router
   .route('/')
 
-  .get(FaqControllers.getFaqs)
+  .get(MessageControllers.getMessages)
   .post(
     validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
-    FaqControllers.createFaq,
+    MessageControllers.createMessage,
   );
 
 router
   .route('/:id')
 
-  .patch(
-    validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
-    FaqControllers.updateFaqById,
-  )
   .delete(
     validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
-    FaqControllers.deleteFaqById,
+    MessageControllers.deleteMessageById,
   );
 
-export const FaqRoutes = router;
+export const MessageRoutes = router;

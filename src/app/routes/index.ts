@@ -12,19 +12,20 @@ import { ContactRoutes } from '../modules/Contact/contact.route';
 import { MediaRoutes } from '../modules/SocialMedia/socialMedia.route';
 import { FacilityRoutes } from '../modules/Facility/facility.route';
 import { NotificationRoutes } from '../modules/Notification/notification.route';
+import { ChatRoutes } from '../modules/Chat/chat.route';
 
 const router = Router();
 
 const routes = [
+  // web
   { path: '/users', route: UserRoutes },
   { path: '/auth', route: AuthRoutes },
   { path: '/properties', route: PropertyRoutes },
   { path: '/notifications', route: NotificationRoutes },
+  { path: '/chats', route: ChatRoutes },
 
   // Dashboard
   { path: '/facilities', route: FacilityRoutes },
-
-  // Settings
   { path: '/sliders', route: SliderRoutes },
   { path: '/our-story', route: StoryRoutes },
   { path: '/terms-and-conditions', route: TermsRoutes },

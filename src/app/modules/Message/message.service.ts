@@ -1,57 +1,35 @@
 import { JwtPayload } from 'jsonwebtoken';
-import { IFaq } from './message.interface';
+import { IMessage } from './message.interface';
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
-import { Faq } from './message.model';
+import { Message } from './message.model';
 
-const createFaqToDB = async (user: JwtPayload, payload: IFaq) => {
-  payload.createdBy = user?.userId;
+const createMessageToDB = async (user: JwtPayload, payload: IMessage) => {
+  payload.sender = user?.userId;
 
-  const result = await Faq.create(payload);
+  const result = await Message.create(payload);
   return result;
 };
 
-const getFaqsFromDB = async () => {
-  const result = await Faq.find();
+const getMessagesFromDB = async () => {
+  const result = await Message.find();
   return result;
 };
 
-const updateFaqByIdFromDB = async (faqId: string, payload: Partial<IFaq>) => {
-  // Remove the createdBy field from the payload
-  delete payload.createdBy;
+const deleteMessageByIdFromDB = async (MessageId: string) => {
+  const result = await Message.findByIdAndDelete(MessageId);
 
-  // Update the Faq with the provided status
-  const result = await Faq.findByIdAndUpdate(faqId, payload, {
-    new: true, // Return the updated document
-    runValidators: true,
-  });
-
-  // Handle case where no Faq is found
+  // Handle case where no Message is found
   if (!result) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
-      `Faq with ID: ${faqId} not found!`,
-    );
-  }
-
-  return result;
-};
-
-const deleteFaqByIdFromDB = async (faqId: string) => {
-  const result = await Faq.findByIdAndDelete(faqId);
-
-  // Handle case where no Faq is found
-  if (!result) {
-    throw new ApiError(
-      httpStatus.NOT_FOUND,
-      `Faq with ID: ${faqId} not found!`,
+      `Message with ID: ${MessageId} not found!`,
     );
   }
 };
 
-export const FaqServices = {
-  createFaqToDB,
-  getFaqsFromDB,
-  updateFaqByIdFromDB,
-  deleteFaqByIdFromDB,
+export const MessageServices = {
+  createMessageToDB,
+  getMessagesFromDB,
+  deleteMessageByIdFromDB,
 };

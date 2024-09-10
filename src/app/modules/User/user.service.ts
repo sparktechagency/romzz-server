@@ -96,10 +96,13 @@ const getUsersFromDB = async (query: Record<string, unknown>) => {
     User.find({
       role: 'USER',
       isVerified: true,
-    }).select('avatar fullName email presentAddress permanentAddress status'),
+    }).select(
+      'avatar fullName email nidNumber ineNumber presentAddress permanentAddress rating status',
+    ),
     query,
   )
     .search(UserSearchableFields) // Apply search conditions based on searchable fields
+    .filter()
     .sort() // Apply sorting based on the query parameter
     .paginate(); // Apply pagination based on the query parameter
 
@@ -159,6 +162,23 @@ const getPartialUserProfileFromDB = async (payload: { userId: string }) => {
   return existingUser;
 };
 
+const getUserFavouritePropertiesFromDB = async (user: JwtPayload) => {
+  // Find all favorites for the user
+  const favorites = await Favourite.find({ userId: user?.userId }).populate({
+    path: 'propertyId',
+    select: 'propertyImages price priceType title category address createdBy', // Include createdBy field
+    populate: {
+      path: 'createdBy',
+      select: 'avatar', // Select only the user image (avatar) field
+    },
+  });
+
+  // Extract the properties from the favorite records
+  const result = favorites.map((favorite) => favorite?.propertyId);
+
+  return result;
+};
+
 const updateUserProfileToDB = async (
   user: JwtPayload,
   payload: Partial<IUser>,
@@ -200,23 +220,6 @@ const updateUserProfileToDB = async (
 
   // Update user profile with the filtered data and return the result
   const result = await User.findByIdAndUpdate(user?.userId, payload);
-
-  return result;
-};
-
-const getUserFavouritePropertiesFromDB = async (user: JwtPayload) => {
-  // Find all favorites for the user
-  const favorites = await Favourite.find({ userId: user?.userId }).populate({
-    path: 'propertyId',
-    select: 'propertyImages price priceType title category address createdBy', // Include createdBy field
-    populate: {
-      path: 'createdBy',
-      select: 'avatar', // Select only the user image (avatar) field
-    },
-  });
-
-  // Extract the properties from the favorite records
-  const result = favorites.map((favorite) => favorite.propertyId);
 
   return result;
 };
