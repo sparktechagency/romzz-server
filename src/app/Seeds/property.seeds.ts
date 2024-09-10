@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { Property } from '../modules/Property/property.model';
-import { errorLogger, logger } from '../logger/winstonLogger';
+import logger from '../logger/winston.logger';
 import colors from 'colors';
 import {
   ALLOWED_GENDER,
@@ -104,9 +104,7 @@ const seedProperties = async () => {
       );
     }
   } catch (error) {
-    errorLogger.error(
-      colors.bgRed.bold(`❌ Error inserting Property:, ${error}`),
-    );
+    logger.error(colors.bgRed.bold(`❌ Error inserting Property:, ${error}`));
   }
 };
 

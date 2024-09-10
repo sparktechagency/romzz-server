@@ -1,6 +1,6 @@
 import config from '../config';
 import { User } from '../modules/User/user.model';
-import { errorLogger, logger } from '../logger/winstonLogger';
+import logger from '../logger/winston.logger';
 import colors from 'colors';
 
 const superAdmin = {
@@ -30,9 +30,7 @@ const seedSuperAdmin = async () => {
       );
     }
   } catch (error) {
-    errorLogger.error(
-      colors.bgRed.bold(`❌ Error seeding super admin:, ${error}`),
-    );
+    logger.error(colors.bgRed.bold(`❌ Error seeding super admin:, ${error}`));
   }
 };
 

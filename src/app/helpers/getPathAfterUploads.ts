@@ -6,7 +6,7 @@ const getPathAfterUploads = (fullPath: string) => {
   const normalizedPath = fullPath?.replace(/\\/g, '/');
 
   // Find the index of 'uploads' in the normalized path
-  const uploadsIndex = normalizedPath?.indexOf('uploads');
+  const uploadsIndex = normalizedPath?.indexOf('public');
 
   if (uploadsIndex === -1) {
     // Throw an error if "uploads" is not found in the path
@@ -17,7 +17,7 @@ const getPathAfterUploads = (fullPath: string) => {
   }
 
   // Add length of 'uploads' + 1 to the index to start after 'uploads/'
-  return normalizedPath?.substring(uploadsIndex + 'uploads'.length + 1);
+  return normalizedPath?.substring(uploadsIndex + 'public'.length + 1);
 };
 
 export default getPathAfterUploads;

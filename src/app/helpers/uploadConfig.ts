@@ -8,7 +8,7 @@ import getUploadFolder from './getUploadFolder';
 import { unlinkFiles } from './fileHandler';
 
 // Base directory for uploads
-const baseUploadDirectory = path.join(process.cwd(), 'uploads');
+const baseUploadDirectory = path.join(process.cwd(), 'public');
 
 // Track uploaded files for cleanup
 const uploadedFiles: string[] = [];

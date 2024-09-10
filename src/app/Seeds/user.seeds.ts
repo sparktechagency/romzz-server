@@ -1,5 +1,5 @@
 import { User } from '../modules/User/user.model';
-import { errorLogger, logger } from '../logger/winstonLogger';
+import logger from '../logger/winston.logger';
 import colors from 'colors';
 import { faker } from '@faker-js/faker';
 import config from '../config';
@@ -45,7 +45,7 @@ const seedUsers = async () => {
       );
     }
   } catch (error) {
-    errorLogger.error(colors.bgRed.bold(`❌ Error inserting users: ${error}`));
+    logger.error(colors.bgRed.bold(`❌ Error inserting users: ${error}`));
   }
 };
 

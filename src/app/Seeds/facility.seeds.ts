@@ -1,4 +1,4 @@
-import { errorLogger, logger } from '../logger/winstonLogger';
+import logger from '../logger/winston.logger';
 import colors from 'colors';
 import { Facility } from '../modules/Facility/facility.model';
 import { faker } from '@faker-js/faker';
@@ -28,9 +28,7 @@ const seedFacilities = async () => {
       );
     }
   } catch (error) {
-    errorLogger.error(
-      colors.bgRed.bold(`❌ Error inserting facilities: ${error}`),
-    );
+    logger.error(colors.bgRed.bold(`❌ Error inserting facilities: ${error}`));
   }
 };
 

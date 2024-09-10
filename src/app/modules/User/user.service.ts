@@ -11,7 +11,7 @@ import path from 'path';
 import ejs from 'ejs';
 import cron from 'node-cron';
 import generateOtp from '../../helpers/generateOtp';
-import { errorLogger, logger } from '../../logger/winstonLogger';
+import logger from '../../logger/winston.logger';
 import colors from 'colors';
 import { sendEmail } from '../../helpers/emailService';
 import { Favourite } from '../Favourite/favourite.model';
@@ -253,17 +253,21 @@ const updateUserStatusToDB = async (
     );
   }
 
-  // Update user status
-  if (payload?.status === 'block') {
-    existingUser.status = 'blocked';
-    existingUser.isBlocked = true;
-  } else if (payload?.status === 'unblock') {
-    existingUser.status = 'active';
-    existingUser.isBlocked = false;
+  // Define the status updates based on the payload
+  let statusUpdate: Partial<{ status: string; isBlocked: boolean }>;
+
+  if (payload.status === 'block') {
+    statusUpdate = { status: 'blocked', isBlocked: true };
+  } else {
+    statusUpdate = { status: 'active', isBlocked: false };
   }
 
-  // Save the updated user
-  await existingUser.save();
+  // Use findByIdAndUpdate to directly update the user
+  await User.findByIdAndUpdate(
+    userId,
+    statusUpdate,
+    { new: true }, // Return the updated document
+  );
 
   return existingUser;
 };
@@ -287,14 +291,14 @@ cron.schedule('0 */12 * * *', async () => {
         ),
       );
     } else {
-      logger.info(
+      logger.warn(
         colors.bgYellow.bold(
           '⚠️ No expired unverified users found for deletion.',
         ),
       );
     }
   } catch (error) {
-    errorLogger.error(
+    logger.error(
       colors.bgRed.bold(`❌ Error deleting expired users: ${error}`),
     );
   }

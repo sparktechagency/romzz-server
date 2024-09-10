@@ -3,14 +3,14 @@ import { IChat } from './chat.interface';
 
 const chatSchema = new Schema<IChat>(
   {
+    createdBy: {
+      type: Schema.Types.ObjectId, // MongoDB ObjectId type
+      ref: 'User', // Reference to the 'User' model
+      required: true,
+    },
     lastMessage: {
       type: Schema.Types.ObjectId, // MongoDB ObjectId type
       ref: 'Message', // Reference to the 'Message' model
-      required: true,
-    },
-    participants: {
-      type: [Schema.Types.ObjectId], // MongoDB ObjectId type
-      ref: 'User', // Reference to the 'User' model
       required: true,
     },
   },

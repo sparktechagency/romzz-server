@@ -1,6 +1,6 @@
 import { Server } from 'socket.io';
 import colors from 'colors';
-import { logger } from '../logger/winstonLogger';
+import logger from '../logger/winston.logger';
 
 const initializeSocket = (io: Server) => {
   io.on('connection', (socket) => {

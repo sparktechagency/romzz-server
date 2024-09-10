@@ -4,17 +4,17 @@ import express, { Request, Response } from 'express';
 import router from './app/routes';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
 import notFound from './app/middlewares/notFound';
-import requestLogger from './app/logger/requestLogger';
-import corsConfig from './app/utils/corsConfig';
+import requestLogger from './app/logger/morgan.logger';
 
 const app = express();
 
 // middlewares
 app.use(cors());
 app.use(cookieParser());
-app.use(express.json());
+app.use(express.json({ limit: '16kb' }));
+app.use(express.urlencoded({ extended: true, limit: '16kb' }));
+app.use(express.static('public'));
 app.use(requestLogger);
-app.use(express.static('uploads'));
 
 // Default route for the root URL
 app.get('/', (req: Request, res: Response) => {
@@ -39,7 +39,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // Application routes under the '/api/v1' path
-app.use('/api/v1', cors(corsConfig), router);
+app.use('/api/v1', router);
 
 // Error-handling middlewares
 app.use(globalErrorHandler); // Global error handler middleware

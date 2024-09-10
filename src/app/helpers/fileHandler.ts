@@ -1,10 +1,10 @@
 import fs from 'fs';
-import { errorLogger, logger } from '../logger/winstonLogger';
+import logger from '../logger/winston.logger';
 import colors from 'colors';
 import path from 'path';
 
 // Define the base directory for the uploads folder
-const UPLOADS_BASE_DIR = path.resolve('uploads');
+const UPLOADS_BASE_DIR = path.resolve('public');
 
 // Delete a single file if it exists.
 const unlinkFile = (relativeFilePath: string) => {
@@ -16,9 +16,7 @@ const unlinkFile = (relativeFilePath: string) => {
     // Attempt to delete each file
     fs.unlink(fullPath, (err) => {
       if (err) {
-        errorLogger.error(
-          colors.bgRed(`Failed to delete file: ${err?.message}`),
-        );
+        logger.warn(colors.bgRed(`Failed to delete file: ${err?.message}`));
       } else {
         logger.info(colors.bgGreen(`File deleted successfully: ${fullPath}`));
       }
@@ -39,9 +37,7 @@ const unlinkFiles = (relativeFilePaths: string[]) => {
       // Attempt to delete each file
       fs.unlink(fullPath, (err) => {
         if (err) {
-          errorLogger.error(
-            colors.bgRed(`Failed to delete file: ${err?.message}`),
-          );
+          logger.error(colors.bgRed(`Failed to delete file: ${err?.message}`));
         } else {
           logger.info(colors.bgGreen(`File deleted successfully: ${fullPath}`));
         }

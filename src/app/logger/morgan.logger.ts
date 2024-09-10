@@ -1,5 +1,5 @@
 import morgan from 'morgan';
-import { logger } from './winstonLogger';
+import logger from './winston.logger';
 
 // Define a custom Morgan format
 const morganFormat = ':method :url :status :response-time ms';
@@ -19,7 +19,7 @@ const requestLogger = morgan(morganFormat, {
       };
 
       // Log the object as a JSON string
-      logger.info(JSON.stringify(logObject));
+      return logger.http(JSON.stringify(logObject));
     },
   },
 });
