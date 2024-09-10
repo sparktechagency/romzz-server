@@ -56,4 +56,5 @@ export interface IProperty {
   status: TStatus;
   isApproved: boolean;
   isBooked: boolean;
+  isHighlighted: boolean;
 }

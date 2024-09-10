@@ -40,6 +40,17 @@ const getApprovedProperties = catchAsync(async (req, res) => {
   });
 });
 
+const getHighlightedProperties = catchAsync(async (req, res) => {
+  const result = await PropertyServices.getHighlightedPropertiesFromDB();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Properties retrieved successfully!',
+    data: result,
+  });
+});
+
 const getPropertyById = catchAsync(async (req, res) => {
   const result = await PropertyServices.getPropertyByIdFromDB(req?.params?.id);
 
@@ -127,6 +138,7 @@ export const PropertyControllers = {
   createProperty,
   getAllProperties,
   getApprovedProperties,
+  getHighlightedProperties,
   getPropertyById,
   getPropertyByUserId,
   updatePropertyById,

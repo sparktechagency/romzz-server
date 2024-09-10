@@ -37,6 +37,12 @@ router
 // Route to get only approved properties
 router.get('/approved-properties', PropertyControllers.getApprovedProperties);
 
+// Route to get only highlighted properties
+router.get(
+  '/highlighted-properties',
+  PropertyControllers.getHighlightedProperties,
+);
+
 // Route to get properties created by the user
 router.get('/user-properties', PropertyControllers.getPropertyByUserId);
 

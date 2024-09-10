@@ -31,14 +31,14 @@ const generateFakeProperty = (userId: string, facilityIds: string[]) => ({
   ownerNumber: faker.phone.number(),
   title: faker.lorem.words(3),
   address: faker.location.streetAddress({ useFullAddress: true }),
-  ownershipImages: [faker.image.avatar, faker.image.avatar],
+  ownershipImages: [faker.image.avatar(), faker.image.avatar()],
   description: faker.lorem.paragraph(),
   propertyImages: [
-    faker.image.avatar,
-    faker.image.avatar,
-    faker.image.avatar,
-    faker.image.avatar,
-    faker.image.avatar,
+    faker.image.avatar(),
+    faker.image.avatar(),
+    faker.image.avatar(),
+    faker.image.avatar(),
+    faker.image.avatar(),
   ],
   propertyVideo: faker.internet.url(),
 
@@ -64,8 +64,10 @@ const generateFakeProperty = (userId: string, facilityIds: string[]) => ({
   moveOn: faker.date.future().toISOString(),
   unavailableDay: [faker.date.future().toISOString()],
   facilities: getRandomElements(facilityIds, 5, 8),
-  isApproved: true,
   status: 'approved',
+  isApproved: true,
+  isBooked: false,
+  isHighlighted: false,
 });
 
 // Function insert Property into the database

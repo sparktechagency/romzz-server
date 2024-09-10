@@ -27,6 +27,7 @@ const createPropertyToDB = async (
   payload.status = 'pending';
   payload.isApproved = false;
   payload.isBooked = false;
+  payload.isHighlighted = false;
 
   // Extract and map the image file paths
   if (files && files?.ownershipImages) {
@@ -68,10 +69,12 @@ const createPropertyToDB = async (
 const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const propertiesQuery = new QueryBuilder(
-    Property.find().select('status').populate({
-      path: 'createdBy',
-      select: 'fullName email phoneNumber avatar',
-    }),
+    Property.find()
+      .populate({
+        path: 'createdBy',
+        select: 'fullName email phoneNumber avatar',
+      })
+      .select('status'),
     query,
   )
     .search(['address']) // Apply search conditions based on searchable fields
@@ -90,17 +93,12 @@ const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
 const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const propertiesQuery = new QueryBuilder(
-    Property.find().select(
-      'propertyImages price priceType title category address',
-    ),
-    // .populate({
-    //   path: 'createdBy',
-    //   select: 'avatar rating',
-    // })
-    // .populate({
-    //   path: 'facilities',
-    //   select: 'name',
-    // }),
+    Property.find({ isApproved: true, isBooked: false, isHighlighted: false })
+      .select('propertyImages price priceType title category address')
+      .populate({
+        path: 'createdBy',
+        select: 'avatar rating',
+      }),
     query,
   )
     .search(['address']) // Search within searchable fields
@@ -116,6 +114,21 @@ const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
   const data = await propertiesQuery.modelQuery;
 
   return { meta, data };
+};
+
+const getHighlightedPropertiesFromDB = async () => {
+  const result = Property.find({
+    isApproved: true,
+    isBooked: false,
+    isHighlighted: true,
+  })
+    .populate({
+      path: 'createdBy',
+      select: 'avatar rating',
+    })
+    .select('propertyImages price priceType title category address');
+
+  return result;
 };
 
 const getPropertyByIdFromDB = async (propertyId: string) => {
@@ -328,6 +341,7 @@ export const PropertyServices = {
   createPropertyToDB,
   getAllPropertiesFromDB,
   getApprovedPropertiesFromDB,
+  getHighlightedPropertiesFromDB,
   getPropertyByUserIdFromDB,
   getPropertyByIdFromDB,
   updatePropertyByIdToDB,

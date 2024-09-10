@@ -177,6 +177,10 @@ const propertySchema = new Schema<IProperty>(
       type: Boolean,
       default: false,
     },
+    isHighlighted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );

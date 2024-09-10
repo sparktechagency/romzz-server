@@ -22,6 +22,7 @@ export const propertyFieldsToExclude: (keyof IProperty)[] = [
   'status',
   'isApproved',
   'isBooked',
+  'isHighlighted',
 ];
 
 export const OWNER_TYPE = {
