@@ -96,9 +96,7 @@ const getUsersFromDB = async (query: Record<string, unknown>) => {
     User.find({
       role: 'USER',
       isVerified: true,
-    }).select(
-      'avatar fullName email nidNumber ineNumber presentAddress permanentAddress rating status',
-    ),
+    }).select('avatar fullName email phoneNumber permanentAddress'),
     query,
   )
     .search(UserSearchableFields) // Apply search conditions based on searchable fields
@@ -149,10 +147,23 @@ const getUserProfileFromDB = async (user: JwtPayload) => {
   }
 };
 
-const getPartialUserProfileFromDB = async (payload: { userId: string }) => {
+const getPartialUserProfileByIdFromDB = async (userId: string) => {
   // Fetch user profile
-  const existingUser = await User.findById(payload?.userId).select(
-    'fullName email avatar coverImage address rating',
+  const existingUser = await User.findById(userId).select(
+    'fullName email avatar coverImage permanentAddress rating',
+  ); // Adjust fields as necessary
+
+  if (!existingUser) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found!');
+  }
+
+  return existingUser;
+};
+
+const getUserProfileByIdFromDB = async (userId: string) => {
+  // Fetch user profile
+  const existingUser = await User.findById(userId).select(
+    'avatar fullName email phoneNumber gender nidNumber ineNumber presentAddress permanentAddress rating status',
   ); // Adjust fields as necessary
 
   if (!existingUser) {
@@ -313,7 +324,8 @@ export const UserServices = {
   getUsersFromDB,
   getAdminsFromDB,
   getUserProfileFromDB,
-  getPartialUserProfileFromDB,
+  getUserProfileByIdFromDB,
+  getPartialUserProfileByIdFromDB,
   updateUserProfileToDB,
   updateUserStatusToDB,
   getUserFavouritePropertiesFromDB,

@@ -27,6 +27,14 @@ router.get(
 );
 
 router.get(
+  '/profile/:id',
+  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
+  UserControllers.getUserProfileById,
+);
+
+router.get('/partial-profile/:id', UserControllers.getPartialUserProfileById);
+
+router.get(
   '/favourites',
   validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   UserControllers.getUserFavouriteProperties,
