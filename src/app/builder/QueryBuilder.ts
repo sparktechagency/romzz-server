@@ -4,6 +4,40 @@ class QueryBuilder<T> {
   public modelQuery: Query<T[], T>; // The Mongoose query object
   public query: Record<string, unknown>; // Object containing query parameters
 
+  // Method to handle comma-separated values
+  private handleCommaSeparatedValues(
+    key: string,
+    value: string,
+    queryObj: Record<string, unknown>,
+  ) {
+    queryObj[key] = { $in: value.split(',') };
+  }
+
+  // Method to handle nested fields using dot notation
+  private handleNestedFields(
+    key: string,
+    value: string,
+    queryObj: Record<string, unknown>,
+  ) {
+    if (value.includes(',')) {
+      this.handleCommaSeparatedValues(key, value, queryObj);
+    } else if (value.includes('-')) {
+      this.handleRange(key, value, queryObj);
+    }
+  }
+
+  // Method to handle hyphen-separated ranges
+  private handleRange(
+    key: string,
+    value: string,
+    queryObj: Record<string, unknown>,
+  ) {
+    const [min, max] = value.split('-').map((val) => parseFloat(val));
+    if (!isNaN(min) && !isNaN(max)) {
+      queryObj[key] = { $gte: min, $lte: max };
+    }
+  }
+
   constructor(modelQuery: Query<T[], T>, query: Record<string, unknown>) {
     this.modelQuery = modelQuery;
     this.query = query;
@@ -30,48 +64,30 @@ class QueryBuilder<T> {
   // Method to apply filters based on query parameters
   filter() {
     const queryObj = { ...this.query };
+    const excludeFields = ['searchTerm', 'sort', 'fields', 'limit', 'page'];
 
-    const excludeFields = [
-      'searchTerm',
-      'price',
-      'sort',
-      'fields',
-      'limit',
-      'page',
-    ];
-
+    // Remove excluded fields
     excludeFields.forEach((el) => delete queryObj[el]);
 
-    // Update to handle filtering with multiple values for a parameter
+    // Process query parameters
     for (const key in queryObj) {
       const value = queryObj[key];
-      // Check if the value is a string containing comma-separated values
-      if (typeof value === 'string' && value.includes(',')) {
-        // Split the string into an array of individual values
-        queryObj[key] = { $in: value.split(',') };
+
+      if (typeof value === 'string') {
+        if (key.includes('.')) {
+          // Handle nested fields (dot notation)
+          this.handleNestedFields(key, value, queryObj);
+        } else if (value.includes(',')) {
+          // Handle comma-separated values for top-level fields
+          this.handleCommaSeparatedValues(key, value, queryObj);
+        } else if (value.includes('-')) {
+          // Handle hyphen-separated ranges for top-level fields
+          this.handleRange(key, value, queryObj);
+        }
       }
     }
 
     this.modelQuery = this.modelQuery.find(queryObj as FilterQuery<T>);
-
-    return this;
-  }
-
-  // Method for range filtering, e.g., price, age, etc.
-  rangeFilter() {
-    const priceRange = this.query['price'] as string;
-
-    // Check if priceRange exists and contains a hyphen for range
-    if (priceRange && priceRange?.includes('-')) {
-      const [minStr, maxStr] = priceRange.split('-');
-      const min = Number(minStr); // Default min to 0 if not provided
-      const max = Number(maxStr);
-
-      // Apply the filter for the price range
-      this.modelQuery = this.modelQuery.find({
-        price: { $gte: min, $lte: max },
-      });
-    }
 
     return this;
   }

@@ -105,17 +105,20 @@ const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
 const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const propertiesQuery = new QueryBuilder(
-    Property.find({ isApproved: true, isBooked: false, isHighlighted: false })
-      .select('propertyImages price priceType title category address')
+    Property.find({
+      isApproved: true,
+      isBooked: false,
+      isHighlighted: false,
+    })
       .populate({
         path: 'createdBy',
         select: 'avatar rating',
-      }),
+      })
+      .select('propertyImages price priceType title category address'),
     query,
   )
     .search(['address']) // Search within searchable fields
     .filter() // Apply general filters
-    .rangeFilter() // Apply range filters
     .sort() // Apply sorting
     .paginate(); // Apply pagination
 
@@ -136,7 +139,7 @@ const getHighlightedPropertiesFromDB = async () => {
   })
     .populate({
       path: 'createdBy',
-      select: 'avatar rating',
+      select: 'avatar',
     })
     .select('propertyImages price priceType title category address');
 
@@ -167,10 +170,15 @@ const getPropertyByIdFromDB = async (propertyId: string) => {
   return result;
 };
 
-const getPropertyByUserIdFromDB = async (payload: { userId: string }) => {
-  const result = await Property.find({ createdBy: payload?.userId }).select(
-    'propertyImages price priceType title category address status createdAt',
-  );
+const getPropertyByUserIdFromDB = async (userId: string) => {
+  const result = await Property.find({ createdBy: userId })
+    .populate({
+      path: 'createdBy',
+      select: 'avatar',
+    })
+    .select(
+      'propertyImages price priceType title category address status createdAt',
+    );
   return result;
 };
 

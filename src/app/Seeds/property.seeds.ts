@@ -30,7 +30,11 @@ const generateFakeProperty = (userId: string, facilityIds: string[]) => ({
   createdBy: userId,
   ownerNumber: faker.phone.number(),
   title: faker.lorem.words(3),
-  address: faker.location.streetAddress({ useFullAddress: true }),
+  location: {
+    address: faker.location.streetAddress({ useFullAddress: true }),
+    latitude: faker.location.latitude(),
+    longitude: faker.location.longitude(),
+  },
   ownershipImages: [faker.image.avatar(), faker.image.avatar()],
   description: faker.lorem.paragraph(),
   propertyImages: [

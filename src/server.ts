@@ -9,6 +9,7 @@ import seedFacilities from './app/seeds/facility.seeds';
 import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { initializeSocket } from './app/socket';
+import seedProperties from './app/seeds/property.seeds';
 
 let server: HttpServer;
 
@@ -22,6 +23,7 @@ async function main() {
     seedSuperAdmin();
     seedUsers();
     seedFacilities();
+    seedProperties();
 
     logger.info(
       colors.bgGreen.bold(
