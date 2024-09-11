@@ -41,7 +41,7 @@ const createPricingPlanToDB = async (
 
 const getPricingPlansFromDB = async () => {
   // Fetch all our stories entries from the database
-  const result = await PricingPlan.find();
+  const result = await PricingPlan.find().sort('price');
   return result;
 };
 

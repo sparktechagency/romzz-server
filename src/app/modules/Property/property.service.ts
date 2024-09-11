@@ -84,7 +84,7 @@ const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
     Property.find()
       .populate({
         path: 'createdBy',
-        select: 'fullName email phoneNumber avatar',
+        select: 'fullName email avatar phoneNumber',
       })
       .select('status'),
     query,
@@ -313,7 +313,6 @@ const updatePropertyStatusToRejectToDB = async (propertyId: string) => {
 
   // Notify the user about property rejection
   await NotificationServices.notifyPropertyRejectionFromDB(
-    result?._id?.toString(),
     result?.createdBy?.toString(),
   );
 };

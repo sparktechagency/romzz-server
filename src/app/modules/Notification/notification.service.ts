@@ -3,16 +3,16 @@ import { User } from '../User/user.model'; // Assuming there's a user model
 import { Notification } from './notification.model';
 import QueryBuilder from '../../builder/QueryBuilder';
 
-const sendNotificationToAdminsFromDB = async (message: string, url: string) => {
+const sendNotificationToAdminsFromDB = async (url: string, message: string) => {
   const adminsAndSuperAdmins = await User.find({
-    role: { $in: ['admin', 'superAdmin'] },
+    role: { $in: ['ADMIN', 'SUPER-ADMIN'] },
     status: 'active',
   });
 
   const notifications = adminsAndSuperAdmins.map((user) => ({
-    userId: user?._id,
-    message,
     url,
+    message,
+    userId: user?._id,
     isSeen: false,
     isRead: false,
   }));
@@ -20,8 +20,8 @@ const sendNotificationToAdminsFromDB = async (message: string, url: string) => {
 };
 
 const sendNotificationToUsersFromDB = async (
-  message: string,
   url: string,
+  message: string,
   excludedUserId?: string,
 ) => {
   const allUsers = await User.find({
@@ -31,9 +31,9 @@ const sendNotificationToUsersFromDB = async (
   });
 
   const notifications = allUsers.map((user) => ({
-    userId: user?._id,
-    message,
     url,
+    message,
+    userId: user?._id,
     isSeen: false,
     isRead: false,
   }));
@@ -41,14 +41,14 @@ const sendNotificationToUsersFromDB = async (
 };
 
 const sendNotificationToUserFromDB = async (
-  userId: string,
+  url: string | null,
   message: string,
-  url: string,
+  userId: string,
 ) => {
   await Notification.create({
-    userId,
-    message,
     url,
+    message,
+    userId,
     isSeen: false,
     isRead: false,
   });
@@ -59,33 +59,30 @@ const notifyPropertyCreationFromDB = async (propertyId: string) => {
   const url = `/properties/${propertyId}`; // URL to the property details page
 
   // Notify all admins and super admins
-  await sendNotificationToAdminsFromDB(message, url);
+  await sendNotificationToAdminsFromDB(url, message);
 };
 
 const notifyPropertyApprovalFromDB = async (
-  propertyId: string,
   userId: string,
+  propertyId: string,
 ) => {
   const approvalMessage = 'Your property has been approved.';
   const newPropertyMessage = 'A new property has been approved and listed.';
   const url = `/properties/${propertyId}`;
 
   // Notify the user who listed the property
-  await sendNotificationToUserFromDB(userId, approvalMessage, url);
+  await sendNotificationToUserFromDB(url, approvalMessage, userId);
 
   // Notify all users
-  await sendNotificationToUsersFromDB(newPropertyMessage, url, userId);
+  await sendNotificationToUsersFromDB(url, newPropertyMessage, userId);
 };
 
-const notifyPropertyRejectionFromDB = async (
-  userId: string,
-  propertyId: string,
-) => {
+const notifyPropertyRejectionFromDB = async (userId: string) => {
+  const url = null;
   const message = 'Your property has been rejected.';
-  const url = `/properties/${propertyId}`;
 
   // Notify the user who listed the property
-  await sendNotificationToUserFromDB(userId, message, url);
+  await sendNotificationToUserFromDB(url, message, userId);
 };
 
 const getAllNotificationsByIdFromDB = async (
