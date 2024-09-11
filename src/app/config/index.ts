@@ -26,4 +26,6 @@ export default {
 
   smtpEmailUser: process.env.SMTP_EMAIL_USER,
   smtpEmailPass: process.env.SMTP_EMAIL_PASS,
+
+  googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
 };

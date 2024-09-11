@@ -18,10 +18,7 @@ const generateFakeUsers = async () => {
       nidNumber: faker.number.int({ min: 10000000, max: 9999999999 }),
       gender: faker.person.sex(),
       permanentAddress: faker.location.streetAddress({ useFullAddress: true }),
-      password: await bcrypt.hash(
-        faker.internet.password(),
-        Number(config.bcryptSaltRounds),
-      ),
+      password: await bcrypt.hash('password', Number(config.bcryptSaltRounds)),
       role: 'USER',
       status: 'active',
       isVerified: true,

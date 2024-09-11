@@ -23,6 +23,12 @@ export type TGuestType = keyof typeof GUEST_TYPE;
 export type TOccupation = keyof typeof OCCUPATION;
 export type TStatus = keyof typeof STATUS;
 
+interface ILocation {
+  address: string;
+  latitude: string;
+  longitude: string;
+}
+
 export interface IProperty {
   createdBy: ObjectId;
   ownerType: TOwnerType;
@@ -31,7 +37,7 @@ export interface IProperty {
   title: string;
   propertyImages: string[];
   propertyVideo: string;
-  address: string;
+  location: ILocation;
   category: TCategory;
   price: number;
   priceType: TPriceType;

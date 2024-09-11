@@ -54,7 +54,7 @@ const generateFakeProperty = (userId: string, facilityIds: string[]) => ({
 
   price: faker.number.int({ min: 1000, max: 50000 }), // Random price
   size: `${faker.number.int({ min: 500, max: 3000 })} sq ft`, // Random size
-  flore: `${faker.number.int({ min: 1, max: 10 })}`, // Random floor number
+  flore: `${faker.number.int({ min: 1, max: 50 })}`, // Random floor number
   bedrooms: faker.number.int({ min: 1, max: 5 }), // Random number of bedrooms
   bathrooms: faker.number.int({ min: 1, max: 5 }), // Random number of bathrooms
   balcony: faker.number.int({ min: 0, max: 2 }), // Random number of balconies

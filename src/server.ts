@@ -6,7 +6,6 @@ import logger from './app/logger/winston.logger';
 import colors from 'colors';
 import seedUsers from './app/seeds/user.seeds';
 import seedFacilities from './app/seeds/facility.seeds';
-import seedProperties from './app/seeds/property.seeds';
 import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { initializeSocket } from './app/socket';
@@ -23,7 +22,6 @@ async function main() {
     seedSuperAdmin();
     seedUsers();
     seedFacilities();
-    seedProperties();
 
     logger.info(
       colors.bgGreen.bold(

@@ -3,10 +3,13 @@ import ApiError from '../errors/ApiError';
 import httpStatus from 'http-status';
 import config from '../config';
 
+// whitelist of allowed origins for CORS
+const whitelist = [config.corsOrigin];
+
 // CORS options to allow requests only from whitelisted origins
 const corsConfig: CorsOptions = {
   origin: function (origin, callback) {
-    if (config.corsOrigin?.indexOf(origin as string) !== -1 || !origin) {
+    if (whitelist.indexOf(origin as string) !== -1 || !origin) {
       callback(null, true); // Allow request
     } else {
       callback(

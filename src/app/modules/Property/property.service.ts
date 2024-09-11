@@ -14,6 +14,7 @@ import { Favourite } from '../Favourite/favourite.model';
 import { unlinkFile, unlinkFiles } from '../../helpers/fileHandler';
 import { NotificationServices } from '../Notification/notification.service';
 import getPathAfterUploads from '../../helpers/getPathAfterUploads';
+import getLatAndLngFromAddress from '../../helpers/getLatAndLngFromAddress';
 
 const createPropertyToDB = async (
   user: JwtPayload,
@@ -28,6 +29,17 @@ const createPropertyToDB = async (
   payload.isApproved = false;
   payload.isBooked = false;
   payload.isHighlighted = false;
+
+  // Convert address to latitude and longitude
+  if (payload?.location?.address) {
+    const { address, latitude, longitude } = await getLatAndLngFromAddress(
+      payload?.location?.address,
+    );
+
+    payload.location.address = address;
+    payload.location.latitude = latitude;
+    payload.location.longitude = longitude;
+  }
 
   // Extract and map the image file paths
   if (files && files?.ownershipImages) {
