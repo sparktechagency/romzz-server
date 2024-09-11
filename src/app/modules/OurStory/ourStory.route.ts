@@ -27,4 +27,4 @@ router.patch(
   OurStoryControllers.updateOurStoryById,
 );
 
-export const StoryRoutes = router;
+export const OurStoryRoutes = router;
