@@ -42,8 +42,22 @@ const updatePricingPlanById = catchAsync(async (req, res) => {
   });
 });
 
+const deletePricingPlanById = catchAsync(async (req, res) => {
+  const result = await PricingPlanServices.deletePricingPlanByIdFromDB(
+    req?.params?.id,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Pricing Plan deleted successfully!',
+    data: result,
+  });
+});
+
 export const PricingPlanControllers = {
   createPricingPlan,
   getPricingPlans,
   updatePricingPlanById,
+  deletePricingPlanById,
 };

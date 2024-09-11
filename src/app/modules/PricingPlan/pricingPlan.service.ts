@@ -72,8 +72,22 @@ const updatePricingPlanByIdFromDB = async (
   return result;
 };
 
+const deletePricingPlanByIdFromDB = async (pricingPlanId: string) => {
+  // Update the PricingPlan with the provided status
+  const result = await PricingPlan.findByIdAndDelete(pricingPlanId);
+
+  // Handle case where no PricingPlan is found
+  if (!result) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `PricingPlan with ID: ${pricingPlanId} not found!`,
+    );
+  }
+};
+
 export const PricingPlanServices = {
   createPricingPlanToDB,
   getPricingPlansFromDB,
   updatePricingPlanByIdFromDB,
+  deletePricingPlanByIdFromDB,
 };

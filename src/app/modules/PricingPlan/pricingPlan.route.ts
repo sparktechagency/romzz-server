@@ -17,11 +17,17 @@ router
     PricingPlanControllers.createPricingPlan,
   );
 
-// PATCH request to update an existing "Pricing Plan" entry by its ID
-router.patch(
-  '/:id',
-  validateAuth(USER_ROLE['SUPER-ADMIN']),
-  PricingPlanControllers.updatePricingPlanById,
-);
+router
+  .route('/:id')
+
+  .patch(
+    validateAuth(USER_ROLE['SUPER-ADMIN']),
+    PricingPlanControllers.updatePricingPlanById,
+  )
+
+  .delete(
+    validateAuth(USER_ROLE['SUPER-ADMIN']),
+    PricingPlanControllers.deletePricingPlanById,
+  );
 
 export const PricingPlanRoutes = router;
