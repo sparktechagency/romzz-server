@@ -3,7 +3,7 @@ import { IMessage } from './message.interface';
 
 const messageSchema = new Schema<IMessage>(
   {
-    chatId: {
+    conversationId: {
       type: Schema.Types.ObjectId, // MongoDB ObjectId type
       ref: 'Chat', // Reference to the 'Chat' model
       required: true,

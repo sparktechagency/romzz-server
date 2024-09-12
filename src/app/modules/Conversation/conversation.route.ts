@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import validateAuth from '../../middlewares/validateAuth';
 import { USER_ROLE } from '../User/user.constant';
-import { ChatControllers } from './chat.controller';
+import { ConversationControllers } from './conversation.controller';
 
 const router = Router();
 
@@ -10,15 +10,18 @@ router
 
   .get(
     validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
-    ChatControllers.getChats,
+    ConversationControllers.getConversations,
   )
 
-  .post(validateAuth(USER_ROLE.USER), ChatControllers.createChat);
+  .post(
+    validateAuth(USER_ROLE.USER),
+    ConversationControllers.createConversation,
+  );
 
-router.patch(
+router.get(
   '/:id',
   validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
-  ChatControllers.getChatById,
+  ConversationControllers.getConversationById,
 );
 
-export const ChatRoutes = router;
+export const ConversationRoutes = router;

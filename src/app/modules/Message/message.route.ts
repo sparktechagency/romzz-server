@@ -6,14 +6,11 @@ import { MessageControllers } from './message.controller';
 const router = Router();
 
 router
-  .route('/')
+  .route('/:conversationId')
 
-  .get(MessageControllers.getMessages)
   .post(
-    validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
+    validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
     MessageControllers.createMessage,
   );
-
-router.route('/:id');
 
 export const MessageRoutes = router;

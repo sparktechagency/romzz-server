@@ -4,7 +4,11 @@ import sendResponse from '../../utils/sendResponse';
 import { MessageServices } from './message.service';
 
 const createMessage = catchAsync(async (req, res) => {
-  const result = await MessageServices.createMessageToDB(req?.user, req?.body);
+  const result = await MessageServices.createMessageToDB(
+    req?.user,
+    req?.body,
+    req?.params?.conversationId,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -14,18 +18,6 @@ const createMessage = catchAsync(async (req, res) => {
   });
 });
 
-const getMessages = catchAsync(async (req, res) => {
-  const result = await MessageServices.getMessagesFromDB();
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Messages retrieved successfully!',
-    data: result,
-  });
-});
-
 export const MessageControllers = {
   createMessage,
-  getMessages,
 };

@@ -12,8 +12,9 @@ import { ContactRoutes } from '../modules/Contact/contact.route';
 import { MediaRoutes } from '../modules/SocialMedia/socialMedia.route';
 import { FacilityRoutes } from '../modules/Facility/facility.route';
 import { NotificationRoutes } from '../modules/Notification/notification.route';
-import { ChatRoutes } from '../modules/Chat/chat.route';
 import { PricingPlanRoutes } from '../modules/PricingPlan/pricingPlan.route';
+import { MessageRoutes } from '../modules/Message/message.route';
+import { ConversationRoutes } from '../modules/Conversation/conversation.route';
 
 const router = Router();
 
@@ -23,7 +24,8 @@ const routes = [
   { path: '/auth', route: AuthRoutes },
   { path: '/properties', route: PropertyRoutes },
   { path: '/notifications', route: NotificationRoutes },
-  { path: '/chats', route: ChatRoutes },
+  { path: '/conversations', route: ConversationRoutes },
+  { path: '/messages', route: MessageRoutes },
   { path: '/pricing-plans', route: PricingPlanRoutes },
 
   // Dashboard
