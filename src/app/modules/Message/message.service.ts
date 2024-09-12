@@ -5,6 +5,8 @@ import { Message } from './message.model';
 import { Conversation } from '../Conversation/conversation.model';
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
+import { emitSocketEvent } from '../../socket';
+import { ChatEvents } from '../../constants/chat.constant';
 
 const createMessageToDB = async (
   user: JwtPayload,
@@ -42,12 +44,27 @@ const createMessageToDB = async (
   // Create the message
   const newMessage = await Message.create(payload);
 
+  // Populate the newMessage with sender details
+  const populatedMessage = await Message.findById(newMessage?._id).populate({
+    path: 'senderId',
+    select: 'fullName avatar',
+  });
+
   // Update the Conversation with the new lastMessage
   await Conversation.findByIdAndUpdate(
     conversationId,
     { lastMessage: newMessage?._id }, // Set lastMessage to the newly created message ID
     { new: true },
   );
+
+  // Emit socket events to all participants
+  existingConversation?.participants?.forEach((participantId) => {
+    emitSocketEvent(
+      participantId?.toString(),
+      ChatEvents.MESSAGE_RECEIVED_EVENT,
+      { message: populatedMessage },
+    );
+  });
 
   return newMessage;
 };

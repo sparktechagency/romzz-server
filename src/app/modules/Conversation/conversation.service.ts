@@ -38,18 +38,26 @@ const createConversationToDB = async (
   return result;
 };
 
-const getConversationsFromDB = async () => {
-  const result = await Conversation.find()
+const getConversationsByUserIdFromDB = async (user: JwtPayload) => {
+  const result = await Conversation.find({
+    participants: user?.userId, // Fetch conversations where the user is a participant
+  })
     .populate({
       path: 'createdBy',
       select: 'fullName avatar',
     })
-    .populate('lastMessage')
+    .populate({
+      path: 'lastMessage',
+      select: 'senderId content',
+    })
     .sort('-updatedAt');
   return result;
 };
 
-const getConversationByIdFromDB = async (conversationId: string) => {
+const getConversationByIdFromDB = async (
+  user: JwtPayload,
+  conversationId: string,
+) => {
   const existingConversation = await Conversation.findById(conversationId);
 
   // Handle case where no Conversation is found
@@ -57,6 +65,18 @@ const getConversationByIdFromDB = async (conversationId: string) => {
     throw new ApiError(
       httpStatus.NOT_FOUND,
       `Conversation with ID: ${conversationId} not found!`,
+    );
+  }
+
+  // Check if the requesting user is a participant in the conversation
+  const isParticipant = existingConversation.participants.includes(
+    user?.userId,
+  );
+
+  if (!isParticipant) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      'You are not authorized to view this conversation!',
     );
   }
 
@@ -74,5 +94,5 @@ const getConversationByIdFromDB = async (conversationId: string) => {
 export const ConversationServices = {
   createConversationToDB,
   getConversationByIdFromDB,
-  getConversationsFromDB,
+  getConversationsByUserIdFromDB,
 };

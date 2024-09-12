@@ -10,7 +10,7 @@ router
 
   .get(
     validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
-    ConversationControllers.getConversations,
+    ConversationControllers.getConversationsByUserId,
   )
 
   .post(

@@ -6,7 +6,7 @@ export const ChatEvents = Object.freeze({
   // ? when there is an error in socket
   SOCKET_ERROR_EVENT: 'socketError',
   // ? when a notification is received
-  NOTIFICATION_EVENT: 'notification',
+  NOTIFICATION_EVENT: 'notificationReceived',
   // ? when new message is received
   MESSAGE_RECEIVED_EVENT: 'messageReceived',
 });

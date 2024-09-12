@@ -17,8 +17,10 @@ const createConversation = catchAsync(async (req, res) => {
   });
 });
 
-const getConversations = catchAsync(async (req, res) => {
-  const result = await ConversationServices.getConversationsFromDB();
+const getConversationsByUserId = catchAsync(async (req, res) => {
+  const result = await ConversationServices.getConversationsByUserIdFromDB(
+    req?.user,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -30,6 +32,7 @@ const getConversations = catchAsync(async (req, res) => {
 
 const getConversationById = catchAsync(async (req, res) => {
   const result = await ConversationServices.getConversationByIdFromDB(
+    req?.user,
     req?.params?.id,
   );
 
@@ -43,6 +46,6 @@ const getConversationById = catchAsync(async (req, res) => {
 
 export const ConversationControllers = {
   createConversation,
+  getConversationsByUserId,
   getConversationById,
-  getConversations,
 };
