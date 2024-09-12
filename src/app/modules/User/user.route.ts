@@ -14,32 +14,6 @@ router.get(
   UserControllers.getUsers,
 );
 
-router.get(
-  '/admins',
-  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
-  UserControllers.getAdmins,
-);
-
-router.get(
-  '/profile',
-  validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
-  UserControllers.getUserProfile,
-);
-
-router.get(
-  '/profile/:id',
-  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
-  UserControllers.getUserProfileById,
-);
-
-router.get('/partial-profile/:id', UserControllers.getPartialUserProfileById);
-
-router.get(
-  '/favourites',
-  validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
-  UserControllers.getUserFavouriteProperties,
-);
-
 router.post(
   '/create-user',
   validateRequest(userValidationSchema.createUserSchema),
@@ -51,6 +25,18 @@ router.post(
   validateAuth(USER_ROLE['SUPER-ADMIN']),
   validateRequest(userValidationSchema.createAdminSchema),
   UserControllers.createAdmin,
+);
+
+router.get(
+  '/admins',
+  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
+  UserControllers.getAdmins,
+);
+
+router.get(
+  '/profile',
+  validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
+  UserControllers.getUserProfile,
 );
 
 router.patch(
@@ -67,11 +53,31 @@ router.patch(
   UserControllers.updateUserProfile,
 );
 
+router.get(
+  '/profile/:id',
+  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
+  UserControllers.getUserProfileById,
+);
+
+router.get('/partial-profile/:id', UserControllers.getPartialUserProfileById);
+
 // Route to update user status to block or unblock
 router.patch(
   '/update-status/:id',
   validateAuth(USER_ROLE['SUPER-ADMIN']),
-  UserControllers.updateUserStatus,
+  UserControllers.toggleUserStatus,
+);
+
+router.get(
+  '/profile-progress',
+  validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
+  UserControllers.getProfileProgress,
+);
+
+router.get(
+  '/favourite-properties',
+  validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
+  UserControllers.getUserFavouriteProperties,
 );
 
 export const UserRoutes = router;

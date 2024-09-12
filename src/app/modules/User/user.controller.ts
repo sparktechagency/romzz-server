@@ -58,6 +58,21 @@ const getUserProfile = catchAsync(async (req, res) => {
   });
 });
 
+const updateUserProfile = catchAsync(async (req, res) => {
+  const result = await UserServices?.updateUserProfileToDB(
+    req?.user,
+    req?.body,
+    req?.files,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User profile updated successfully!',
+    data: result,
+  });
+});
+
 const getUserProfileById = catchAsync(async (req, res) => {
   const result = await UserServices.getUserProfileByIdFromDB(req?.params?.id);
 
@@ -82,36 +97,8 @@ const getPartialUserProfileById = catchAsync(async (req, res) => {
   });
 });
 
-const updateUserProfile = catchAsync(async (req, res) => {
-  const result = await UserServices?.updateUserProfileToDB(
-    req?.user,
-    req?.body,
-    req?.files,
-  );
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'User profile updated successfully!',
-    data: result,
-  });
-});
-
-const getUserFavouriteProperties = catchAsync(async (req, res) => {
-  const result = await UserServices?.getUserFavouritePropertiesFromDB(
-    req?.user,
-  );
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'User favorite properties retrived successfully!',
-    data: result,
-  });
-});
-
-const updateUserStatus = catchAsync(async (req, res) => {
-  const result = await UserServices.updateUserStatusToDB(
+const toggleUserStatus = catchAsync(async (req, res) => {
+  const result = await UserServices.toggleUserStatusToDB(
     req?.params?.id,
     req?.body,
   );
@@ -130,15 +117,40 @@ const updateUserStatus = catchAsync(async (req, res) => {
   });
 });
 
+const getProfileProgress = catchAsync(async (req, res) => {
+  const progress = await UserServices.calculateProfileProgressFromDB(req?.user);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Profile progress retrieved successfully!',
+    data: progress,
+  });
+});
+
+const getUserFavouriteProperties = catchAsync(async (req, res) => {
+  const result = await UserServices?.getUserFavouritePropertiesFromDB(
+    req?.user,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User favorite properties retrived successfully!',
+    data: result,
+  });
+});
+
 export const UserControllers = {
   createUser,
   createAdmin,
   getUsers,
   getAdmins,
   getUserProfile,
+  updateUserProfile,
   getUserProfileById,
   getPartialUserProfileById,
-  updateUserProfile,
+  toggleUserStatus,
+  getProfileProgress,
   getUserFavouriteProperties,
-  updateUserStatus,
 };

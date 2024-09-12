@@ -5,7 +5,11 @@ import { IUser } from './user.interface';
 import ApiError from '../../errors/ApiError';
 import { User } from './user.model';
 import QueryBuilder from '../../builder/QueryBuilder';
-import { userFieldsToExclude, UserSearchableFields } from './user.constant';
+import {
+  PROFILE_CRITERIA,
+  userFieldsToExclude,
+  UserSearchableFields,
+} from './user.constant';
 import { JwtPayload } from 'jsonwebtoken';
 import path from 'path';
 import ejs from 'ejs';
@@ -147,49 +151,6 @@ const getUserProfileFromDB = async (user: JwtPayload) => {
   }
 };
 
-const getPartialUserProfileByIdFromDB = async (userId: string) => {
-  // Fetch user profile
-  const existingUser = await User.findById(userId).select(
-    'fullName email avatar coverImage permanentAddress rating',
-  ); // Adjust fields as necessary
-
-  if (!existingUser) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found!');
-  }
-
-  return existingUser;
-};
-
-const getUserProfileByIdFromDB = async (userId: string) => {
-  // Fetch user profile
-  const existingUser = await User.findById(userId).select(
-    'avatar fullName email phoneNumber gender nidNumber ineNumber presentAddress permanentAddress rating status',
-  ); // Adjust fields as necessary
-
-  if (!existingUser) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found!');
-  }
-
-  return existingUser;
-};
-
-const getUserFavouritePropertiesFromDB = async (user: JwtPayload) => {
-  // Find all favorites for the user
-  const favorites = await Favourite.find({ userId: user?.userId }).populate({
-    path: 'propertyId',
-    select: 'propertyImages price priceType title category address createdBy', // Include createdBy field
-    populate: {
-      path: 'createdBy',
-      select: 'avatar', // Select only the user image (avatar) field
-    },
-  });
-
-  // Extract the properties from the favorite records
-  const result = favorites.map((favorite) => favorite?.propertyId);
-
-  return result;
-};
-
 const updateUserProfileToDB = async (
   user: JwtPayload,
   payload: Partial<IUser>,
@@ -235,7 +196,33 @@ const updateUserProfileToDB = async (
   return result;
 };
 
-const updateUserStatusToDB = async (
+const getUserProfileByIdFromDB = async (userId: string) => {
+  // Fetch user profile
+  const existingUser = await User.findById(userId).select(
+    'avatar fullName email phoneNumber gender nidNumber ineNumber presentAddress permanentAddress rating status',
+  ); // Adjust fields as necessary
+
+  if (!existingUser) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found!');
+  }
+
+  return existingUser;
+};
+
+const getPartialUserProfileByIdFromDB = async (userId: string) => {
+  // Fetch user profile
+  const existingUser = await User.findById(userId).select(
+    'fullName email avatar coverImage permanentAddress rating',
+  ); // Adjust fields as necessary
+
+  if (!existingUser) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found!');
+  }
+
+  return existingUser;
+};
+
+const toggleUserStatusToDB = async (
   userId: string,
   payload: { status: 'block' | 'unblock' },
 ) => {
@@ -286,6 +273,44 @@ const updateUserStatusToDB = async (
   return existingUser;
 };
 
+const calculateProfileProgressFromDB = async (user: JwtPayload) => {
+  const existingUser = await User.findById(user?.userId);
+
+  if (!existingUser) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found!');
+  }
+
+  // Calculate progress based on criteria
+  const totalSteps = Object.keys(PROFILE_CRITERIA)?.length;
+
+  const completedSteps = Object.keys(PROFILE_CRITERIA).filter(
+    (field) => (existingUser as any)[field],
+  ).length;
+
+  return {
+    progress: (completedSteps / totalSteps) * 100, // Percentage of profile completion
+    totalSteps,
+    completedSteps,
+  };
+};
+
+const getUserFavouritePropertiesFromDB = async (user: JwtPayload) => {
+  // Find all favorites for the user
+  const favorites = await Favourite.find({ userId: user?.userId }).populate({
+    path: 'propertyId',
+    select: 'propertyImages price priceType title category address createdBy', // Include createdBy field
+    populate: {
+      path: 'createdBy',
+      select: 'avatar', // Select only the user image (avatar) field
+    },
+  });
+
+  // Extract the properties from the favorite records
+  const result = favorites.map((favorite) => favorite?.propertyId);
+
+  return result;
+};
+
 // Schedule a cron job to delete expired, unverified users every 12 hours
 cron.schedule('0 */12 * * *', async () => {
   const now = new Date();
@@ -327,6 +352,7 @@ export const UserServices = {
   getUserProfileByIdFromDB,
   getPartialUserProfileByIdFromDB,
   updateUserProfileToDB,
-  updateUserStatusToDB,
+  toggleUserStatusToDB,
+  calculateProfileProgressFromDB,
   getUserFavouritePropertiesFromDB,
 };
