@@ -14,6 +14,7 @@ const initializeSocket = (io: Server) => {
       // Extract the JWT token from the authorization header
       const token = socket.handshake.headers.authorization?.split(' ')[1];
 
+      // Check if the token is present
       if (!token) {
         throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
       }
@@ -26,6 +27,7 @@ const initializeSocket = (io: Server) => {
         '_id email isVerified isBlocked passwordChangedAt',
       );
 
+      // Check if the user exists
       if (!existingUser) {
         throw new ApiError(
           httpStatus.NOT_FOUND,
@@ -33,7 +35,7 @@ const initializeSocket = (io: Server) => {
         );
       }
 
-      // Check if the user's account is verified and not blocked
+      // Check if the user's account is verified
       if (!existingUser?.isVerified) {
         throw new ApiError(
           httpStatus.FORBIDDEN,
@@ -41,7 +43,7 @@ const initializeSocket = (io: Server) => {
         );
       }
 
-      // If the user is blocked, throw a FORBIDDEN error.
+      // Check if the user's account is blocked
       if (existingUser?.isBlocked) {
         throw new ApiError(httpStatus.FORBIDDEN, 'User account is blocked!');
       }
@@ -57,16 +59,18 @@ const initializeSocket = (io: Server) => {
         throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
       }
 
-      // Join a room specific to the user
-      socket.join(existingUser?._id?.toString());
-
       // Emit a connection event to the client
       socket.emit(ChatEvents.CONNECTED_EVENT);
 
+      // Join a room specific to the user to handle their messages and events
+      socket.join(existingUser?._id?.toString());
+
+      // Log the successful connection
       logger.info(
         colors.bgGreen.bold(`✅ A User is connected: ${existingUser?._id}`),
       );
 
+      // Handle disconnection events
       socket.on(ChatEvents.DISCONNECT_EVENT, () => {
         logger.warn(
           colors.bgYellow.bold(
@@ -75,10 +79,14 @@ const initializeSocket = (io: Server) => {
         );
       });
     } catch (error) {
+      // Log and emit an error if something goes wrong
+      logger.error(colors.bgRed.bold(`Error connecting user: ${error}`));
       socket.emit(
         ChatEvents.SOCKET_ERROR_EVENT,
         error || 'Something went wrong while connecting to the socket.',
       );
+      // Disconnect the socket to terminate the connection on error
+      socket.disconnect();
     }
   });
 };

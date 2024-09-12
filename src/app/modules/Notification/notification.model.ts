@@ -14,7 +14,7 @@ const notificationSchema = new Schema<INotification>(
     },
     url: {
       type: String,
-      required: true,
+      default: null,
     },
     isSeen: {
       type: Boolean,

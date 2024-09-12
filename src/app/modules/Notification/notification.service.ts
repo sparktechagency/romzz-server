@@ -72,7 +72,10 @@ const sendNotificationToUserFromDB = async (
   });
 
   // Emit notification to a specific
-  emitSocketEvent(userId, ChatEvents.NOTIFICATION_EVENT, { url, message });
+  emitSocketEvent(userId, ChatEvents.NOTIFICATION_EVENT, {
+    url,
+    message,
+  });
 };
 
 const notifyPropertyCreationFromDB = async (propertyId: string) => {
