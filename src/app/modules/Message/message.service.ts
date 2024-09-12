@@ -62,7 +62,7 @@ const createMessageToDB = async (
     emitSocketEvent(
       participantId?.toString(),
       ChatEvents.MESSAGE_RECEIVED_EVENT,
-      { message: populatedMessage },
+      { data: populatedMessage },
     );
   });
 

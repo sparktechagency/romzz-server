@@ -21,10 +21,9 @@ const sendNotificationToAdminsFromDB = async (url: string, message: string) => {
   await Notification.insertMany(notifications);
 
   // Emit notification to all admins and super admins
-  adminsAndSuperAdmins.forEach((user) => {
+  adminsAndSuperAdmins.forEach((user, index) => {
     emitSocketEvent(user?._id?.toString(), ChatEvents.NOTIFICATION_EVENT, {
-      url,
-      message,
+      data: notifications[index],
     });
   });
 };
@@ -50,10 +49,9 @@ const sendNotificationToUsersFromDB = async (
   await Notification.insertMany(notifications);
 
   // Emit notification to all users
-  allUsers.forEach((user) => {
+  allUsers.forEach((user, index) => {
     emitSocketEvent(user?._id?.toString(), ChatEvents.NOTIFICATION_EVENT, {
-      url,
-      message,
+      data: notifications[index],
     });
   });
 };
@@ -63,7 +61,7 @@ const sendNotificationToUserFromDB = async (
   message: string,
   userId: string,
 ) => {
-  await Notification.create({
+  const notification = await Notification.create({
     url,
     message,
     userId,
@@ -73,8 +71,7 @@ const sendNotificationToUserFromDB = async (
 
   // Emit notification to a specific
   emitSocketEvent(userId, ChatEvents.NOTIFICATION_EVENT, {
-    url,
-    message,
+    data: notification,
   });
 };
 
