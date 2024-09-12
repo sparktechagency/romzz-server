@@ -99,7 +99,7 @@ const updatePropertyStatusToApprove = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Property status updated successfully!',
+    message: 'Property has been approved successfully!',
     data: result,
   });
 });
@@ -112,7 +112,7 @@ const updatePropertyStatusToReject = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Property status updated successfully!',
+    message: 'Property has been rejected successfully!',
     data: result,
   });
 });

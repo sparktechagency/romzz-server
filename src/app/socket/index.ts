@@ -67,15 +67,13 @@ const initializeSocket = (io: Server) => {
 
       // Log the successful connection
       logger.info(
-        colors.bgGreen.bold(`✅ A User is connected: ${existingUser?._id}`),
+        colors.bgGreen.bold(`✅ User is connected: ${existingUser?._id}`),
       );
 
       // Handle disconnection events
       socket.on(ChatEvents.DISCONNECT_EVENT, () => {
         logger.warn(
-          colors.bgYellow.bold(
-            `🚫 A User is disconnected: ${existingUser?._id}`,
-          ),
+          colors.bgYellow.bold(`🚫 User is disconnected: ${existingUser?._id}`),
         );
       });
     } catch (error) {
