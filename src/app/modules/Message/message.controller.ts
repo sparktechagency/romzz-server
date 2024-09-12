@@ -25,19 +25,7 @@ const getMessages = catchAsync(async (req, res) => {
   });
 });
 
-const deleteMessageById = catchAsync(async (req, res) => {
-  const result = await MessageServices.deleteMessageByIdFromDB(req?.params?.id);
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Message deleted successfully!',
-    data: result,
-  });
-});
-
 export const MessageControllers = {
   createMessage,
   getMessages,
-  deleteMessageById,
 };

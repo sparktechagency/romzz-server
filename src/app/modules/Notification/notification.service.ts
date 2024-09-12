@@ -2,6 +2,8 @@ import { JwtPayload } from 'jsonwebtoken';
 import { User } from '../User/user.model'; // Assuming there's a user model
 import { Notification } from './notification.model';
 import QueryBuilder from '../../builder/QueryBuilder';
+import { emitSocketEvent } from '../../socket';
+import { ChatEvents } from '../../constants/chat.constant';
 
 const sendNotificationToAdminsFromDB = async (url: string, message: string) => {
   const adminsAndSuperAdmins = await User.find({
@@ -17,6 +19,14 @@ const sendNotificationToAdminsFromDB = async (url: string, message: string) => {
     isRead: false,
   }));
   await Notification.insertMany(notifications);
+
+  // Emit notification to all admins and super admins
+  adminsAndSuperAdmins.forEach((user) => {
+    emitSocketEvent(user?._id?.toString(), ChatEvents.NOTIFICATION_EVENT, {
+      url,
+      message,
+    });
+  });
 };
 
 const sendNotificationToUsersFromDB = async (
@@ -38,6 +48,14 @@ const sendNotificationToUsersFromDB = async (
     isRead: false,
   }));
   await Notification.insertMany(notifications);
+
+  // Emit notification to all users
+  allUsers.forEach((user) => {
+    emitSocketEvent(user?._id?.toString(), ChatEvents.NOTIFICATION_EVENT, {
+      url,
+      message,
+    });
+  });
 };
 
 const sendNotificationToUserFromDB = async (
@@ -52,6 +70,9 @@ const sendNotificationToUserFromDB = async (
     isSeen: false,
     isRead: false,
   });
+
+  // Emit notification to a specific
+  emitSocketEvent(userId, ChatEvents.NOTIFICATION_EVENT, { url, message });
 };
 
 const notifyPropertyCreationFromDB = async (propertyId: string) => {

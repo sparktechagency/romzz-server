@@ -10,6 +10,12 @@ declare global {
     }
   }
 
+  namespace SocketIO {
+    interface Socket {
+      user?: IUser; // Use the type of your user object
+    }
+  }
+
   // Declare global `io` variable directly for Node.js
   declare var io: SocketIOServer;
 }

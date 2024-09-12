@@ -8,7 +8,7 @@ const messageSchema = new Schema<IMessage>(
       ref: 'Chat', // Reference to the 'Chat' model
       required: true,
     },
-    sender: {
+    senderId: {
       type: Schema.Types.ObjectId, // MongoDB ObjectId type
       ref: 'User', // Reference to the 'User' model
       required: true,

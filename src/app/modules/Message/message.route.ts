@@ -14,12 +14,6 @@ router
     MessageControllers.createMessage,
   );
 
-router
-  .route('/:id')
-
-  .delete(
-    validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
-    MessageControllers.deleteMessageById,
-  );
+router.route('/:id');
 
 export const MessageRoutes = router;
