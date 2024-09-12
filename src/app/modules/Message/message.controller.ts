@@ -7,6 +7,7 @@ const createMessage = catchAsync(async (req, res) => {
   const result = await MessageServices.createMessageToDB(
     req?.user,
     req?.body,
+    req?.files,
     req?.params?.conversationId,
   );
 

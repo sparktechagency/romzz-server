@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { Types } from 'mongoose';
 import { JwtPayload } from 'jsonwebtoken';
 import { IMessage } from './message.interface';
@@ -7,10 +9,12 @@ import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
 import { emitSocketEvent } from '../../socket';
 import { ChatEvents } from '../../constants/chat.constant';
+import getPathAfterUploads from '../../helpers/getPathAfterUploads';
 
 const createMessageToDB = async (
   user: JwtPayload,
   payload: IMessage,
+  files: any,
   conversationId: string,
 ) => {
   // Check if the conversation exists
@@ -40,6 +44,13 @@ const createMessageToDB = async (
   // Set senderId and conversationId
   payload.senderId = user?.userId;
   payload.conversationId = new Types.ObjectId(conversationId);
+
+  // Extract and map the image file paths
+  if (files) {
+    payload.attachments = files?.map((file: any) =>
+      getPathAfterUploads(file?.path),
+    );
+  }
 
   // Create the message
   const newMessage = await Message.create(payload);
