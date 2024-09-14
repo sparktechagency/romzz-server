@@ -114,7 +114,7 @@ const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
         path: 'createdBy',
         select: 'avatar rating',
       })
-      .select('propertyImages price priceType title category address'),
+      .select('propertyImages price priceType title category location'),
     query,
   )
     .search(['address']) // Search within searchable fields
@@ -141,7 +141,7 @@ const getHighlightedPropertiesFromDB = async () => {
       path: 'createdBy',
       select: 'avatar',
     })
-    .select('propertyImages price priceType title category address');
+    .select('propertyImages price priceType title category location');
 
   return result;
 };
@@ -177,7 +177,7 @@ const getPropertyByUserIdFromDB = async (userId: string) => {
       select: 'avatar',
     })
     .select(
-      'propertyImages price priceType title category address status createdAt',
+      'propertyImages price priceType title category location status createdAt',
     );
   return result;
 };
