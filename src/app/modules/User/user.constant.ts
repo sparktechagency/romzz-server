@@ -25,6 +25,8 @@ export const userFieldsToExclude: (keyof IUser)[] = [
   'isVerified',
   'otp',
   'otpExpiresAt',
+  'isSubscribed',
+  'hasAccess',
 ];
 
 // Array of month names

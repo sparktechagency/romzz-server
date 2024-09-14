@@ -5,6 +5,8 @@ import { userValidationSchema } from './user.validation';
 import validateAuth from '../../middlewares/validateAuth';
 import { upload } from '../../helpers/uploadConfig';
 import { USER_ROLE } from './user.constant';
+import ApiError from '../../errors/ApiError';
+import httpStatus from 'http-status';
 
 const router = Router();
 
@@ -47,7 +49,18 @@ router.patch(
     { name: 'coverImage', maxCount: 1 }, // Single cover image
   ]),
   (req: Request, res: Response, next: NextFunction) => {
-    req.body = JSON.parse(req?.body?.data);
+    // Check if 'data' exists in req.body before parsing
+    if (req?.body?.data) {
+      try {
+        req.body = JSON.parse(req.body.data);
+      } catch (error) {
+        return new ApiError(
+          httpStatus.BAD_REQUEST,
+          `Invalid JSON data: ${error}`,
+        );
+      }
+    }
+
     next();
   },
   UserControllers.updateUserProfile,

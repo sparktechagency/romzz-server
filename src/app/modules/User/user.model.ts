@@ -85,6 +85,14 @@ const userSchema = new Schema<IUser, UserModel>(
       type: Boolean,
       default: false,
     },
+    isSubscribed: {
+      type: Boolean,
+      default: false,
+    },
+    hasAccess: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }, // Automatically adds createdAt and updatedAt fields
 );

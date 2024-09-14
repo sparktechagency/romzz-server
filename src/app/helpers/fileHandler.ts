@@ -7,7 +7,12 @@ import path from 'path';
 const UPLOADS_BASE_DIR = path.resolve('public');
 
 // Delete a single file if it exists.
-const unlinkFile = (relativeFilePath: string) => {
+const unlinkFile = (relativeFilePath: string | undefined) => {
+  if (!relativeFilePath || typeof relativeFilePath !== 'string') {
+    logger.error(colors.bgRed(`Invalid file path: ${relativeFilePath}`));
+    return; // Exit early if the file path is invalid
+  }
+
   // Construct the full path using the base directory
   const fullPath = path.join(UPLOADS_BASE_DIR, relativeFilePath);
 
@@ -29,6 +34,11 @@ const unlinkFile = (relativeFilePath: string) => {
 // Delete multiple files.
 const unlinkFiles = (relativeFilePaths: string[]) => {
   relativeFilePaths.forEach((relativeFilePath) => {
+    if (!relativeFilePath || typeof relativeFilePath !== 'string') {
+      logger.error(colors.bgRed(`Invalid file path: ${relativeFilePath}`));
+      return; // Skip this file if the path is invalid
+    }
+
     // Construct the full path using the base directory
     const fullPath = path.join(UPLOADS_BASE_DIR, relativeFilePath);
 

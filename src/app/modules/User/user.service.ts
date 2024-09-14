@@ -36,6 +36,8 @@ const createUserToDB = async (payload: IUser) => {
   payload.status = 'in-progress';
   payload.isBlocked = false;
   payload.isDeleted = false;
+  payload.isSubscribed = false;
+  payload.hasAccess = false;
 
   // Generate OTP and set expiration for email verification
   const otp = generateOtp();
@@ -89,6 +91,8 @@ const createAdminToDB = async (payload: IUser) => {
   payload.isVerified = true;
   payload.isBlocked = false;
   payload.isDeleted = false;
+  payload.isSubscribed = false;
+  payload.hasAccess = false;
 
   // Create the new admin in the database
   await User.create(payload);
@@ -177,11 +181,16 @@ const updateUserProfileToDB = async (
     }
   }
 
+  // console.log({ payload });
+
   // Handle cover image update if a new cover image is uploaded
   if (files && files?.coverImage) {
     const newCoverImagePath = getPathAfterUploads(files?.coverImage[0]?.path);
 
-    if (existingUser?.coverImage !== newCoverImagePath) {
+    if (
+      existingUser?.coverImage ||
+      existingUser?.coverImage !== newCoverImagePath
+    ) {
       unlinkFile(existingUser?.coverImage as string); // Remove the old image file
       payload.coverImage = newCoverImagePath; // Update the payload with the new image path
     }

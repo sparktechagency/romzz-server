@@ -5,12 +5,21 @@ import router from './app/routes';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
 import notFound from './app/middlewares/notFound';
 import requestLogger from './app/logger/morgan.logger';
+import { handleStripeWebhook } from './app/modules/Subscription/subscription.service';
 
 const app = express();
 
 // middlewares
 app.use(cors());
 app.use(cookieParser());
+
+// Stripe webhook route
+app.use(
+  '/api/stripe/webhook',
+  express.raw({ type: 'application/json' }),
+  handleStripeWebhook,
+);
+
 app.use(express.json({ limit: '16kb' }));
 app.use(express.urlencoded({ extended: true, limit: '16kb' }));
 app.use(express.static('public'));

@@ -28,4 +28,7 @@ export default {
   smtpEmailPass: process.env.SMTP_EMAIL_PASS,
 
   googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
+
+  stripeSecretKey: process.env.STRIPE_SECRET_KEY,
+  stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
 };

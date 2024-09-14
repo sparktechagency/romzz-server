@@ -29,6 +29,8 @@ export interface IUser {
   isDeleted: boolean;
   isBlocked: boolean;
   isVerified: boolean;
+  isSubscribed: boolean;
+  hasAccess: boolean;
   toJSON(options?: { includeRole?: boolean }): IUser;
 }
 
