@@ -44,6 +44,9 @@ const userSchema = new Schema<IUser, UserModel>(
       required: true,
       select: 0, // Exclude password by default
     },
+    stripeAccountId: {
+      type: String,
+    },
     passwordChangedAt: {
       type: Date,
     },

@@ -21,6 +21,7 @@ export interface IUser {
   passwordChangedAt: Date;
   permanentAddress: string;
   presentAddress: string;
+  stripeAccountId: string;
   rating: number;
   role: TUserRole;
   status: TUserStatus;
