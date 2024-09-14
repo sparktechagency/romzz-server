@@ -16,13 +16,22 @@ const pricingPlanSchema = new Schema<IPricingPlan>(
       type: Number,
       required: true,
     },
+    priceId: {
+      type: String,
+      required: true,
+    },
+
+    features: {
+      type: [String],
+      required: true,
+    },
     billingCycle: {
       type: String,
       enum: ['monthly', 'yearly'],
       required: true,
     },
-    features: {
-      type: [String],
+    subscriptionLink: {
+      type: String,
       required: true,
     },
   },

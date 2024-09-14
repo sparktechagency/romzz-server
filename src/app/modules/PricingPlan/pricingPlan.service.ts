@@ -51,6 +51,7 @@ const updatePricingPlanByIdFromDB = async (
 ) => {
   // Prevent modification of the createdBy field to maintain integrity
   delete payload.createdBy;
+  delete payload.billingCycle;
 
   // Fetch the existing our stories entry from the database by its ID
   const existingPricingPlan = await PricingPlan.findById(pricingPlanId);
