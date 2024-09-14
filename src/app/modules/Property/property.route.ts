@@ -44,7 +44,7 @@ router.get(
 );
 
 // Route to get properties created by the user
-router.get('/user-properties', PropertyControllers.getPropertyByUserId);
+router.get('/user-properties/:id', PropertyControllers.getPropertyByUserId);
 
 router
   .route('/:id')
