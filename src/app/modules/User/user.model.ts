@@ -48,9 +48,6 @@ const userSchema = new Schema<IUser, UserModel>(
       accountId: {
         type: String,
       },
-      externalAccountId: {
-        type: String,
-      },
       accountDashboardUrl: {
         type: String,
       },

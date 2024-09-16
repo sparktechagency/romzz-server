@@ -8,7 +8,6 @@ export type TGender = keyof typeof GENDER;
 
 interface IStripeAccountInfo {
   accountId: string;
-  externalAccountId: string;
   accountDashboardUrl: string;
 }
 

@@ -99,15 +99,10 @@ const createConnectAccount = async (
   });
 
   // Save Stripe account information to the user record
-  if (
-    account?.id &&
-    account?.external_accounts?.data?.length &&
-    accountLink?.url
-  ) {
+  if (account?.id && accountLink?.url) {
     await User.findByIdAndUpdate(user?.userId, {
       stripeAccountInfo: {
         accountId: account?.id,
-        externalAccountId: account?.external_accounts?.data[0]?.id,
         accountDashboardUrl: accountLink?.url,
       },
     });
