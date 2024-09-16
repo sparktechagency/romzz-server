@@ -17,6 +17,7 @@ import { MessageRoutes } from '../modules/Message/message.route';
 import { ConversationRoutes } from '../modules/Conversation/conversation.route';
 import { StripeRoutes } from '../modules/Stripe/stripe.route';
 import { BookingRoutes } from '../modules/Booking/booking.route';
+import { SubscriptionRoutes } from '../modules/Subscription/subscription.route';
 
 const router = Router();
 
@@ -31,6 +32,7 @@ const routes = [
   { path: '/messages', route: MessageRoutes },
   { path: '/pricing-plans', route: PricingPlanRoutes },
   { path: '/stripe', route: StripeRoutes },
+  { path: '/subscriptions', route: SubscriptionRoutes },
 
   // Dashboard
   { path: '/facilities', route: FacilityRoutes },

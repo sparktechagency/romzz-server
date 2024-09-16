@@ -9,8 +9,10 @@ import { Subscription } from './subscription.model';
 import { PricingPlan } from '../PricingPlan/pricingPlan.model';
 import logger from '../../logger/winston.logger';
 import colors from 'colors';
+import QueryBuilder from '../../builder/QueryBuilder';
+import { UserSearchableFields } from '../User/user.constant';
 
-const handleStripeWebhook = async (req: Request, res: Response) => {
+export const handleStripeWebhook = async (req: Request, res: Response) => {
   // Extract the Stripe signature from the request header
   const signature = req.headers['stripe-signature'] as string;
   const webhookSecret = config.stripeWebhookSecret as string;
@@ -166,4 +168,32 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
   res.sendStatus(200); // Acknowledge receipt of the event
 };
 
-export { handleStripeWebhook };
+const getSubscribedUsersFromDB = async (query: Record<string, unknown>) => {
+  // Build the query using QueryBuilder with the given query parameters
+  const usersQuery = new QueryBuilder(
+    Subscription.find()
+      .populate({
+        path: 'userId',
+        select: 'avatar fullName',
+      })
+      .populate({
+        path: 'packageId',
+        select: 'title price',
+      }),
+    query,
+  )
+    .search(UserSearchableFields) // Apply search conditions based on searchable fields
+    .filter()
+    .paginate(); // Apply pagination based on the query parameter
+
+  // Get the total count of matching documents and total pages for pagination
+  const meta = await usersQuery.countTotal();
+  // Execute the query to retrieve the users
+  const result = await usersQuery.modelQuery;
+
+  return { meta, result };
+};
+
+export const SubscriptionServices = {
+  getSubscribedUsersFromDB,
+};
