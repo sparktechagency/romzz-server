@@ -10,6 +10,7 @@ export interface IConnectAccount {
     account_holder_name: string;
     account_holder_type: string;
     account_number: string;
+    routing_number: string;
     country: string;
     currency: string;
   };

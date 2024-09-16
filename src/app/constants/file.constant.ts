@@ -1,4 +1,5 @@
 export const IMAGE_FIELD_NAMES = [
+  'KYC',
   'image',
   'icon',
   'avatar',
@@ -18,6 +19,7 @@ export const SUPPORTED_VIDEO_FORMATS = ['video/mp4'];
 
 // Create a map for field names and their corresponding supported formats
 export const FIELD_NAME_TO_FORMATS: { [key: string]: string[] } = {
+  KYC: SUPPORTED_IMAGE_FORMATS,
   image: SUPPORTED_IMAGE_FORMATS,
   icon: SUPPORTED_IMAGE_FORMATS,
   avatar: SUPPORTED_IMAGE_FORMATS,

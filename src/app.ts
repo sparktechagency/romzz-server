@@ -29,7 +29,7 @@ app.use(requestLogger);
 app.get('/', (req: Request, res: Response) => {
   const serverStatus = {
     status: 'running',
-    message: 'Roomz API is operational and running smoothly.',
+    message: 'Romzz API is operational and running smoothly.',
     timestamp: new Date().toISOString(),
     version: 'v1.0.1',
     uptime: process.uptime(),

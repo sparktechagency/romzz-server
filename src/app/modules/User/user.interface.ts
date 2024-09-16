@@ -6,6 +6,12 @@ export type TUserRole = keyof typeof USER_ROLE;
 export type TUserStatus = keyof typeof USER_STATUS;
 export type TGender = keyof typeof GENDER;
 
+interface IStripeAccountInfo {
+  accountId: string;
+  externalAccountId: string;
+  accountDashboardUrl: string;
+}
+
 // Interface representing a User document in MongoDB
 export interface IUser {
   _id: ObjectId;
@@ -21,7 +27,7 @@ export interface IUser {
   passwordChangedAt: Date;
   permanentAddress: string;
   presentAddress: string;
-  stripeAccountId: string;
+  stripeAccountInfo: IStripeAccountInfo;
   rating: number;
   role: TUserRole;
   status: TUserStatus;

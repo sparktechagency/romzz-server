@@ -18,24 +18,14 @@ const createConnectAccount = async (
   // Validate the user
   const existingUser = await User.findById(user?.userId);
 
-  if (!existingUser) {
+  if (existingUser?.stripeAccountInfo?.accountId) {
     throw new ApiError(
-      httpStatus.NOT_FOUND,
-      `User with ID: ${user?.userId} not found!`,
+      httpStatus.BAD_REQUEST,
+      'User already has a connected Stripe account!',
     );
   }
 
-  // Check if an account already exists for the user
-  if (existingUser?.stripeAccountId) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Account already exists!');
-  }
-
-  // Validate files
-  if (!files || files?.length < 2) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Two KYC files required!');
-  }
-
-  // Upload files to Stripe
+  // Upload files to Stripe for identity verification
   const [frontFilePart, backFilePart] = await Promise.all(
     files.map((file: any) =>
       stripe.files.create({
@@ -80,7 +70,7 @@ const createConnectAccount = async (
     },
   });
 
-  // Create a Stripe connected account
+  // Create a Stripe connected account using the token
   const account = await stripe.accounts.create({
     type: 'custom',
     account_token: token.id,
@@ -93,20 +83,11 @@ const createConnectAccount = async (
       account_holder_name: bank_info.account_holder_name,
       account_holder_type: bank_info.account_holder_type,
       account_number: bank_info.account_number,
+      routing_number: bank_info.routing_number,
       country: bank_info.country,
       currency: bank_info.currency,
     },
   });
-
-  // Save the connected account information to the user record
-  // if (account.id && account.external_accounts.data.length) {
-  //   isExistUser.accountInformation.stripeAccountId = account.id;
-  //   isExistUser.accountInformation.externalAccountId =
-  //     account.external_accounts.data[0].id;
-  //   isExistUser.accountInformation.status = true;
-  //   isExistUser.bank_account = bank_info.account_number;
-  //   await isExistUser.save();
-  // }
 
   // // Create an account link for onboarding
   const accountLink = await stripe.accountLinks.create({
@@ -116,6 +97,21 @@ const createConnectAccount = async (
     type: 'account_onboarding',
     collect: 'eventually_due',
   });
+
+  // Save Stripe account information to the user record
+  if (
+    account?.id &&
+    account?.external_accounts?.data?.length &&
+    accountLink?.url
+  ) {
+    await User.findByIdAndUpdate(user?.userId, {
+      stripeAccountInfo: {
+        accountId: account?.id,
+        externalAccountId: account?.external_accounts?.data[0]?.id,
+        accountDashboardUrl: accountLink?.url,
+      },
+    });
+  }
 
   return accountLink;
 };
