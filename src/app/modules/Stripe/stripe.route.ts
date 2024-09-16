@@ -35,10 +35,8 @@ router.post(
         new ApiError(httpStatus.BAD_REQUEST, 'Two KYC files are required!'),
       );
     }
-
     next();
   },
-
   StripeControllers.createConnectAccount,
 );
 

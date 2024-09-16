@@ -6,6 +6,8 @@ export interface IPricingPlan {
   price: number;
   priceId: string;
   features: string[];
+  maxProperties: number | 'infinity';
+  maxHighlightedProperties: number;
   billingCycle: 'monthly' | 'yearly';
   subscriptionLink: string;
 }

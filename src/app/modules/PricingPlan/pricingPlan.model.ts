@@ -20,10 +20,16 @@ const pricingPlanSchema = new Schema<IPricingPlan>(
       type: String,
       required: true,
     },
-
     features: {
       type: [String],
       required: true,
+    },
+    maxProperties: {
+      type: Schema.Types.Mixed,
+      required: true,
+    },
+    maxHighlightedProperties: {
+      type: Number,
     },
     billingCycle: {
       type: String,

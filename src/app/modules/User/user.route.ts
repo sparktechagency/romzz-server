@@ -48,17 +48,15 @@ router.patch(
     { name: 'avatar', maxCount: 1 }, // Single avatar image
     { name: 'coverImage', maxCount: 1 }, // Single cover image
   ]),
+
   (req: Request, res: Response, next: NextFunction) => {
-    // Check if 'data' exists in req.body before parsing
-    if (req?.body?.data) {
-      try {
-        req.body = JSON.parse(req.body.data);
-      } catch (error) {
-        return new ApiError(
-          httpStatus.BAD_REQUEST,
-          `Invalid JSON data: ${error}`,
-        );
-      }
+    // Parse 'data' from body if it exists
+    try {
+      req.body = JSON.parse(req?.body?.data);
+    } catch (error) {
+      return next(
+        new ApiError(httpStatus.BAD_REQUEST, `Invalid JSON data: ${error}`),
+      );
     }
 
     next();

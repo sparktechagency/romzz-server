@@ -15,12 +15,74 @@ import { unlinkFile, unlinkFiles } from '../../helpers/fileHandler';
 import { NotificationServices } from '../Notification/notification.service';
 import getPathAfterUploads from '../../helpers/getPathAfterUploads';
 import getLatAndLngFromAddress from '../../helpers/getLatAndLngFromAddress';
+import { UserServices } from '../User/user.service';
+import { User } from '../User/user.model';
+import { Subscription } from '../Subscription/subscription.model';
+import { endOfMonth, startOfMonth } from 'date-fns';
+import { IPricingPlan } from '../PricingPlan/pricingPlan.interface';
 
 const createPropertyToDB = async (
   user: JwtPayload,
   payload: IProperty,
   files: any,
 ) => {
+  // Calculate the user's profile completion progress
+  const { progress } =
+    await UserServices.calculateUserProfileProgressFromDB(user);
+
+  // Check if the user's profile is fully completed (100%)
+  if (progress < 100) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `Complete your profile before booking. Current progress: ${progress}%.`,
+    );
+  }
+
+  // Retrieve the user's account info from the database
+  const existingUser = await User.findById(user?.userId);
+
+  // Retrieve the user's active subscription
+  const subscription = await Subscription.findOne({
+    userId: user?.userId,
+  }).populate<{ packageId: IPricingPlan }>('packageId');
+
+  // If no subscription exists, prevent the user from listing properties
+  if (!subscription) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      'No subscription found. Please subscribe to list properties.',
+    );
+  }
+
+  // Check if the user has completed their Stripe account setup
+  if (!existingUser?.stripeAccountInfo?.accountId) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'Complete your Stripe account setup to list a property.',
+    );
+  }
+
+  // Determine the start and end of the current month
+  const startOfCurrentMonth = startOfMonth(new Date());
+  const endOfCurrentMonth = endOfMonth(new Date());
+
+  // Count the properties the user has listed this month
+  const userPropertyCount = await Property.countDocuments({
+    createdBy: user?.userId,
+    createdAt: { $gte: startOfCurrentMonth, $lte: endOfCurrentMonth },
+  });
+
+  // Retrieve the property listing limit from the user's subscription plan
+  const monthlyLimit = subscription?.packageId?.maxProperties;
+
+  // Check if the user has exceeded their monthly listing limit (unless it's unlimited)
+  if (monthlyLimit !== 'infinity' && userPropertyCount >= monthlyLimit) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      `Monthly limit of ${monthlyLimit} properties reached.`,
+    );
+  }
+
   // Assign the user ID who is creating the property
   payload.createdBy = user?.userId;
 

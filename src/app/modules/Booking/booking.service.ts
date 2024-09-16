@@ -9,13 +9,13 @@ import { UserServices } from '../User/user.service';
 
 const confirmBookingToDB = async (user: JwtPayload, propertyId: string) => {
   // Calculate user profile progress
-  const profileProgress =
+  const { progress } =
     await UserServices.calculateUserProfileProgressFromDB(user);
 
-  if (profileProgress?.progress < 100) {
+  if (progress < 100) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      `Complete your profile before booking. Current progress: ${profileProgress?.progress}%.`,
+      `Complete your profile before booking. Current progress: ${progress}%.`,
     );
   }
 

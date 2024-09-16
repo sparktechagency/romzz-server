@@ -181,8 +181,6 @@ const updateUserProfileToDB = async (
     }
   }
 
-  // console.log({ payload });
-
   // Handle cover image update if a new cover image is uploaded
   if (files && files?.coverImage) {
     const newCoverImagePath = getPathAfterUploads(files?.coverImage[0]?.path);
@@ -200,7 +198,9 @@ const updateUserProfileToDB = async (
   userFieldsToExclude?.forEach((field) => delete payload[field]);
 
   // Update user profile with the filtered data and return the result
-  const result = await User.findByIdAndUpdate(user?.userId, payload);
+  const result = await User.findByIdAndUpdate(user?.userId, payload, {
+    new: true,
+  });
 
   return result;
 };
