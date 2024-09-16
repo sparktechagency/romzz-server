@@ -10,6 +10,7 @@ import { Property } from '../Property/property.model';
 import { User } from '../User/user.model';
 import getPathAfterUploads from '../../helpers/getPathAfterUploads';
 import mongoose from 'mongoose';
+import { Booking } from '../Booking/booking.model';
 
 const createFeedbackToDB = async (
   user: JwtPayload,
@@ -26,6 +27,20 @@ const createFeedbackToDB = async (
     throw new ApiError(
       httpStatus.NOT_FOUND,
       `Property with ID: ${payload?.propertyId} not found!`,
+    );
+  }
+
+  // Check if the user has booked this property
+  const userBooking = await Booking.findOne({
+    userId: user?.userId,
+    propertyId: payload?.propertyId,
+    status: 'confirmed',
+  });
+
+  if (!userBooking) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      'You can only provide feedback for properties you have booked.',
     );
   }
 
