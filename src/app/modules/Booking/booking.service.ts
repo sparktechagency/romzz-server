@@ -2,31 +2,32 @@ import { JwtPayload } from 'jsonwebtoken';
 import { Property } from '../Property/property.model';
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
-import stripe from '../../config/stripe';
 import { User } from '../User/user.model';
 import { Booking } from './booking.model';
-import { UserServices } from '../User/user.service';
+import stripe from '../../config/stripe';
+import { IBooking } from './booking.interface';
 
-const confirmBookingToDB = async (user: JwtPayload, propertyId: string) => {
-  // Calculate user profile progress
-  const { progress } =
-    await UserServices.calculateUserProfileProgressFromDB(user);
+const confirmBookingToDB = async (user: JwtPayload, payload: IBooking) => {
+  // Retrieve and verify the PaymentIntent
+  const paymentIntent = await stripe.paymentIntents.retrieve(
+    payload?.transactionId,
+  );
 
-  if (progress < 100) {
+  if (paymentIntent?.status !== 'succeeded') {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      `Complete your profile before booking. Current progress: ${progress}%.`,
+      'Payment not completed. Please try again.',
     );
   }
 
   // Find the property based on ID
-  const existingProperty = await Property.findById(propertyId);
+  const existingProperty = await Property.findById(payload?.propertyId);
 
   // Ensure the property exists
   if (!existingProperty) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
-      `Property with ID: ${propertyId} not found!`,
+      `Property with ID: ${payload?.propertyId} not found!`,
     );
   }
 
@@ -34,7 +35,7 @@ const confirmBookingToDB = async (user: JwtPayload, propertyId: string) => {
   if (existingProperty.isBooked) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      `Property with ID: ${propertyId} is already booked.`,
+      `Property with ID: ${payload?.propertyId} is already booked.`,
     );
   }
 
@@ -62,43 +63,22 @@ const confirmBookingToDB = async (user: JwtPayload, propertyId: string) => {
   const adminFee = totalAmount * 0.2; // 20% fee for admin
   const payoutAmount = totalAmount - adminFee; // 80% payout to property creator
 
-  // Create a transfer to the admin's Stripe account
-  const transfer = await stripe.transfers.create({
-    amount: adminFee,
-    currency: 'usd',
-    destination: propertyCreator?.stripeAccountInfo?.accountId,
-  });
-
-  // Create a payout to the property creator's Stripe account
-  const payout = await stripe.payouts.create(
-    {
-      amount: payoutAmount,
-      currency: 'usd',
-      destination: propertyCreator?.stripeAccountInfo?.externalAccountId,
-    },
-    {
-      stripeAccount: propertyCreator?.stripeAccountInfo?.accountId,
-    },
-  );
-
   const booking = await Booking.create({
     userId: user?.userId,
     propertyId: existingProperty?._id,
     totalAmount: totalAmount / 100,
     payoutAmount: payoutAmount / 100,
     adminFee: adminFee / 100,
+    transactionId: payload.transactionId,
+    checkInDate: payload.checkInDate,
     status: 'confirmed',
-    paymentDetails: {
-      transferId: transfer?.id,
-      payoutId: payout?.id,
-    },
   });
 
   // Mark the property as booked
   existingProperty.isBooked = true;
   await existingProperty.save();
 
-  return { transfer, payout, booking };
+  return { booking };
 };
 
 export const BookingServices = {

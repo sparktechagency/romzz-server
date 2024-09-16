@@ -7,6 +7,8 @@ import stripe from '../../config/stripe';
 import { IConnectAccount } from './stripe.interface';
 import { User } from '../User/user.model';
 import fs from 'fs';
+import { UserServices } from '../User/user.service';
+import { Property } from '../Property/property.model';
 
 const createConnectAccount = async (
   user: JwtPayload,
@@ -111,6 +113,77 @@ const createConnectAccount = async (
   return accountLink;
 };
 
+const createPaymentIntent = async (
+  user: JwtPayload,
+  payload: { propertyId: string },
+) => {
+  // Calculate user profile progress
+  const { progress } =
+    await UserServices.calculateUserProfileProgressFromDB(user);
+
+  if (progress < 100) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `Complete your profile before booking. Current progress: ${progress}%.`,
+    );
+  }
+
+  // Find the property based on ID
+  const existingProperty = await Property.findById(payload?.propertyId);
+
+  // Ensure the property exists
+  if (!existingProperty) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Property with ID: ${payload?.propertyId} not found!`,
+    );
+  }
+
+  // Ensure the property is not already booked
+  if (existingProperty?.isBooked) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `Property with ID: ${payload?.propertyId} is already booked.`,
+    );
+  }
+
+  // Find the user who created the property
+  const propertyCreator = await User.findById(existingProperty?.createdBy);
+
+  // Ensure the user attempting to book is not the property creator
+  if (user?.userId === existingProperty?.createdBy?.toString()) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      `You cannot book your own property.`,
+    );
+  }
+
+  // Ensure the property creator has a connected Stripe account
+  if (!propertyCreator?.stripeAccountInfo?.accountId) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'Property creator does not have a connected Stripe account!',
+    );
+  }
+
+  const amountInCents = Math.round(existingProperty?.price * 100);
+
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: amountInCents,
+    currency: 'usd',
+    automatic_payment_methods: {
+      enabled: true,
+    },
+    application_fee_amount: amountInCents * 0.2,
+    transfer_data: {
+      destination: propertyCreator?.stripeAccountInfo?.accountId,
+    },
+  });
+
+  return paymentIntent?.client_secret;
+};
+
 export const StripeServices = {
   createConnectAccount,
+  createPaymentIntent,
 };

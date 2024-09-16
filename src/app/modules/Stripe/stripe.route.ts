@@ -40,4 +40,9 @@ router.post(
   StripeControllers.createConnectAccount,
 );
 
+router.post(
+  '/payments/create-intent',
+  validateAuth(USER_ROLE.USER),
+  StripeControllers.createPaymentIntent,
+);
 export const StripeRoutes = router;

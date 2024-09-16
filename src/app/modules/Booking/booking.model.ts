@@ -30,15 +30,9 @@ const bookingSchema = new Schema<IBooking>(
       type: Number,
       required: true,
     },
-    paymentDetails: {
-      transferId: {
-        type: String,
-        required: true,
-      },
-      payoutId: {
-        type: String,
-        required: true,
-      },
+    transactionId: {
+      type: String,
+      required: true,
     },
     status: {
       type: String,
