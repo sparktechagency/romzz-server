@@ -5,6 +5,12 @@ import { BookingControllers } from './booking.controller';
 
 const router = Router();
 
+router.get(
+  '/',
+  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
+  BookingControllers.getBookings,
+);
+
 router.post(
   '/confirm/:propertyId',
   validateAuth(USER_ROLE.USER),

@@ -2,8 +2,6 @@ import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { StripeServices } from './stripe.service';
-import stripe from '../../config/stripe';
-import ApiError from '../../errors/ApiError';
 
 const createConnectAccount = catchAsync(async (req, res) => {
   const result = await StripeServices.createConnectAccount(

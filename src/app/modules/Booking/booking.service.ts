@@ -6,6 +6,8 @@ import { User } from '../User/user.model';
 import { Booking } from './booking.model';
 import stripe from '../../config/stripe';
 import { IBooking } from './booking.interface';
+import { UserSearchableFields } from '../User/user.constant';
+import QueryBuilder from '../../builder/QueryBuilder';
 
 const confirmBookingToDB = async (
   user: JwtPayload,
@@ -85,6 +87,36 @@ const confirmBookingToDB = async (
   return booking;
 };
 
+const getBookingsFromDB = async (query: Record<string, unknown>) => {
+  // Build the query using QueryBuilder with the given query parameters
+  const bookingsQuery = new QueryBuilder(
+    Booking.find()
+      .populate({
+        path: 'userId',
+        select: 'avatar fullName email',
+      })
+      .populate({
+        path: 'propertyId',
+        populate: {
+          path: 'createdBy',
+          select: 'avatar fullName email',
+        },
+      }),
+    query,
+  )
+    .search(UserSearchableFields) // Apply search conditions based on searchable fields
+    .filter()
+    .paginate(); // Apply pagination based on the query parameter
+
+  // Get the total count of matching documents and total pages for pagination
+  const meta = await bookingsQuery.countTotal();
+  // Execute the query to retrieve the users
+  const result = await bookingsQuery.modelQuery;
+
+  return { meta, result };
+};
+
 export const BookingServices = {
   confirmBookingToDB,
+  getBookingsFromDB,
 };
