@@ -159,7 +159,7 @@ const getPropertyByIdFromDB = async (propertyId: string) => {
       select: 'name icon',
     });
 
-  // Handle the case where the review is not found
+  // Handle the case where the property is not found
   if (!result) {
     throw new ApiError(
       httpStatus.NOT_FOUND,

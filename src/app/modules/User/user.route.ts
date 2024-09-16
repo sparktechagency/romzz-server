@@ -84,7 +84,7 @@ router.patch(
 router.get(
   '/profile-progress',
   validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
-  UserControllers.getProfileProgress,
+  UserControllers.getUserProfileProgress,
 );
 
 router.get(

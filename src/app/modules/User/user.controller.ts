@@ -117,8 +117,10 @@ const toggleUserStatus = catchAsync(async (req, res) => {
   });
 });
 
-const getProfileProgress = catchAsync(async (req, res) => {
-  const progress = await UserServices.calculateProfileProgressFromDB(req?.user);
+const getUserProfileProgress = catchAsync(async (req, res) => {
+  const progress = await UserServices.calculateUserProfileProgressFromDB(
+    req?.user,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -151,6 +153,6 @@ export const UserControllers = {
   getUserProfileById,
   getPartialUserProfileById,
   toggleUserStatus,
-  getProfileProgress,
+  getUserProfileProgress,
   getUserFavouriteProperties,
 };

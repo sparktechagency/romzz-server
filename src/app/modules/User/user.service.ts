@@ -282,7 +282,7 @@ const toggleUserStatusToDB = async (
   return existingUser;
 };
 
-const calculateProfileProgressFromDB = async (user: JwtPayload) => {
+const calculateUserProfileProgressFromDB = async (user: JwtPayload) => {
   const existingUser = await User.findById(user?.userId);
 
   if (!existingUser) {
@@ -362,6 +362,6 @@ export const UserServices = {
   getPartialUserProfileByIdFromDB,
   updateUserProfileToDB,
   toggleUserStatusToDB,
-  calculateProfileProgressFromDB,
+  calculateUserProfileProgressFromDB,
   getUserFavouritePropertiesFromDB,
 };

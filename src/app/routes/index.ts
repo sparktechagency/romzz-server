@@ -16,6 +16,7 @@ import { PricingPlanRoutes } from '../modules/PricingPlan/pricingPlan.route';
 import { MessageRoutes } from '../modules/Message/message.route';
 import { ConversationRoutes } from '../modules/Conversation/conversation.route';
 import { StripeRoutes } from '../modules/Stripe/stripe.route';
+import { BookingRoutes } from '../modules/Booking/booking.route';
 
 const router = Router();
 
@@ -24,6 +25,7 @@ const routes = [
   { path: '/users', route: UserRoutes },
   { path: '/auth', route: AuthRoutes },
   { path: '/properties', route: PropertyRoutes },
+  { path: '/bookings', route: BookingRoutes },
   { path: '/notifications', route: NotificationRoutes },
   { path: '/conversations', route: ConversationRoutes },
   { path: '/messages', route: MessageRoutes },

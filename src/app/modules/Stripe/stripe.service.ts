@@ -15,7 +15,7 @@ const createConnectAccount = async (
 ) => {
   const { dateOfBirth, address, bank_info } = payload;
 
-  // Validate the user
+  // Find the user based on ID
   const existingUser = await User.findById(user?.userId);
 
   if (existingUser?.stripeAccountInfo?.accountId) {
