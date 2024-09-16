@@ -8,17 +8,14 @@ import { propertyValidationSchema } from './property.validation';
 
 const router = Router();
 
-// Route to get all properties and create a new property
 router
   .route('/')
 
-  // Route to get all properties
   .get(
     validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
     PropertyControllers.getAllProperties,
   )
 
-  // Route to create a new property
   .post(
     validateAuth(USER_ROLE.USER),
     upload.fields([
@@ -34,25 +31,20 @@ router
     PropertyControllers.createProperty,
   );
 
-// Route to get only approved properties
 router.get('/approved-properties', PropertyControllers.getApprovedProperties);
 
-// Route to get only highlighted properties
 router.get(
   '/highlighted-properties',
   PropertyControllers.getHighlightedProperties,
 );
 
-// Route to get properties created by the user
-router.get('/user-properties/:id', PropertyControllers.getPropertyByUserId);
+router.get('/user-properties/:userId', PropertyControllers.getPropertyByUserId);
 
 router
   .route('/:id')
 
-  // Route to get a property by ID
   .get(PropertyControllers.getPropertyById)
 
-  // Route to update a property by ID
   .patch(
     validateAuth(USER_ROLE.USER),
     upload.fields([
@@ -66,25 +58,28 @@ router
     PropertyControllers.updatePropertyById,
   );
 
-// Route to update property status to "approve"
 router.patch(
   '/approve/:id',
   validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   PropertyControllers.updatePropertyStatusToApprove,
 );
 
-// Route to update property status to "reject"
 router.patch(
   '/reject/:id',
   validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   PropertyControllers.updatePropertyStatusToReject,
 );
 
-// Route to toggle favorite status for a property
 router.patch(
-  '/favourite/:id',
+  '/toggle-highlight/:id',
   validateAuth(USER_ROLE.USER),
-  PropertyControllers.togglePropertyFavouriteStatus,
+  PropertyControllers.toggleHighlightProperty,
+);
+
+router.patch(
+  '/toggle-favourite/:id',
+  validateAuth(USER_ROLE.USER),
+  PropertyControllers.toggleFavouriteProperty,
 );
 
 export const PropertyRoutes = router;

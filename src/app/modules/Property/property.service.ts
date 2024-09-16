@@ -379,7 +379,73 @@ const updatePropertyStatusToRejectToDB = async (propertyId: string) => {
   );
 };
 
-const togglePropertyFavouriteStatusToDB = async (
+const toggleHighlightPropertyToDB = async (
+  user: JwtPayload,
+  propertyId: string,
+) => {
+  // Find the existing property
+  const existingProperty = await Property.findById(propertyId);
+
+  // Check if the property exists
+  if (!existingProperty) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `Property with ID: ${propertyId} not found!`,
+    );
+  }
+
+  // Ensure the user trying to update the property is the creator
+  if (existingProperty?.createdBy?.toString() !== user?.userId) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      'You do not have permission to update this property!',
+    );
+  }
+
+  // Find the user's subscription and check the limit for highlighted properties
+  const subscription = await Subscription.findOne({
+    userId: user?.userId,
+  }).populate<{
+    packageId: IPricingPlan;
+  }>('packageId');
+
+  const maxHighlightedProperties =
+    subscription?.packageId?.maxHighlightedProperties;
+
+  // Handle case where no highlighting is allowed (maxHighlightedProperties is 0 or undefined)
+  if (!maxHighlightedProperties || maxHighlightedProperties <= 0) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      'Your subscription plan does not allow highlighting property!',
+    );
+  }
+
+  // Count the number of highlighted properties the user currently has
+  const highlightedCount = await Property.countDocuments({
+    createdBy: user?.userId,
+    isHighlighted: true,
+  });
+
+  // If the property is already highlighted, we are toggling it off, no need to check the limit
+  if (!existingProperty.isHighlighted) {
+    // If the user has reached their highlight limit, block the toggle
+    if (highlightedCount >= maxHighlightedProperties) {
+      throw new ApiError(
+        httpStatus.FORBIDDEN,
+        `Highlight limit of ${maxHighlightedProperties} properties reached.`,
+      );
+    }
+  }
+
+  // Toggle the 'isHighlighted' field
+  existingProperty.isHighlighted = !existingProperty.isHighlighted;
+
+  // Save the updated property
+  const result = await existingProperty.save();
+  return result;
+};
+
+const toggleFavouritePropertyToDB = async (
   user: JwtPayload,
   propertyId: string,
 ) => {
@@ -428,5 +494,6 @@ export const PropertyServices = {
   updatePropertyByIdToDB,
   updatePropertyStatusToApproveToDB,
   updatePropertyStatusToRejectToDB,
-  togglePropertyFavouriteStatusToDB,
+  toggleHighlightPropertyToDB,
+  toggleFavouritePropertyToDB,
 };

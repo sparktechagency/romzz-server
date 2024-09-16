@@ -64,7 +64,7 @@ const getPropertyById = catchAsync(async (req, res) => {
 
 const getPropertyByUserId = catchAsync(async (req, res) => {
   const result = await PropertyServices.getPropertyByUserIdFromDB(
-    req?.params?.id,
+    req?.params?.userId,
   );
 
   sendResponse(res, {
@@ -117,8 +117,27 @@ const updatePropertyStatusToReject = catchAsync(async (req, res) => {
   });
 });
 
-const togglePropertyFavouriteStatus = catchAsync(async (req, res) => {
-  const result = await PropertyServices.togglePropertyFavouriteStatusToDB(
+const toggleHighlightProperty = catchAsync(async (req, res) => {
+  const result = await PropertyServices.toggleHighlightPropertyToDB(
+    req?.user,
+    req?.params?.id,
+  );
+
+  // Set the message based on the favorite status
+  const message = result.isHighlighted
+    ? 'Property has been successfully highlighted.'
+    : 'Property has been removed from highlights.';
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message,
+    data: null,
+  });
+});
+
+const toggleFavouriteProperty = catchAsync(async (req, res) => {
+  const result = await PropertyServices.toggleFavouritePropertyToDB(
     req?.user,
     req?.params?.id,
   );
@@ -146,5 +165,6 @@ export const PropertyControllers = {
   updatePropertyById,
   updatePropertyStatusToApprove,
   updatePropertyStatusToReject,
-  togglePropertyFavouriteStatus,
+  toggleHighlightProperty,
+  toggleFavouriteProperty,
 };
