@@ -6,6 +6,7 @@ import { BookingServices } from './booking.service';
 const confirmBooking = catchAsync(async (req, res) => {
   const result = await BookingServices.confirmBookingToDB(
     req?.user,
+    req?.body,
     req?.params?.propertyId,
   );
 

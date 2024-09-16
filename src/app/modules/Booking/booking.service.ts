@@ -7,7 +7,11 @@ import { Booking } from './booking.model';
 import stripe from '../../config/stripe';
 import { IBooking } from './booking.interface';
 
-const confirmBookingToDB = async (user: JwtPayload, payload: IBooking) => {
+const confirmBookingToDB = async (
+  user: JwtPayload,
+  payload: IBooking,
+  propertyId: string,
+) => {
   // Retrieve and verify the PaymentIntent
   const paymentIntent = await stripe.paymentIntents.retrieve(
     payload?.transactionId,
@@ -21,13 +25,13 @@ const confirmBookingToDB = async (user: JwtPayload, payload: IBooking) => {
   }
 
   // Find the property based on ID
-  const existingProperty = await Property.findById(payload?.propertyId);
+  const existingProperty = await Property.findById(propertyId);
 
   // Ensure the property exists
   if (!existingProperty) {
     throw new ApiError(
       httpStatus.NOT_FOUND,
-      `Property with ID: ${payload?.propertyId} not found!`,
+      `Property with ID: ${propertyId} not found!`,
     );
   }
 
@@ -35,7 +39,7 @@ const confirmBookingToDB = async (user: JwtPayload, payload: IBooking) => {
   if (existingProperty.isBooked) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      `Property with ID: ${payload?.propertyId} is already booked.`,
+      `Property with ID: ${propertyId} is already booked.`,
     );
   }
 
@@ -78,7 +82,7 @@ const confirmBookingToDB = async (user: JwtPayload, payload: IBooking) => {
   existingProperty.isBooked = true;
   await existingProperty.save();
 
-  return { booking };
+  return booking;
 };
 
 export const BookingServices = {
