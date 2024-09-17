@@ -58,6 +58,20 @@ const getUserProfile = catchAsync(async (req, res) => {
   });
 });
 
+const getUserSubscriptions = catchAsync(async (req, res) => {
+  const result = await UserServices.getUserSubscriptionsByIdFromDB(
+    req?.user,
+    req?.query,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User subscriptions retrieved successfully!',
+    data: result,
+  });
+});
+
 const updateUserProfile = catchAsync(async (req, res) => {
   const result = await UserServices?.updateUserProfileToDB(
     req?.user,
@@ -149,6 +163,7 @@ export const UserControllers = {
   getUsers,
   getAdmins,
   getUserProfile,
+  getUserSubscriptions,
   updateUserProfile,
   getUserProfileById,
   getPartialUserProfileById,

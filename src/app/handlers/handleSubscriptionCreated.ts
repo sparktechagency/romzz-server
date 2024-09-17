@@ -40,6 +40,7 @@ const handleSubscriptionCreated = async (
         // Find the current active subscription
         const currentActiveSubscription = await Subscription.findOne({
           userId: existingUser._id,
+          status: 'active',
         });
 
         if (currentActiveSubscription) {

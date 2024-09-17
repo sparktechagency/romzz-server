@@ -40,6 +40,11 @@ router.get(
   validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   UserControllers.getUserProfile,
 );
+router.get(
+  '/subscriptions',
+  validateAuth(USER_ROLE.USER),
+  UserControllers.getUserSubscriptions,
+);
 
 router.patch(
   '/update-profile',

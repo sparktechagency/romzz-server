@@ -21,6 +21,7 @@ import { sendEmail } from '../../helpers/emailService';
 import { Favourite } from '../Favourite/favourite.model';
 import { unlinkFile } from '../../helpers/fileHandler';
 import getPathAfterUploads from '../../helpers/getPathAfterUploads';
+import { Subscription } from '../Subscription/subscription.model';
 
 const createUserToDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
@@ -153,6 +154,32 @@ const getUserProfileFromDB = async (user: JwtPayload) => {
       `User with ID: ${user?.userId} not found!`,
     );
   }
+};
+
+const getUserSubscriptionsByIdFromDB = async (
+  user: JwtPayload,
+  query: Record<string, unknown>,
+) => {
+  // Build the query using QueryBuilder with the given query parameters
+  const usersQuery = new QueryBuilder(
+    Subscription.find({ userId: user?.userId })
+      .populate({
+        path: 'packageId',
+        select:
+          'title price features maxProperties maxHighlightedProperties billingCycle',
+      })
+      .select('status'),
+    query,
+  )
+    .sort() // Apply sorting based on the query parameter
+    .paginate(); // Apply pagination based on the query parameter
+
+  // Get the total count of matching documents and total pages for pagination
+  const meta = await usersQuery.countTotal();
+  // Execute the query to retrieve the users
+  const result = await usersQuery.modelQuery;
+
+  return { meta, result };
 };
 
 const updateUserProfileToDB = async (
@@ -359,6 +386,7 @@ export const UserServices = {
   getAdminsFromDB,
   getUserProfileFromDB,
   getUserProfileByIdFromDB,
+  getUserSubscriptionsByIdFromDB,
   getPartialUserProfileByIdFromDB,
   updateUserProfileToDB,
   toggleUserStatusToDB,
