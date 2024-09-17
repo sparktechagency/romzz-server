@@ -6,8 +6,8 @@ export type TSubscriptionStatus = keyof typeof SUBSCRIPTION_STATUS;
 export interface ISubscription {
   userId: ObjectId;
   customerId: string;
-  priceId: string;
   packageId: ObjectId;
+  amountPaid: number;
   trxId: string;
   status: TSubscriptionStatus;
 }

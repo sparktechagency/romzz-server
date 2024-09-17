@@ -6,7 +6,7 @@ import { Subscription } from '../modules/Subscription/subscription.model';
 import ApiError from '../errors/ApiError';
 import httpStatus from 'http-status';
 
-const handleSubscriptionCreated = async (
+const handleSubscriptionUpdated = async (
   data: Stripe.Subscription | Stripe.Checkout.Session,
 ) => {
   // Retrieve the subscription object from Stripe using the subscription ID
@@ -20,15 +20,11 @@ const handleSubscriptionCreated = async (
   // Extract the price ID from the subscription items
   const priceId = subscription.items.data[0]?.price?.id;
 
-  // Retrieve the invoice associated with the subscription
-  const invoice = await stripe.invoices.retrieve(
-    subscription.latest_invoice as string,
-  );
+  // Retrieve the invoice associated with the subscription to get the transaction ID
+  const invoice = subscription.latest_invoice
+    ? await stripe.invoices.retrieve(subscription.latest_invoice as string)
+    : null;
 
-  // Extract the amount paid
-  const amountPaid = invoice?.total / 100;
-
-  // Extract the amount paid
   const trxId = invoice?.payment_intent;
 
   // If a valid customer email exists, proceed to check the user and pricing plan
@@ -41,17 +37,18 @@ const handleSubscriptionCreated = async (
       const pricingPlan = await PricingPlan.findOne({ priceId });
 
       if (pricingPlan) {
-        // Check for existing active subscriptions for the user
+        // Find the current active subscription for the user
         const currentActiveSubscription = await Subscription.findOne({
           userId: existingUser._id,
           status: 'active',
         });
 
         if (currentActiveSubscription) {
-          // If there's already an active subscription, do not create a new one
-          throw new ApiError(
-            httpStatus.CONFLICT,
-            'User already has an active subscription.',
+          // Deactivate the old subscription
+          await Subscription.findByIdAndUpdate(
+            currentActiveSubscription._id,
+            { status: 'deactivated' },
+            { new: true },
           );
         }
 
@@ -61,13 +58,13 @@ const handleSubscriptionCreated = async (
           customerId: customer?.id,
           packageId: pricingPlan._id,
           status: 'active',
-          amountPaid,
+          priceId,
           trxId,
         });
 
         await newSubscription.save();
 
-        // Update the user to reflect an active subscription and access
+        // Update the user to reflect the new active subscription and access
         await User.findByIdAndUpdate(
           existingUser._id,
           {
@@ -99,4 +96,4 @@ const handleSubscriptionCreated = async (
   }
 };
 
-export default handleSubscriptionCreated;
+export default handleSubscriptionUpdated;

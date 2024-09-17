@@ -9,17 +9,17 @@ const subscriptionSchema = new Schema<ISubscription>(
       ref: 'User', // Reference to the 'User' model
       required: true,
     },
+    packageId: {
+      type: Schema.Types.ObjectId, // MongoDB ObjectId type
+      ref: 'PricingPlan', // Reference to the 'User' model
+      required: true,
+    },
     customerId: {
       type: String,
       required: true,
     },
-    priceId: {
-      type: String,
-      required: true,
-    },
-    packageId: {
-      type: Schema.Types.ObjectId, // MongoDB ObjectId type
-      ref: 'PricingPlan', // Reference to the 'User' model
+    amountPaid: {
+      type: Number,
       required: true,
     },
     trxId: {

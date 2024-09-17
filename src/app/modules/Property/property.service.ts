@@ -44,6 +44,7 @@ const createPropertyToDB = async (
   // Retrieve the user's active subscription
   const subscription = await Subscription.findOne({
     userId: user?.userId,
+    status: 'active',
   }).populate<{ packageId: IPricingPlan }>('packageId');
 
   // If no subscription exists, prevent the user from listing properties
@@ -405,6 +406,7 @@ const toggleHighlightPropertyToDB = async (
   // Find the user's subscription and check the limit for highlighted properties
   const subscription = await Subscription.findOne({
     userId: user?.userId,
+    status: 'active',
   }).populate<{
     packageId: IPricingPlan;
   }>('packageId');
