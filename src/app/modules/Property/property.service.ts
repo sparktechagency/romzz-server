@@ -63,14 +63,18 @@ const createPropertyToDB = async (
     );
   }
 
-  // Determine the start and end of the current month
-  const startOfCurrentMonth = startOfMonth(new Date());
-  const endOfCurrentMonth = endOfMonth(new Date());
+  // Determine the start and end of the subscription period
+  const subscriptionStartDate = subscription.createdAt;
+  const startOfSubscriptionPeriod = startOfMonth(subscriptionStartDate);
+  const endOfSubscriptionPeriod = endOfMonth(subscriptionStartDate);
 
   // Count the properties the user has listed this month
   const userPropertyCount = await Property.countDocuments({
     createdBy: user?.userId,
-    createdAt: { $gte: startOfCurrentMonth, $lte: endOfCurrentMonth },
+    createdAt: {
+      $gte: startOfSubscriptionPeriod,
+      $lte: endOfSubscriptionPeriod,
+    },
   });
 
   // Retrieve the property listing limit from the user's subscription plan
@@ -422,10 +426,19 @@ const toggleHighlightPropertyToDB = async (
     );
   }
 
+  // Determine the start and end of the subscription period
+  const subscriptionStartDate = subscription.createdAt;
+  const startOfSubscriptionPeriod = startOfMonth(subscriptionStartDate);
+  const endOfSubscriptionPeriod = endOfMonth(subscriptionStartDate);
+
   // Count the number of highlighted properties the user currently has
   const highlightedCount = await Property.countDocuments({
     createdBy: user?.userId,
     isHighlighted: true,
+    updatedAt: {
+      $gte: startOfSubscriptionPeriod,
+      $lte: endOfSubscriptionPeriod,
+    },
   });
 
   // If the property is already highlighted, we are toggling it off, no need to check the limit

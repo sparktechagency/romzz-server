@@ -10,4 +10,5 @@ export interface ISubscription {
   amountPaid: number;
   trxId: string;
   status: TSubscriptionStatus;
+  createdAt: Date;
 }
