@@ -44,18 +44,31 @@ class QueryBuilder<T> {
   }
 
   // Method to perform a search based on given searchable fields, including populated fields
-  search(searchableFields: string[]) {
+  search(searchableFields: string[], populateFields: string[] = []) {
+    console.log({ searchableFields, populateFields });
     const searchTerm = this?.query?.searchTerm;
 
     if (searchTerm) {
+      // Build the search query for both Property and User fields
+      const searchConditions: Record<string, unknown>[] = searchableFields.map(
+        (field) => ({
+          [field]: { $regex: searchTerm, $options: 'i' },
+        }),
+      );
+
+      // Add search on populated fields if provided
+      if (populateFields.length > 0) {
+        populateFields.forEach((populateField) => {
+          searchConditions.push({
+            [populateField]: { $regex: searchTerm, $options: 'i' },
+          });
+        });
+      }
+
+      // Apply the constructed search query
       this.modelQuery = this.modelQuery.find({
-        $or: searchableFields.map(
-          (field) =>
-            ({
-              [field]: { $regex: searchTerm, $options: 'i' },
-            }) as FilterQuery<T>,
-        ),
-      });
+        $or: searchConditions,
+      } as FilterQuery<T>);
     }
 
     return this;
@@ -118,6 +131,13 @@ class QueryBuilder<T> {
 
     this.modelQuery = this.modelQuery.skip(skip).limit(limit);
 
+    return this;
+  }
+
+  // Populate method to handle user joining
+  populate(populateOptions: { path: string; select: string }) {
+    console.log({ populateOptions });
+    this.modelQuery = this.modelQuery.populate(populateOptions);
     return this;
   }
 

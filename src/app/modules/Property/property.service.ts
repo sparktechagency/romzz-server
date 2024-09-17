@@ -179,14 +179,15 @@ const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
       isBooked: false,
       isHighlighted: false,
     })
-      .populate({
-        path: 'createdBy',
-        select: 'avatar rating',
-      })
+
       .select('propertyImages price priceType title category location'),
     query,
   )
-    .search(PropertySearchableFields) // Search within searchable fields
+    .populate({
+      path: 'createdBy',
+      select: 'avatar rating email',
+    })
+    .search(['createdBy.email']) // Search within searchable fields
     .filter() // Apply general filters
     .sort() // Apply sorting
     .paginate(); // Apply pagination
