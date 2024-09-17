@@ -9,6 +9,7 @@ import httpStatus from 'http-status';
 import {
   MAX_PROPERTY_IMAGES,
   propertyFieldsToExclude,
+  PropertySearchableFields,
 } from './property.constant';
 import { Favourite } from '../Favourite/favourite.model';
 import { unlinkFile, unlinkFiles } from '../../helpers/fileHandler';
@@ -184,7 +185,7 @@ const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
       .select('propertyImages price priceType title category location'),
     query,
   )
-    .search(['address']) // Search within searchable fields
+    .search(PropertySearchableFields) // Search within searchable fields
     .filter() // Apply general filters
     .sort() // Apply sorting
     .paginate(); // Apply pagination
@@ -414,6 +415,14 @@ const toggleHighlightPropertyToDB = async (
   }).populate<{
     packageId: IPricingPlan;
   }>('packageId');
+
+  // If no subscription exists, prevent the user from listing properties
+  if (!subscription) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      'No subscription found. Please subscribe to list properties.',
+    );
+  }
 
   const maxHighlightedProperties =
     subscription?.packageId?.maxHighlightedProperties;

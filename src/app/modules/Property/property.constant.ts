@@ -1,6 +1,6 @@
 import { IProperty } from './property.interface';
 
-export const PropertySearchableFields = ['email', 'presentAddress'];
+export const PropertySearchableFields = ['location.address', 'presentAddress'];
 
 export const MAX_PROPERTY_IMAGES = 11;
 

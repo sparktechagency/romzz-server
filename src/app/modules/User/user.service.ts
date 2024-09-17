@@ -22,6 +22,7 @@ import { Favourite } from '../Favourite/favourite.model';
 import { unlinkFile } from '../../helpers/fileHandler';
 import getPathAfterUploads from '../../helpers/getPathAfterUploads';
 import { Subscription } from '../Subscription/subscription.model';
+import { Property } from '../Property/property.model';
 
 const createUserToDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
@@ -245,17 +246,27 @@ const getUserProfileByIdFromDB = async (userId: string) => {
   return existingUser;
 };
 
-const getPartialUserProfileByIdFromDB = async (userId: string) => {
+const getUserPartialProfileByIdFromDB = async (userId: string) => {
   // Fetch user profile
   const existingUser = await User.findById(userId).select(
-    'fullName email avatar coverImage permanentAddress rating',
+    'fullName avatar coverImage permanentAddress rating',
   ); // Adjust fields as necessary
 
   if (!existingUser) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found!');
   }
 
-  return existingUser;
+  // Count the number of booked properties
+  const bookedPropertiesCount = await Property.countDocuments({
+    createdBy: userId,
+    isBooked: true,
+  });
+
+  // Return user profile along with the booked property count
+  return {
+    ...existingUser.toObject(),
+    bookedPropertiesCount,
+  };
 };
 
 const toggleUserStatusToDB = async (
@@ -387,7 +398,7 @@ export const UserServices = {
   getUserProfileFromDB,
   getUserProfileByIdFromDB,
   getUserSubscriptionsByIdFromDB,
-  getPartialUserProfileByIdFromDB,
+  getUserPartialProfileByIdFromDB,
   updateUserProfileToDB,
   toggleUserStatusToDB,
   calculateUserProfileProgressFromDB,

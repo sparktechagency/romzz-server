@@ -5,8 +5,6 @@ import { userValidationSchema } from './user.validation';
 import validateAuth from '../../middlewares/validateAuth';
 import { upload } from '../../helpers/uploadConfig';
 import { USER_ROLE } from './user.constant';
-import ApiError from '../../errors/ApiError';
-import httpStatus from 'http-status';
 
 const router = Router();
 
@@ -55,13 +53,8 @@ router.patch(
   ]),
 
   (req: Request, res: Response, next: NextFunction) => {
-    // Parse 'data' from body if it exists
-    try {
-      req.body = JSON.parse(req?.body?.data);
-    } catch (error) {
-      return next(
-        new ApiError(httpStatus.BAD_REQUEST, `Invalid JSON data: ${error}`),
-      );
+    if (req.body && req?.body?.data) {
+      return next((req.body = JSON.parse(req?.body?.data)));
     }
 
     next();
@@ -75,7 +68,7 @@ router.get(
   UserControllers.getUserProfileById,
 );
 
-router.get('/partial-profile/:id', UserControllers.getPartialUserProfileById);
+router.get('/partial-profile/:id', UserControllers.getUserPartialProfile);
 
 // Route to update user status to block or unblock
 router.patch(

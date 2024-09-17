@@ -98,8 +98,8 @@ const getUserProfileById = catchAsync(async (req, res) => {
   });
 });
 
-const getPartialUserProfileById = catchAsync(async (req, res) => {
-  const result = await UserServices.getPartialUserProfileByIdFromDB(
+const getUserPartialProfile = catchAsync(async (req, res) => {
+  const result = await UserServices.getUserPartialProfileByIdFromDB(
     req?.params?.id,
   );
 
@@ -166,7 +166,7 @@ export const UserControllers = {
   getUserSubscriptions,
   updateUserProfile,
   getUserProfileById,
-  getPartialUserProfileById,
+  getUserPartialProfile,
   toggleUserStatus,
   getUserProfileProgress,
   getUserFavouriteProperties,
