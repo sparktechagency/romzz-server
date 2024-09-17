@@ -12,10 +12,10 @@ import { Property } from '../Property/property.model';
 import { Request, Response } from 'express';
 import config from '../../config';
 import Stripe from 'stripe';
-import { PricingPlan } from '../PricingPlan/pricingPlan.model';
-import { Subscription } from '../Subscription/subscription.model';
 import logger from '../../logger/winston.logger';
 import colors from 'colors';
+import handleSubscriptionCreated from '../../handlers/handleSubscriptionCreated';
+import handleSubscriptionDeleted from '../../handlers/handleSubscriptionDeleted';
 
 export const handleStripeWebhook = async (req: Request, res: Response) => {
   // Extract the Stripe signature from the request header
@@ -50,114 +50,13 @@ export const handleStripeWebhook = async (req: Request, res: Response) => {
   // Handle different types of events based on the eventType
   try {
     switch (eventType) {
-      case 'checkout.session.completed': {
-        // When a checkout session is completed, handle subscription creation
-        const session = await stripe.checkout.sessions.retrieve(data?.id, {
-          expand: ['line_items'],
-        });
-
-        // Retrieve the customer object associated with the session
-        const customer = (await stripe.customers.retrieve(
-          session.customer as string,
-        )) as Stripe.Customer;
-
-        // Extract line items from the session to get the associated price ID
-        const lineItems = session.line_items?.data ?? [];
-        const priceId = lineItems[0]?.price?.id;
-
-        // If a valid customer email exists, proceed to check the user and pricing plan
-        if (customer?.email) {
-          // Check if a user with the given email exists
-          const existingUser = await User.findOne({ email: customer?.email });
-
-          if (existingUser) {
-            // Find the pricing plan associated with the priceId
-            const pricingPlan = await PricingPlan.findOne({ priceId });
-
-            if (pricingPlan) {
-              // Create a new subscription record in the database
-              const newSubscription = new Subscription({
-                userId: existingUser?._id,
-                customerId: customer?.id,
-                packageId: pricingPlan?._id,
-                priceId,
-              });
-
-              await newSubscription.save();
-
-              // Update the user to reflect an active subscription and access
-              await User.findByIdAndUpdate(
-                existingUser?._id, // Find the user by their ID
-                {
-                  isSubscribed: true, // Update the isSubscribed field
-                  hasAccess: true, // Update the hasAccess field
-                },
-                { new: true }, // Return the updated document
-              );
-            } else {
-              // If the pricing plan is not found, return a not found error
-              throw new ApiError(
-                httpStatus.NOT_FOUND,
-                `Pricing plan with Price ID: ${priceId} not found!`,
-              );
-            }
-          } else {
-            // If the user is not found, return a descriptive error
-            throw new ApiError(
-              httpStatus.NOT_FOUND,
-              `User with Email: ${customer.email} not found!`,
-            );
-          }
-        } else {
-          // If no email is associated with the customer, return a bad request error
-          throw new ApiError(
-            httpStatus.BAD_REQUEST,
-            'No email found for the customer!',
-          );
-        }
+      case 'customer.subscription.created':
+        await handleSubscriptionCreated(data);
         break;
-      }
 
-      case 'customer.subscription.deleted': {
-        // Handle subscription deletion (e.g., cancellation or failed payment)
-        const subscription = await stripe.subscriptions.retrieve(data?.id);
-
-        // Find the subscription record in the database based on the customer ID
-        const userSubscription = await Subscription.findOne({
-          customerId: subscription.customer as string,
-        });
-
-        if (userSubscription) {
-          // Find the user associated with the subscription
-          const existingUser = await User.findById(userSubscription.userId);
-
-          if (existingUser) {
-            // Disable access for the user by updating the relevant fields
-            await User.findByIdAndUpdate(
-              existingUser?._id, // Find the user by their ID
-              {
-                isSubscribed: false, // Update the isSubscribed field
-                hasAccess: false, // Update the hasAccess field
-              },
-              { new: true }, // Return the updated document
-            );
-          } else {
-            // If the user is not found, return a descriptive error
-            throw new ApiError(
-              httpStatus.NOT_FOUND,
-              `User with ID: ${userSubscription?.userId} not found.`,
-            );
-          }
-        } else {
-          // If the subscription is not found, return a not found error
-          throw new ApiError(
-            httpStatus.NOT_FOUND,
-            `Subscription with Customer ID: ${subscription?.customer} not found.`,
-          );
-        }
-
+      case 'customer.subscription.deleted':
+        await handleSubscriptionDeleted(data);
         break;
-      }
 
       default:
         // Unhandled event type

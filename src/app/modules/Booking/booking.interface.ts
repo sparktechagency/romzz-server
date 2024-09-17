@@ -10,6 +10,6 @@ export interface IBooking {
   adminFee: number;
   payoutAmount: number;
   checkInDate: Date;
-  transactionId: string;
+  trxId: string;
   status: TBookingStatus;
 }

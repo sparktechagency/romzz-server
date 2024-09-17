@@ -30,7 +30,7 @@ const bookingSchema = new Schema<IBooking>(
       type: Number,
       required: true,
     },
-    transactionId: {
+    trxId: {
       type: String,
       required: true,
     },

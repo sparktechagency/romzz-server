@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { ISubscription } from './subscription.interface';
+import { SUBSCRIPTION_STATUS } from './subscription.constant';
 
 const subscriptionSchema = new Schema<ISubscription>(
   {
@@ -20,6 +21,14 @@ const subscriptionSchema = new Schema<ISubscription>(
       type: Schema.Types.ObjectId, // MongoDB ObjectId type
       ref: 'PricingPlan', // Reference to the 'User' model
       required: true,
+    },
+    trxId: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: Object.values(SUBSCRIPTION_STATUS),
     },
   },
   { timestamps: true }, // Automatically adds createdAt and updatedAt timestamps to the schema
