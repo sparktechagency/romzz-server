@@ -30,6 +30,7 @@ interface ILocation {
 }
 
 export interface IProperty {
+  _id: ObjectId;
   createdBy: ObjectId;
   ownerType: TOwnerType;
   ownershipImages: string[];

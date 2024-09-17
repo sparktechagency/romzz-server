@@ -15,9 +15,7 @@ const confirmBookingToDB = async (
   propertyId: string,
 ) => {
   // Retrieve and verify the PaymentIntent
-  const paymentIntent = await stripe.paymentIntents.retrieve(
-    payload?.transactionId,
-  );
+  const paymentIntent = await stripe.paymentIntents.retrieve(payload?.trxId);
 
   if (paymentIntent?.status !== 'succeeded') {
     throw new ApiError(
@@ -75,7 +73,7 @@ const confirmBookingToDB = async (
     totalAmount: totalAmount / 100,
     payoutAmount: payoutAmount / 100,
     adminFee: adminFee / 100,
-    transactionId: payload.transactionId,
+    trxId: payload.trxId,
     checkInDate: payload.checkInDate,
     status: 'confirmed',
   });

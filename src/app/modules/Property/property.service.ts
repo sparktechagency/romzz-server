@@ -21,6 +21,7 @@ import { User } from '../User/user.model';
 import { Subscription } from '../Subscription/subscription.model';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { IPricingPlan } from '../PricingPlan/pricingPlan.interface';
+import { Booking } from '../Booking/booking.model';
 
 const createPropertyToDB = async (
   user: JwtPayload,
@@ -157,7 +158,7 @@ const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
       .select('status'),
     query,
   )
-    .search(['address']) // Apply search conditions based on searchable fields
+    .search(PropertySearchableFields) // Apply search conditions based on searchable fields
     .sort() // Apply sorting based on the query parameter
     .paginate(); // Apply pagination based on the query parameter
 
@@ -217,7 +218,7 @@ const getHighlightedPropertiesFromDB = async () => {
 const getPropertyByIdFromDB = async (propertyId: string) => {
   // Find the Review by ID and populate the userId field
   const result = await Property.findById(propertyId)
-    .select('-status')
+    .select('-status -isHighlighted')
     .populate({
       path: 'createdBy',
       select: 'fullName avatar',
@@ -238,16 +239,56 @@ const getPropertyByIdFromDB = async (propertyId: string) => {
   return result;
 };
 
-const getPropertyByUserIdFromDB = async (userId: string) => {
-  const result = await Property.find({ createdBy: userId })
-    .populate({
-      path: 'createdBy',
-      select: 'avatar',
-    })
-    .select(
-      'propertyImages price priceType title category location status createdAt',
-    );
-  return result;
+const getPropertyByUserIdFromDB = async (
+  userId: string,
+  query: Record<string, unknown>,
+) => {
+  // Build the query using QueryBuilder with the given query parameters
+  const propertiesQuery = new QueryBuilder(
+    Property.find({ createdBy: userId })
+      .populate({
+        path: 'createdBy',
+        select: 'avatar',
+      })
+      .select('propertyImages price priceType title category location status'),
+    query,
+  ).paginate(); // Apply pagination based on the query parameter
+
+  // Get the total count of matching documents and total pages for pagination
+  const meta = await propertiesQuery.countTotal();
+
+  // Execute the query to retrieve the properties
+  const properties = await propertiesQuery.modelQuery;
+
+  // Extract property IDs
+  const propertyIds = properties?.map((property) => property?._id);
+
+  // Find bookings for properties with status 'booked'
+  const bookings = await Booking.find({
+    propertyId: { $in: propertyIds },
+  }).populate({
+    path: 'userId',
+    select: 'avatar fullName',
+  });
+
+  // Map bookings to their respective properties
+  const propertiesWithBookings = properties?.map((property) => {
+    if (property?.isBooked) {
+      const propertyBookings = bookings.filter(
+        (booking) =>
+          booking?.propertyId?.toString() === property?._id?.toString(),
+      );
+      return {
+        ...property,
+        bookedInfo: propertyBookings.map((booking) => ({
+          booking,
+        })),
+      };
+    }
+    return property;
+  });
+
+  return { meta, data: propertiesWithBookings };
 };
 
 const updatePropertyByIdToDB = async (
