@@ -5,7 +5,7 @@ import router from './app/routes';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
 import notFound from './app/middlewares/notFound';
 import requestLogger from './app/logger/morgan.logger';
-import { handleStripeWebhook } from './app/modules/Subscription/subscription.service';
+import { handleStripeWebhook } from './app/modules/Stripe/stripe.service';
 
 const app = express();
 
