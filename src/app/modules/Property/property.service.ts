@@ -221,7 +221,12 @@ const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
   };
 
   // Apply search conditions
-  applySearch(['title', 'location.address', 'facilityDetails.name']);
+  applySearch([
+    'title',
+    'location.address',
+    'createdBy.rating',
+    'facilityDetails.name',
+  ]);
 
   // Apply filter conditions
   applyFilters();

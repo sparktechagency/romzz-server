@@ -4,11 +4,7 @@ import sendResponse from '../../utils/sendResponse';
 import { StripeServices } from './stripe.service';
 
 const createConnectAccount = catchAsync(async (req, res) => {
-  const result = await StripeServices.createConnectAccount(
-    req?.user,
-    req?.body,
-    req?.files,
-  );
+  const result = await StripeServices.createConnectAccount(req?.user);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,

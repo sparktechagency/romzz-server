@@ -4,11 +4,14 @@ import Stripe from 'stripe';
 import stripe from '../config/stripe';
 import ApiError from '../errors/ApiError';
 import httpStatus from 'http-status';
-import handleSubscriptionCreated from '../handlers/handleSubscriptionCreated';
-import handleSubscriptionUpdated from '../handlers/handleSubscriptionUpdated';
-import handleSubscriptionDeleted from '../handlers/handleSubscriptionDeleted';
 import logger from '../logger/winston.logger';
 import colors from 'colors';
+import {
+  handleAccountUpdatedEvent,
+  handleSubscriptionCreated,
+  handleSubscriptionDeleted,
+  handleSubscriptionUpdated,
+} from '../handlers';
 
 const handleStripeWebhook = async (req: Request, res: Response) => {
   // Extract Stripe signature and webhook secret
@@ -35,24 +38,27 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
   }
 
   // Extract event data and type
-  const data = event.data.object as
-    | Stripe.Checkout.Session
-    | Stripe.Subscription;
+  const data = event.data.object as Stripe.Subscription | Stripe.Account;
   const eventType = event.type;
 
   // Handle the event based on its type
   try {
     switch (eventType) {
       case 'customer.subscription.created':
-        await handleSubscriptionCreated(data);
+        await handleSubscriptionCreated(data as Stripe.Subscription);
         break;
 
       case 'customer.subscription.updated':
-        await handleSubscriptionUpdated(data);
+        await handleSubscriptionUpdated(data as Stripe.Subscription);
         break;
 
       case 'customer.subscription.deleted':
-        await handleSubscriptionDeleted(data);
+        await handleSubscriptionDeleted(data as Stripe.Subscription);
+        break;
+
+      case 'account.updated':
+        await handleAccountUpdatedEvent(data as Stripe.Account);
+
         break;
 
       default:

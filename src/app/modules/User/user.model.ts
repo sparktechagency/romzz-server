@@ -48,7 +48,7 @@ const userSchema = new Schema<IUser, UserModel>(
       accountId: {
         type: String,
       },
-      accountDashboardUrl: {
+      loginUrl: {
         type: String,
       },
     },

@@ -5,9 +5,7 @@ import { User } from '../modules/User/user.model';
 import ApiError from '../errors/ApiError';
 import httpStatus from 'http-status';
 
-const handleSubscriptionDeleted = async (
-  data: Stripe.Subscription | Stripe.Checkout.Session,
-) => {
+export const handleSubscriptionDeleted = async (data: Stripe.Subscription) => {
   // Retrieve the subscription from Stripe
   const subscription = await stripe.subscriptions.retrieve(data.id);
 
@@ -52,5 +50,3 @@ const handleSubscriptionDeleted = async (
     );
   }
 };
-
-export default handleSubscriptionDeleted;

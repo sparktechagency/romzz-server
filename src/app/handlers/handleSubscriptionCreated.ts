@@ -6,9 +6,7 @@ import { Subscription } from '../modules/Subscription/subscription.model';
 import ApiError from '../errors/ApiError';
 import httpStatus from 'http-status';
 
-const handleSubscriptionCreated = async (
-  data: Stripe.Subscription | Stripe.Checkout.Session,
-) => {
+export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
   // Retrieve the subscription from Stripe
   const subscription = await stripe.subscriptions.retrieve(data.id);
 
@@ -94,5 +92,3 @@ const handleSubscriptionCreated = async (
     );
   }
 };
-
-export default handleSubscriptionCreated;

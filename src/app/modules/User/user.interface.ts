@@ -9,7 +9,7 @@ export type TGender = keyof typeof GENDER;
 
 interface IStripeAccountInfo {
   accountId: string;
-  accountDashboardUrl: string;
+  loginUrl: string;
 }
 
 // Interface representing a User document in MongoDB

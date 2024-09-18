@@ -24,7 +24,6 @@ const subscriptionSchema = new Schema<ISubscription>(
     },
     trxId: {
       type: String,
-      required: true,
     },
     status: {
       type: String,

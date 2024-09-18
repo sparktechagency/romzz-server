@@ -7,9 +7,7 @@ import ApiError from '../errors/ApiError';
 import httpStatus from 'http-status';
 import { IPricingPlan } from '../modules/PricingPlan/pricingPlan.interface';
 
-const handleSubscriptionUpdated = async (
-  data: Stripe.Subscription | Stripe.Checkout.Session,
-) => {
+export const handleSubscriptionUpdated = async (data: Stripe.Subscription) => {
   // Retrieve the subscription from Stripe
   const subscription = await stripe.subscriptions.retrieve(data.id);
 
@@ -112,5 +110,3 @@ const handleSubscriptionUpdated = async (
     );
   }
 };
-
-export default handleSubscriptionUpdated;
