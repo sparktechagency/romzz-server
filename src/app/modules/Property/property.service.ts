@@ -22,6 +22,7 @@ import { Subscription } from '../Subscription/subscription.model';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { IPricingPlan } from '../PricingPlan/pricingPlan.interface';
 import { Booking } from '../Booking/booking.model';
+import { IQueryParams } from '../../interfaces/query.interface';
 
 const createPropertyToDB = async (
   user: JwtPayload,
@@ -171,32 +172,124 @@ const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
   return { meta, data };
 };
 
-const getApprovedPropertiesFromDB = async (query: Record<string, unknown>) => {
-  // Build the query using QueryBuilder with the given query parameters
-  const propertiesQuery = new QueryBuilder(
-    Property.find({
-      isApproved: true,
-      isBooked: false,
-      isHighlighted: false,
-    })
+const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
+  // Default search term is an empty string
+  const searchTerm = query.searchTerm || '';
 
-      .select('propertyImages price priceType title category location'),
-    query,
-  )
-    .populate({
-      path: 'createdBy',
-      select: 'avatar rating email',
-    })
-    .search(['createdBy.email']) // Search within searchable fields
-    .filter() // Apply general filters
-    .sort() // Apply sorting
-    .paginate(); // Apply pagination
+  // Define the initial match conditions
+  const matchConditions: Record<string, any> = {
+    isApproved: true,
+    isBooked: false,
+    isHighlighted: false,
+  };
 
-  // Get the total count of matching documents and total pages for pagination
-  const meta = await propertiesQuery.countTotal();
+  const applySearch = (searchableFields: string[]) => {
+    if (searchTerm) {
+      const searchConditions = searchableFields.map((field) => ({
+        [field]: { $regex: searchTerm, $options: 'i' },
+      }));
+      matchConditions.$or = searchConditions;
+    }
+  };
 
-  // Execute the query to retrieve the reviews
-  const data = await propertiesQuery.modelQuery;
+  const applyFilters = () => {
+    const queryObj = { ...query };
+    const excludeFields = ['searchTerm', 'sort', 'limit', 'page'];
+
+    // Remove excluded fields
+    excludeFields.forEach((el) => delete queryObj[el as keyof IQueryParams]);
+
+    // Process query parameters
+    for (const key in queryObj) {
+      const value = queryObj[key as keyof IQueryParams];
+
+      if (typeof value === 'string') {
+        if (value.includes(',')) {
+          matchConditions[key] = { $in: value.split(',') };
+        } else if (value.includes('-')) {
+          const [min, max] = value.split('-').map((val) => parseFloat(val));
+
+          if (!isNaN(min) && !isNaN(max)) {
+            matchConditions[key] = { $gte: min, $lte: max };
+          } else {
+            matchConditions[key] = value; // Assign the value directly
+          }
+        } else {
+          matchConditions[key] = value; // Assign the value directly
+        }
+      }
+    }
+  };
+
+  // Apply search conditions
+  applySearch(['title', 'location.address', 'facilityDetails.name']);
+
+  // Apply filter conditions
+  applyFilters();
+
+  // Start building the aggregation pipeline
+  const aggregationPipeline = [
+    {
+      $lookup: {
+        from: 'users', // The name of the User collection
+        localField: 'createdBy', // Field in Property collection
+        foreignField: '_id', // Field in User collection
+        as: 'createdBy', // Name for the populated field
+      },
+    },
+    {
+      $unwind: {
+        path: '$createdBy',
+        preserveNullAndEmptyArrays: true, // Keep properties without a createdBy reference
+      },
+    },
+    {
+      $match: matchConditions, // Apply search conditions
+    },
+    {
+      $project: {
+        propertyImages: 1,
+        price: 1,
+        priceType: 1,
+        title: 1,
+        category: 1,
+        location: 1,
+        createdBy: {
+          avatar: 1,
+          rating: 1,
+          email: 1,
+        },
+      },
+    },
+  ];
+
+  // Add sorting if provided
+  const sort = (query.sort as string)?.split(',')?.join(' ') || '-createdAt';
+  aggregationPipeline.push({
+    $sort: sort
+      .split(' ')
+      .reduce((acc: Record<string, 1 | -1>, field: string) => {
+        acc[field.replace('-', '')] = field.startsWith('-') ? -1 : 1;
+        return acc;
+      }, {}),
+  } as any);
+
+  // Execute the aggregation
+  const data = await Property.aggregate(aggregationPipeline);
+
+  // Pagination parameters
+  const total = await Property.countDocuments(matchConditions);
+  const page = Number(query?.page) || 1;
+  const limit = Number(query?.limit) || 10;
+  const totalPage = Math.ceil(total / limit);
+
+  // Prepare meta information
+  const meta = {
+    total,
+    page,
+    limit,
+    totalPage,
+  };
 
   return { meta, data };
 };
