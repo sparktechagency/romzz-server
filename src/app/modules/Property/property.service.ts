@@ -31,7 +31,6 @@ const createPropertyToDB = async (
   // Calculate the user's profile completion progress
   const { progress } =
     await UserServices.calculateUserProfileProgressFromDB(user);
-
   // Check if the user's profile is fully completed (100%)
   if (progress < 100) {
     throw new ApiError(
