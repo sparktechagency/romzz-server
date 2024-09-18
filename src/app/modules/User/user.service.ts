@@ -23,6 +23,7 @@ import { unlinkFile } from '../../helpers/fileHandler';
 import getPathAfterUploads from '../../helpers/getPathAfterUploads';
 import { Subscription } from '../Subscription/subscription.model';
 import { Property } from '../Property/property.model';
+import getLatAndLngFromAddress from '../../helpers/getLatAndLngFromAddress';
 
 const createUserToDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
@@ -31,6 +32,17 @@ const createUserToDB = async (payload: IUser) => {
       httpStatus.CONFLICT,
       'A user with this email already exists!',
     );
+  }
+
+  // Convert address to latitude and longitude
+  if (payload?.permanentLocation?.address) {
+    const { address, latitude, longitude } = await getLatAndLngFromAddress(
+      payload?.permanentLocation?.address,
+    );
+
+    payload.permanentLocation.address = address;
+    payload.permanentLocation.latitude = latitude;
+    payload.permanentLocation.longitude = longitude;
   }
 
   // Set default values for new users
@@ -197,6 +209,28 @@ const updateUserProfileToDB = async (
       httpStatus.FORBIDDEN,
       'You do not have permission to update this property!',
     );
+  }
+
+  // Convert address to latitude and longitude
+  if (payload?.permanentLocation?.address) {
+    const { address, latitude, longitude } = await getLatAndLngFromAddress(
+      payload?.permanentLocation?.address,
+    );
+
+    payload.permanentLocation.address = address;
+    payload.permanentLocation.latitude = latitude;
+    payload.permanentLocation.longitude = longitude;
+  }
+
+  // Convert address to latitude and longitude
+  if (payload?.presentLocation?.address) {
+    const { address, latitude, longitude } = await getLatAndLngFromAddress(
+      payload?.presentLocation?.address,
+    );
+
+    payload.presentLocation.address = address;
+    payload.presentLocation.latitude = latitude;
+    payload.presentLocation.longitude = longitude;
   }
 
   // Handle avatar update if a new avatar is uploaded

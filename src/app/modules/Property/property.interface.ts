@@ -11,6 +11,7 @@ import {
   PROPERTY_TYPE,
   STATUS,
 } from './property.constant';
+import { ILocation } from '../../interfaces/location.interface';
 
 export type TOwnerType = keyof typeof OWNER_TYPE;
 export type TCategory = keyof typeof CATEGORY;
@@ -22,12 +23,6 @@ export type TAllowedGender = keyof typeof ALLOWED_GENDER;
 export type TGuestType = keyof typeof GUEST_TYPE;
 export type TOccupation = keyof typeof OCCUPATION;
 export type TStatus = keyof typeof STATUS;
-
-interface ILocation {
-  address: string;
-  latitude: string;
-  longitude: string;
-}
 
 export interface IProperty {
   _id: ObjectId;

@@ -1,7 +1,12 @@
 import { IUser } from './user.interface';
 
 // Fields that can be searched in user queries.
-export const UserSearchableFields = ['email', 'presentAddress'];
+export const UserSearchableFields = [
+  'fullName',
+  'email',
+  'phoneNumber',
+  'presentLocation.address',
+];
 
 export const PROFILE_CRITERIA = {
   avatar: 'Avatar',

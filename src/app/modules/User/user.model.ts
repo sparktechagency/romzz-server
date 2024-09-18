@@ -55,11 +55,34 @@ const userSchema = new Schema<IUser, UserModel>(
     passwordChangedAt: {
       type: Date,
     },
-    permanentAddress: {
-      type: String,
+    permanentLocation: {
+      address: {
+        type: String,
+        required: true,
+      },
+      latitude: {
+        type: Number,
+        required: true,
+      },
+      longitude: {
+        type: Number,
+        required: true,
+      },
     },
-    presentAddress: {
+    presentLocation: {
       type: String,
+      address: {
+        type: String,
+        required: true,
+      },
+      latitude: {
+        type: Number,
+        required: true,
+      },
+      longitude: {
+        type: Number,
+        required: true,
+      },
     },
     rating: {
       type: Number,

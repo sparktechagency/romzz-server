@@ -1,3 +1,4 @@
+import { ILocation } from '../../interfaces/location.interface';
 import { GENDER, USER_ROLE, USER_STATUS } from './user.constant';
 import { Model, ObjectId } from 'mongoose';
 
@@ -24,8 +25,8 @@ export interface IUser {
   gender: TGender;
   password: string;
   passwordChangedAt: Date;
-  permanentAddress: string;
-  presentAddress: string;
+  permanentLocation: ILocation;
+  presentLocation: ILocation;
   stripeAccountInfo: IStripeAccountInfo;
   rating: number;
   role: TUserRole;

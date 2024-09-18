@@ -1,7 +1,5 @@
 import { IProperty } from './property.interface';
 
-export const PropertySearchableFields = ['location.address', 'presentAddress'];
-
 export const MAX_PROPERTY_IMAGES = 11;
 
 // Define fields that cannot be updated by the user
