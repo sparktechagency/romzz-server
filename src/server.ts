@@ -5,11 +5,9 @@ import seedSuperAdmin from './app/DB';
 import logger from './app/logger/winston.logger';
 import colors from 'colors';
 import seedUsers from './app/seeds/user.seeds';
-import seedFacilities from './app/seeds/facility.seeds';
 import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { initializeSocket } from './app/socket';
-import seedProperties from './app/seeds/property.seeds';
 
 let server: HttpServer;
 
@@ -22,8 +20,8 @@ async function main() {
     // Seed data
     seedSuperAdmin();
     seedUsers();
-    seedFacilities();
-    seedProperties();
+    // seedFacilities();
+    // seedProperties();
 
     logger.info(
       colors.bgGreen.bold(

@@ -219,8 +219,29 @@ const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
   // Apply filter conditions
   applyFilters();
 
+  // Convert the radius from kilometers to meters (for MongoDB geospatial queries)
+  const radiusInKm = Number(query?.radius);
+  const radiusInMeters = radiusInKm * 1000; // Convert kilometers to meters
+
   // Start building the aggregation pipeline
-  const aggregationPipeline = [
+  const aggregationPipeline = [];
+
+  // Apply geoNear stage if location (lat, lng) is provided
+  if (query?.lat && query?.lng) {
+    aggregationPipeline.push({
+      $geoNear: {
+        near: {
+          type: 'Point',
+          coordinates: [parseFloat(query?.lng), parseFloat(query?.lat)],
+        }, // User's location
+        distanceField: 'distance', // Field to store distance in the result
+        maxDistance: radiusInMeters, // Maximum distance in meters
+        spherical: true, // Use spherical distance calculation
+      },
+    });
+  }
+
+  aggregationPipeline.push(
     {
       $lookup: {
         from: 'users', // The name of the User collection
@@ -253,7 +274,7 @@ const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
         },
       },
     },
-  ];
+  );
 
   // Add sorting if provided
   const sort = (query.sort as string)?.split(',')?.join(' ') || '-createdAt';

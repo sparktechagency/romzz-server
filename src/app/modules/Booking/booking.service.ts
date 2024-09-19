@@ -2,7 +2,6 @@ import { JwtPayload } from 'jsonwebtoken';
 import { Property } from '../Property/property.model';
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
-import { User } from '../User/user.model';
 import { Booking } from './booking.model';
 import stripe from '../../config/stripe';
 import { IBooking } from './booking.interface';
@@ -43,36 +42,25 @@ const confirmBookingToDB = async (
     );
   }
 
-  // Find the user who created the property
-  const propertyCreator = await User.findById(existingProperty.createdBy);
-
   // Ensure the user attempting to book is not the property creator
-  if (user.userId === existingProperty.createdBy.toString()) {
+  if (user?.userId === existingProperty.createdBy.toString()) {
     throw new ApiError(
       httpStatus.FORBIDDEN,
       `You cannot book your own property.`,
     );
   }
 
-  // Ensure the property creator has a connected Stripe account
-  if (!propertyCreator?.stripeAccountInfo?.accountId) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      'Property creator does not have a connected Stripe account!',
-    );
-  }
-
   // Calculate amounts in smallest currency unit (e.g., cents)
-  const totalAmount = existingProperty.price * 100;
+  const totalAmount = paymentIntent.amount / 100;
   const adminFee = totalAmount * 0.2; // 20% fee for admin
   const payoutAmount = totalAmount - adminFee; // 80% payout to property creator
 
   const booking = await Booking.create({
     userId: user?.userId,
     propertyId: existingProperty?._id,
-    totalAmount: totalAmount / 100,
-    payoutAmount: payoutAmount / 100,
-    adminFee: adminFee / 100,
+    totalAmount: totalAmount,
+    payoutAmount: payoutAmount,
+    adminFee: adminFee,
     trxId: payload.trxId,
     checkInDate: payload.checkInDate,
     status: 'confirmed',

@@ -19,17 +19,7 @@ const createConnectAccount = async (user: JwtPayload) => {
 
   // Create a Stripe connected account using the token
   const account = await stripe.accounts.create({
-    controller: {
-      losses: {
-        payments: 'application',
-      },
-      fees: {
-        payer: 'application',
-      },
-      stripe_dashboard: {
-        type: 'express',
-      },
-    },
+    type: 'express',
   });
 
   // // Create an account link for onboarding
@@ -57,8 +47,7 @@ const createPaymentIntent = async (
   payload: { propertyId: string },
 ) => {
   // Calculate user profile progress
-  const { progress } =
-    await UserServices.calculateUserProfileProgressFromDB(user);
+  const { progress } = await UserServices.getUserProfileProgressFromDB(user);
 
   if (progress < 100) {
     throw new ApiError(
@@ -75,6 +64,14 @@ const createPaymentIntent = async (
     throw new ApiError(
       httpStatus.NOT_FOUND,
       `Property with ID: ${payload?.propertyId} not found!`,
+    );
+  }
+
+  // Ensure the property is approved
+  if (!existingProperty.isApproved) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN, // Use FORBIDDEN status since the property exists but isn't approved
+      `Property with ID: ${payload?.propertyId} is not approved yet.`,
     );
   }
 
@@ -97,14 +94,6 @@ const createPaymentIntent = async (
     );
   }
 
-  // Ensure the property creator has a connected Stripe account
-  if (!propertyCreator?.stripeAccountInfo?.accountId) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      'Property creator does not have a connected Stripe account!',
-    );
-  }
-
   const amountInCents = Math.round(existingProperty?.price * 100);
 
   const paymentIntent = await stripe.paymentIntents.create({
@@ -115,8 +104,9 @@ const createPaymentIntent = async (
     },
     application_fee_amount: amountInCents * 0.2,
     transfer_data: {
-      destination: propertyCreator?.stripeAccountInfo?.accountId,
+      destination: propertyCreator?.stripeAccountInfo?.accountId as string,
     },
+    on_behalf_of: propertyCreator?.stripeAccountInfo?.accountId as string,
   });
 
   return paymentIntent?.client_secret;

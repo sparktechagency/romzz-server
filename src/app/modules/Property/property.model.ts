@@ -200,6 +200,9 @@ const propertySchema = new Schema<IProperty>(
   { timestamps: true },
 );
 
+// Add a 2dsphere index for location
+propertySchema.index({ location: '2dsphere' });
+
 // Method to remove sensitive fields before returning property object as JSON
 propertySchema.methods.toJSON = function () {
   const propertyObject = this.toObject();
