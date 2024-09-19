@@ -256,7 +256,7 @@ const getUserBookedPropertiesFromDB = async (
         path: 'propertyId',
         select: 'propertyImages price priceType title category location',
       })
-      .select('userId propertyId'),
+      .select('propertyId'),
     query,
   ).paginate(); // Apply pagination based on the query parameter
 

@@ -18,7 +18,7 @@ router.get(
 );
 
 router.get(
-  '/revenues-count/:year',
+  '/revenue-count/:year',
   validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
   DashboardControllers.getRevenueCountsByYear,
 );

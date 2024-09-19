@@ -10,38 +10,54 @@ const getDashboardMetricsFromDB = async () => {
   const todayEnd = endOfDay(new Date());
 
   // Get total users
-  const totalUser = await User.countDocuments({
+  const totalUsers = await User.countDocuments({
     role: 'USER',
     isVerified: true,
   });
 
-  const todayUser = await User.countDocuments({
+  // Get today's users
+  const todayUsers = await User.countDocuments({
     role: 'USER',
     isVerified: true,
     createdAt: { $gte: todayStart, $lte: todayEnd },
   });
 
-  // Get total donors
-  const totalDoner = await Payment.countDocuments();
+  // Get total bookings
+  const totalBookings = await Booking.countDocuments();
 
-  // Get donors created today
-  const todayDoner = await Payment.countDocuments({
+  // Get today's bookings
+  const todayBookings = await Booking.countDocuments({
     createdAt: { $gte: todayStart, $lte: todayEnd },
   });
 
-  // Get total donation amount
-  const totalDonationResult = await Payment.aggregate([
+  // Aggregate total revenue from subscriptions
+  const totalSubscriptionRevenueResult = await Subscription.aggregate([
     {
       $group: {
         _id: null,
-        totalAmount: { $sum: '$amount' },
+        totalRevenue: { $sum: '$amountPaid' },
       },
     },
   ]);
-  const totalDonation = totalDonationResult[0]?.totalAmount || 0;
+  const totalSubscriptionRevenue =
+    totalSubscriptionRevenueResult[0]?.totalRevenue || 0;
 
-  // Get donations created today
-  const todayDonationResult = await Payment.aggregate([
+  // Aggregate total revenue from bookings
+  const totalBookingRevenueResult = await Booking.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalRevenue: { $sum: '$adminFee' },
+      },
+    },
+  ]);
+  const totalBookingRevenue = totalBookingRevenueResult[0]?.totalRevenue || 0;
+
+  // Get total revenue
+  const totalRevenue = totalSubscriptionRevenue + totalBookingRevenue;
+
+  // Aggregate today's revenue from subscriptions
+  const todaySubscriptionRevenueResult = await Subscription.aggregate([
     {
       $match: {
         createdAt: { $gte: todayStart, $lte: todayEnd },
@@ -50,19 +66,39 @@ const getDashboardMetricsFromDB = async () => {
     {
       $group: {
         _id: null,
-        todayAmount: { $sum: '$amount' },
+        todayRevenue: { $sum: '$amountPaid' },
       },
     },
   ]);
-  const todayDonation = todayDonationResult[0]?.todayAmount || 0;
+  const todaySubscriptionRevenue =
+    todaySubscriptionRevenueResult[0]?.todayRevenue || 0;
+
+  // Aggregate today's revenue from bookings
+  const todayBookingRevenueResult = await Booking.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: todayStart, $lte: todayEnd },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        todayRevenue: { $sum: '$adminFee' },
+      },
+    },
+  ]);
+  const todayBookingRevenue = todayBookingRevenueResult[0]?.todayRevenue || 0;
+
+  // Get today's total revenue
+  const todayRevenue = todaySubscriptionRevenue + todayBookingRevenue;
 
   return {
-    totalUser,
-    todayUser,
-    totalDoner,
-    todayDoner,
-    totalDonation,
-    todayDonation,
+    totalUsers,
+    todayUsers,
+    totalBookings,
+    todayBookings,
+    totalRevenue,
+    todayRevenue,
   };
 };
 
