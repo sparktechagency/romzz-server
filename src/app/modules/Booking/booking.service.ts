@@ -75,7 +75,7 @@ const confirmBookingToDB = async (
   return booking;
 };
 
-const getBookingsFromDB = async (query: Record<string, unknown>) => {
+const getBookingsHistoryFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const bookingsQuery = new QueryBuilder(
     Booking.find()
@@ -107,5 +107,5 @@ const getBookingsFromDB = async (query: Record<string, unknown>) => {
 
 export const BookingServices = {
   confirmBookingToDB,
-  getBookingsFromDB,
+  getBookingsHistoryFromDB,
 };

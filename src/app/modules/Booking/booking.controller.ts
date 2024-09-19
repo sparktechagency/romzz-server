@@ -18,18 +18,18 @@ const confirmBooking = catchAsync(async (req, res) => {
   });
 });
 
-const getBookings = catchAsync(async (req, res) => {
-  const result = await BookingServices.getBookingsFromDB(req?.query);
+const getBookingsHistory = catchAsync(async (req, res) => {
+  const result = await BookingServices.getBookingsHistoryFromDB(req?.query);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
-    message: 'Bookings retrived successfully!',
+    message: 'Bookings history retrived successfully!',
     data: result,
   });
 });
 
 export const BookingControllers = {
   confirmBooking,
-  getBookings,
+  getBookingsHistory,
 };

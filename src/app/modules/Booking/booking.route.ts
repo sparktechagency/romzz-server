@@ -8,7 +8,7 @@ const router = Router();
 router.get(
   '/',
   validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
-  BookingControllers.getBookings,
+  BookingControllers.getBookingsHistory,
 );
 
 router.post(

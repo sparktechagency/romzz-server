@@ -25,6 +25,7 @@ import { Subscription } from '../Subscription/subscription.model';
 import { Property } from '../Property/property.model';
 import getLatAndLngFromAddress from '../../helpers/getLatAndLngFromAddress';
 import { PricingPlan } from '../PricingPlan/pricingPlan.model';
+import { Booking } from '../Booking/booking.model';
 
 const createUserToDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
@@ -170,7 +171,7 @@ const getUserProfileFromDB = async (user: JwtPayload) => {
   }
 };
 
-const getUserSubscriptionsByIdFromDB = async (
+const getUserSubscriptionsFromDB = async (
   user: JwtPayload,
   query: Record<string, unknown>,
 ) => {
@@ -242,6 +243,30 @@ const getUserSubscriptionsByIdFromDB = async (
   );
 
   return { meta, result };
+};
+
+const getUserBookedPropertiesFromDB = async (
+  user: JwtPayload,
+  query: Record<string, unknown>,
+) => {
+  // Build the query using QueryBuilder with the given query parameters
+  const bookingsQuery = new QueryBuilder(
+    Booking.find({ userId: user.userId })
+      .populate({
+        path: 'propertyId',
+        select: 'propertyImages price priceType title category location',
+      })
+      .select('userId propertyId'),
+    query,
+  ).paginate(); // Apply pagination based on the query parameter
+
+  // Get the total count of matching documents and total pages for pagination
+  const meta = await bookingsQuery.countTotal();
+
+  // Execute the query to retrieve the reviews
+  const data = await bookingsQuery.modelQuery;
+
+  return { meta, data };
 };
 
 const updateUserProfileToDB = async (
@@ -487,7 +512,8 @@ export const UserServices = {
   getAdminsFromDB,
   getUserProfileFromDB,
   getUserProfileByIdFromDB,
-  getUserSubscriptionsByIdFromDB,
+  getUserSubscriptionsFromDB,
+  getUserBookedPropertiesFromDB,
   getUserPartialProfileByIdFromDB,
   updateUserProfileToDB,
   toggleUserStatusToDB,

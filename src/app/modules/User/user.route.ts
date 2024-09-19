@@ -44,6 +44,12 @@ router.get(
   UserControllers.getUserSubscriptions,
 );
 
+router.get(
+  '/booked-properties',
+  validateAuth(USER_ROLE.USER),
+  UserControllers.getUserBookedProperties,
+);
+
 router.patch(
   '/update-profile',
   validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
@@ -68,7 +74,7 @@ router.get(
   UserControllers.getUserProfileById,
 );
 
-router.get('/partial-profile/:id', UserControllers.getUserPartialProfile);
+router.get('/partial-profile/:id', UserControllers.getUserPartialProfileById);
 
 // Route to update user status to block or unblock
 router.patch(

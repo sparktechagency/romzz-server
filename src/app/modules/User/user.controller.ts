@@ -59,7 +59,7 @@ const getUserProfile = catchAsync(async (req, res) => {
 });
 
 const getUserSubscriptions = catchAsync(async (req, res) => {
-  const result = await UserServices.getUserSubscriptionsByIdFromDB(
+  const result = await UserServices.getUserSubscriptionsFromDB(
     req?.user,
     req?.query,
   );
@@ -68,6 +68,20 @@ const getUserSubscriptions = catchAsync(async (req, res) => {
     statusCode: httpStatus.OK,
     success: true,
     message: 'User subscriptions retrieved successfully!',
+    data: result,
+  });
+});
+
+const getUserBookedProperties = catchAsync(async (req, res) => {
+  const result = await UserServices.getUserBookedPropertiesFromDB(
+    req?.user,
+    req?.query,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User booked properties retrieved successfully!',
     data: result,
   });
 });
@@ -88,7 +102,7 @@ const updateUserProfile = catchAsync(async (req, res) => {
 });
 
 const getUserProfileById = catchAsync(async (req, res) => {
-  const result = await UserServices.getUserProfileByIdFromDB(req?.params?.id);
+  const result = await UserServices?.getUserProfileByIdFromDB(req?.params?.id);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -98,7 +112,7 @@ const getUserProfileById = catchAsync(async (req, res) => {
   });
 });
 
-const getUserPartialProfile = catchAsync(async (req, res) => {
+const getUserPartialProfileById = catchAsync(async (req, res) => {
   const result = await UserServices.getUserPartialProfileByIdFromDB(
     req?.params?.id,
   );
@@ -162,9 +176,10 @@ export const UserControllers = {
   getAdmins,
   getUserProfile,
   getUserSubscriptions,
+  getUserBookedProperties,
   updateUserProfile,
   getUserProfileById,
-  getUserPartialProfile,
+  getUserPartialProfileById,
   toggleUserStatus,
   getUserProfileProgress,
   getUserFavouriteProperties,
