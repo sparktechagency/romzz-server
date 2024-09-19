@@ -81,13 +81,14 @@ const getBookingsFromDB = async (query: Record<string, unknown>) => {
     Booking.find()
       .populate({
         path: 'userId',
-        select: 'avatar fullName email',
+        select: 'avatar fullName email phoneNumber permanentLocation',
       })
       .populate({
         path: 'propertyId',
+        select: 'createdBy',
         populate: {
           path: 'createdBy',
-          select: 'avatar fullName email',
+          select: 'avatar fullName email phoneNumber permanentLocation',
         },
       }),
     query,
