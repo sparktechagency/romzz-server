@@ -370,7 +370,7 @@ const getPropertyByUserIdFromDB = async (
   // Extract property IDs
   const propertyIds = properties?.map((property) => property?._id);
 
-  // Find bookings for properties with status 'booked'
+  // Find bookings for properties
   const bookings = await Booking.find({
     propertyId: { $in: propertyIds },
   }).populate({
@@ -379,20 +379,22 @@ const getPropertyByUserIdFromDB = async (
   });
 
   // Map bookings to their respective properties
-  const propertiesWithBookings = properties?.map((property) => {
-    if (property?.isBooked) {
-      const propertyBookings = bookings.filter(
-        (booking) =>
-          booking?.propertyId?.toString() === property?._id?.toString(),
-      );
-      return {
-        ...property,
-        bookedInfo: propertyBookings.map((booking) => ({
-          booking,
-        })),
-      };
-    }
-    return property;
+  const propertiesWithBookings = properties.map((property) => {
+    // Find the booking for the current property
+    const booking = bookings.find(
+      (booking) => booking.propertyId.toString() === property._id.toString(),
+    );
+
+    return {
+      ...property.toObject(), // Convert property to plain object
+      bookedInfo: booking
+        ? {
+            _id: booking.userId._id,
+            fullName: booking.userId.fullName,
+            avatar: booking.userId.avatar,
+          }
+        : null, // Set to null if there is no booking
+    };
   });
 
   return { meta, data: propertiesWithBookings };
