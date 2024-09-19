@@ -15,8 +15,9 @@ export const PROFILE_CRITERIA = {
   phoneNumber: 'Phone Number',
   nidNumber: 'NID Number',
   ineNumber: 'INE Number',
-  permanentAddress: 'Permanent Address',
-  presentAddress: 'Present Address',
+  permanentLocation: 'Permanent Location',
+  presentLocation: 'Present Location',
+  stripeAccountInfo: 'Stripe Account Info',
 } as const;
 
 // Fields that cannot be updated by the user.

@@ -34,9 +34,11 @@ const createUserSchema = z.object({
       invalid_type_error: 'Password must be a string.',
     }),
 
-    permanentAddress: z.string({
-      required_error: 'Permanent address is required.',
-      invalid_type_error: 'Permanent address must be a string.',
+    permanentLocation: z.object({
+      address: z.string({
+        required_error: 'Permanent address is required.',
+        invalid_type_error: 'Permanent address must be a string.',
+      }),
     }),
   }),
 });

@@ -354,11 +354,19 @@ const toggleUserStatusToDB = async (
   return existingUser;
 };
 
-const calculateUserProfileProgressFromDB = async (user: JwtPayload) => {
+const getUserProfileProgressFromDB = async (user: JwtPayload) => {
   const existingUser = await User.findById(user?.userId);
 
   if (!existingUser) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found!');
+  }
+
+  // Clone PROFILE_CRITERIA to allow conditional modifications
+  const profileCriteria = { ...PROFILE_CRITERIA };
+
+  // Conditionally add the 'Stripe Account Info' field if the user has subscription
+  if (existingUser?.isSubscribed) {
+    profileCriteria.stripeAccountInfo = 'Stripe Account Info'; // Optional addition
   }
 
   // Calculate progress based on criteria
@@ -369,7 +377,7 @@ const calculateUserProfileProgressFromDB = async (user: JwtPayload) => {
   ).length;
 
   return {
-    progress: (completedSteps / totalSteps) * 100, // Percentage of profile completion
+    progress: Math.floor((completedSteps / totalSteps) * 100), // Percentage of profile completion
     totalSteps,
     completedSteps,
   };
@@ -435,6 +443,6 @@ export const UserServices = {
   getUserPartialProfileByIdFromDB,
   updateUserProfileToDB,
   toggleUserStatusToDB,
-  calculateUserProfileProgressFromDB,
+  getUserProfileProgressFromDB,
   getUserFavouritePropertiesFromDB,
 };

@@ -132,9 +132,7 @@ const toggleUserStatus = catchAsync(async (req, res) => {
 });
 
 const getUserProfileProgress = catchAsync(async (req, res) => {
-  const progress = await UserServices.calculateUserProfileProgressFromDB(
-    req?.user,
-  );
+  const progress = await UserServices.getUserProfileProgressFromDB(req?.user);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
