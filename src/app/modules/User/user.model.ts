@@ -70,7 +70,6 @@ const userSchema = new Schema<IUser, UserModel>(
       },
     },
     presentLocation: {
-      type: String,
       address: {
         type: String,
         required: true,

@@ -16,7 +16,6 @@ import { NotificationServices } from '../Notification/notification.service';
 import getPathAfterUploads from '../../helpers/getPathAfterUploads';
 import getLatAndLngFromAddress from '../../helpers/getLatAndLngFromAddress';
 import { UserServices } from '../User/user.service';
-import { User } from '../User/user.model';
 import { Subscription } from '../Subscription/subscription.model';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { IPricingPlan } from '../PricingPlan/pricingPlan.interface';
@@ -29,8 +28,8 @@ const createPropertyToDB = async (
   files: any,
 ) => {
   // Calculate the user's profile completion progress
-  const { progress } =
-    await UserServices.calculateUserProfileProgressFromDB(user);
+  const { progress } = await UserServices.getUserProfileProgressFromDB(user);
+
   // Check if the user's profile is fully completed (100%)
   if (progress < 100) {
     throw new ApiError(
@@ -38,9 +37,6 @@ const createPropertyToDB = async (
       `Complete your profile before booking. Current progress: ${progress}%.`,
     );
   }
-
-  // Retrieve the user's account info from the database
-  const existingUser = await User.findById(user?.userId);
 
   // Retrieve the user's active subscription
   const subscription = await Subscription.findOne({
@@ -53,14 +49,6 @@ const createPropertyToDB = async (
     throw new ApiError(
       httpStatus.FORBIDDEN,
       'No subscription found. Please subscribe to list properties.',
-    );
-  }
-
-  // Check if the user has completed their Stripe account setup
-  if (!existingUser?.stripeAccountInfo?.accountId) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      'Complete your Stripe account setup to list a property.',
     );
   }
 
@@ -91,6 +79,7 @@ const createPropertyToDB = async (
 
   // Assign the user ID who is creating the property
   payload.createdBy = user?.userId;
+  payload.subscriptionId = subscription._id;
 
   // Set default values for new properties
   payload.status = 'pending';

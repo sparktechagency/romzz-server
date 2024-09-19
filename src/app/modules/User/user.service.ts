@@ -24,6 +24,7 @@ import getPathAfterUploads from '../../helpers/getPathAfterUploads';
 import { Subscription } from '../Subscription/subscription.model';
 import { Property } from '../Property/property.model';
 import getLatAndLngFromAddress from '../../helpers/getLatAndLngFromAddress';
+import { PricingPlan } from '../PricingPlan/pricingPlan.model';
 
 const createUserToDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
@@ -174,23 +175,71 @@ const getUserSubscriptionsByIdFromDB = async (
   query: Record<string, unknown>,
 ) => {
   // Build the query using QueryBuilder with the given query parameters
-  const usersQuery = new QueryBuilder(
+  const subscriptionsQuery = new QueryBuilder(
     Subscription.find({ userId: user?.userId })
       .populate({
         path: 'packageId',
         select:
           'title price features maxProperties maxHighlightedProperties billingCycle',
       })
-      .select('status'),
+      .select('status'), // Select only the status to optimize the query
     query,
   )
     .sort() // Apply sorting based on the query parameter
     .paginate(); // Apply pagination based on the query parameter
 
   // Get the total count of matching documents and total pages for pagination
-  const meta = await usersQuery.countTotal();
-  // Execute the query to retrieve the users
-  const result = await usersQuery.modelQuery;
+  const meta = await subscriptionsQuery.countTotal();
+  // Execute the query to retrieve the subscriptions
+  const subscriptions = await subscriptionsQuery.modelQuery;
+
+  // Calculate dynamic values and remaining postings
+  const result = await Promise.all(
+    subscriptions?.map(async (subscription: any) => {
+      const { status, packageId } = subscription;
+
+      // Retrieve package details
+      const packageDetails = await PricingPlan.findById(packageId).select(
+        'maxProperties maxHighlightedProperties',
+      );
+
+      const { maxProperties = 0, maxHighlightedProperties = 0 } =
+        packageDetails || {};
+
+      // Calculate dynamic values for properties posted
+      const propertiesPosted = await Property.countDocuments({
+        createdBy: user?.userId,
+        subscriptionId: subscriptions?._id,
+      });
+
+      const highlightedPropertiesPosted = await Property.countDocuments({
+        createdBy: user?.userId,
+        subscriptionId: subscriptions?._id,
+        isHighlighted: true,
+      });
+
+      // Show remaining postings only for active subscriptions; default to 0 otherwise
+      if (status === 'active') {
+        return {
+          ...subscription.toObject(),
+          remainingProperties: Math.max(
+            (maxProperties as number) - propertiesPosted,
+            0,
+          ),
+          remainingHighlightedProperties: Math.max(
+            maxHighlightedProperties - highlightedPropertiesPosted,
+            0,
+          ),
+        };
+      }
+
+      return {
+        ...subscription.toObject(),
+        remainingProperties: 0,
+        remainingHighlightedProperties: 0,
+      };
+    }),
+  );
 
   return { meta, result };
 };
@@ -356,7 +405,6 @@ const toggleUserStatusToDB = async (
 
 const getUserProfileProgressFromDB = async (user: JwtPayload) => {
   const existingUser = await User.findById(user?.userId);
-
   if (!existingUser) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found!');
   }

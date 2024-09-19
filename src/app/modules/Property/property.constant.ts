@@ -4,6 +4,8 @@ export const MAX_PROPERTY_IMAGES = 11;
 
 // Define fields that cannot be updated by the user
 export const propertyFieldsToExclude: (keyof IProperty)[] = [
+  'createdBy',
+  'subscriptionId',
   'ownerType',
   'ownerNumber',
   'ownershipImages',
@@ -16,7 +18,6 @@ export const propertyFieldsToExclude: (keyof IProperty)[] = [
   'flore',
   'propertyType',
   'bedType',
-  'createdBy',
   'status',
   'isApproved',
   'isBooked',

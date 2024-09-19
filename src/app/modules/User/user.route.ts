@@ -53,10 +53,10 @@ router.patch(
   ]),
 
   (req: Request, res: Response, next: NextFunction) => {
-    if (req.body && req?.body?.data) {
-      return next((req.body = JSON.parse(req?.body?.data)));
+    // Parse body data only if 'data' field exists
+    if (req?.body?.data) {
+      req.body = JSON.parse(req.body.data);
     }
-
     next();
   },
   UserControllers.updateUserProfile,

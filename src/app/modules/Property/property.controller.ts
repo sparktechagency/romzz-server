@@ -65,6 +65,7 @@ const getPropertyById = catchAsync(async (req, res) => {
 const getPropertyByUserId = catchAsync(async (req, res) => {
   const result = await PropertyServices.getPropertyByUserIdFromDB(
     req?.params?.userId,
+    req?.query,
   );
 
   sendResponse(res, {

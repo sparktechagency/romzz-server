@@ -21,6 +21,11 @@ const propertySchema = new Schema<IProperty>(
       ref: 'User', // Reference to the 'User' model
       required: true,
     },
+    subscriptionId: {
+      type: Schema.Types.ObjectId, // MongoDB ObjectId type
+      ref: 'Subscription', // Reference to the 'User' model
+      required: true,
+    },
     ownerType: {
       type: String,
       enum: Object.values(OWNER_TYPE),
