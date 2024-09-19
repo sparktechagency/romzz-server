@@ -18,6 +18,7 @@ import { ConversationRoutes } from '../modules/Conversation/conversation.route';
 import { StripeRoutes } from '../modules/Stripe/stripe.route';
 import { BookingRoutes } from '../modules/Booking/booking.route';
 import { SubscriptionRoutes } from '../modules/Subscription/subscription.route';
+import { DashboardRoutes } from '../modules/Dashboard/dashboard.route';
 
 const router = Router();
 
@@ -35,6 +36,7 @@ const routes = [
   { path: '/subscriptions', route: SubscriptionRoutes },
 
   // Dashboard
+  { path: '/dashboard', route: DashboardRoutes },
   { path: '/facilities', route: FacilityRoutes },
   { path: '/sliders', route: SliderRoutes },
   { path: '/our-story', route: OurStoryRoutes },

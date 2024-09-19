@@ -36,22 +36,6 @@ export const userFieldsToExclude: (keyof IUser)[] = [
   'stripeAccountInfo',
 ];
 
-// Array of month names
-export const monthNames = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
-
 // User roles within the system.
 export const USER_ROLE = {
   USER: 'USER',
