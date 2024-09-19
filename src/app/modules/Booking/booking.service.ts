@@ -68,6 +68,8 @@ const confirmBookingToDB = async (
 
   // Mark the property as booked
   existingProperty.isBooked = true;
+  existingProperty.status = 'booked';
+
   await existingProperty.save();
 
   return booking;
