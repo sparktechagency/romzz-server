@@ -57,7 +57,6 @@ router.patch(
     { name: 'avatar', maxCount: 1 }, // Single avatar image
     { name: 'coverImage', maxCount: 1 }, // Single cover image
   ]),
-
   (req: Request, res: Response, next: NextFunction) => {
     // Parse body data only if 'data' field exists
     if (req?.body?.data) {
