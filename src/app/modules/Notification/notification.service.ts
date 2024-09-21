@@ -106,6 +106,23 @@ const notifyPropertyRejectionFromDB = async (userId: string) => {
   await sendNotificationToUserFromDB(url, message, userId);
 };
 
+const notifyPropertyBookingFromDB = async (
+  ownerId: string, // User who listed the property (owner)
+  bookingUserId: string, // User who booked the property
+  propertyId: string, // Booked property ID
+) => {
+  // Construct a message and a URL for the property
+  const url = `/property/${propertyId}`;
+  const message = `Your property has been booked by a user.`;
+  const bookingMessage = `You have successfully booked the property.`;
+
+  // Notify the owner of the property
+  await sendNotificationToUserFromDB(url, message, ownerId);
+
+  // Optional: Notify the booking user as well
+  await sendNotificationToUserFromDB(url, bookingMessage, bookingUserId);
+};
+
 const getAllNotificationsByIdFromDB = async (
   user: JwtPayload,
   query: Record<string, unknown>,
@@ -147,6 +164,7 @@ export const NotificationServices = {
   notifyPropertyCreationFromDB,
   notifyPropertyApprovalFromDB,
   notifyPropertyRejectionFromDB,
+  notifyPropertyBookingFromDB,
   getAllNotificationsByIdFromDB,
   markAllNotificationsAsSeenByIdFromDB,
   markAllNotificationsAsReadByIdFromDB,

@@ -7,6 +7,7 @@ import stripe from '../../config/stripe';
 import { IBooking } from './booking.interface';
 import { UserSearchableFields } from '../User/user.constant';
 import QueryBuilder from '../../builder/QueryBuilder';
+import { NotificationServices } from '../Notification/notification.service';
 
 const confirmBookingToDB = async (
   user: JwtPayload,
@@ -71,6 +72,13 @@ const confirmBookingToDB = async (
   existingProperty.status = 'booked';
 
   await existingProperty.save();
+
+  // Notify admins and superadmins of new property creation
+  await NotificationServices.notifyPropertyBookingFromDB(
+    existingProperty.createdBy.toString(), // ownerId
+    user?.userId, // bookingUserId
+    propertyId, // propertyId
+  );
 
   return booking;
 };
