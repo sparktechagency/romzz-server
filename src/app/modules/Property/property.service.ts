@@ -21,6 +21,7 @@ import { endOfMonth, startOfMonth } from 'date-fns';
 import { IPricingPlan } from '../PricingPlan/pricingPlan.interface';
 import { Booking } from '../Booking/booking.model';
 import { IQueryParams } from '../../interfaces/query.interface';
+import { Types } from 'mongoose';
 
 const createPropertyToDB = async (
   user: JwtPayload,
@@ -165,16 +166,21 @@ const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
 
   // Define the initial match conditions
   const matchConditions: Record<string, any> = {
-    isApproved: true,
-    isBooked: false,
-    isHighlighted: false,
+    isApproved: true, // Must be approved
+    isBooked: false, // Must not be booked
+    isHighlighted: false, // Must not be highlighted
+    'createdBy.isSubscribed': true, // Creator must be subscribed
+    'createdBy.hasAccess': true, // Creator must have access
   };
 
   const applySearch = (searchableFields: string[]) => {
+    // If a search term is provided
     if (searchTerm) {
+      // Create regex conditions for each field
       const searchConditions = searchableFields.map((field) => ({
-        [field]: { $regex: searchTerm, $options: 'i' },
+        [field]: { $regex: searchTerm, $options: 'i' }, // Case-insensitive match
       }));
+      // Combine conditions with OR logic
       matchConditions.$or = searchConditions;
     }
   };
@@ -190,31 +196,52 @@ const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
     for (const key in queryObj) {
       const value = queryObj[key as keyof IQueryParams];
 
-      if (typeof value === 'string') {
-        if (value.includes(',')) {
-          matchConditions[key] = { $in: value.split(',') };
-        } else if (value.includes('-')) {
-          const [min, max] = value.split('-').map((val) => parseFloat(val));
+      // Handle facilities as either a single value or comma-separated IDs
+      if (key === 'facilities' && typeof value === 'string') {
+        const facilityIds = value.split(',');
+        matchConditions[key] =
+          facilityIds.length === 1
+            ? new Types.ObjectId(facilityIds[0])
+            : { $in: facilityIds.map((id) => new Types.ObjectId(id)) }; // Convert to ObjectId
+      }
 
-          if (!isNaN(min) && !isNaN(max)) {
-            matchConditions[key] = { $gte: min, $lte: max };
-          } else {
-            matchConditions[key] = value; // Assign the value directly
-          }
+      // Handle ratings for specific values or comma-separated values inside createdBy
+      else if (key === 'rating' && typeof value === 'string') {
+        if (value.includes(',')) {
+          // Handle specific ratings (e.g., '4,5')
+          const ratingValues = value.split(',').map(Number);
+          matchConditions['createdBy.rating'] = {
+            $in: ratingValues.map((rating) => ({
+              $gte: rating,
+              $lt: rating + 1, // Capture up to 4.99 for 4, etc.
+            })),
+          };
         } else {
-          matchConditions[key] = value; // Assign the value directly
+          // Handle single value for ratings (e.g., '4')
+          const rating = Number(value);
+          matchConditions['createdBy.rating'] = {
+            $gte: rating,
+            $lt: rating + 1, // Capture up to 4.99 for 4
+          };
         }
+      }
+
+      // Handle range values (e.g., '500-1500')
+      else if (typeof value === 'string' && value.includes('-')) {
+        const [min, max] = value.split('-').map(Number);
+        matchConditions[key] =
+          !isNaN(min) && !isNaN(max) ? { $gte: min, $lte: max } : value; // Range filter
+      }
+
+      // Default string assignment
+      else if (typeof value === 'string') {
+        matchConditions[key] = value; // Directly assign string values
       }
     }
   };
 
   // Apply search conditions
-  applySearch([
-    'title',
-    'location.address',
-    'createdBy.rating',
-    'facilityDetails.name',
-  ]);
+  applySearch(['title', 'location.address']);
 
   // Apply filter conditions
   applyFilters();
@@ -258,9 +285,6 @@ const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
     },
     {
       $match: matchConditions, // Apply search conditions
-      // Add conditions to check if user has a subscription and access
-      'createdBy.isSubscribed': true,
-      'createdBy.hasAccess': true,
     },
     {
       $project: {
@@ -270,6 +294,7 @@ const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
         title: 1,
         category: 1,
         location: 1,
+        facilities: 1,
         createdBy: {
           avatar: 1,
           rating: 1,
@@ -293,8 +318,16 @@ const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
   // Execute the aggregation
   const data = await Property.aggregate(aggregationPipeline);
 
+  // Count total properties based on match conditions (after applying lookup)
+  const totalCountPipeline = [
+    ...aggregationPipeline,
+    { $count: 'total' }, // Add count stage to the pipeline
+  ];
+
+  const totalDocuments = await Property.aggregate(totalCountPipeline);
+  const total = totalDocuments.length > 0 ? totalDocuments[0].total : 0;
+
   // Pagination parameters
-  const total = await Property.countDocuments(matchConditions);
   const page = Number(query?.page) || 1;
   const limit = Number(query?.limit) || 10;
   const totalPage = Math.ceil(total / limit);
