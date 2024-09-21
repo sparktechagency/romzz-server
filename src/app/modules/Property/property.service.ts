@@ -344,16 +344,44 @@ const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
 };
 
 const getHighlightedPropertiesFromDB = async () => {
-  const result = Property.find({
-    isApproved: true,
-    isBooked: false,
-    isHighlighted: true,
-  })
-    .populate({
-      path: 'createdBy',
-      select: 'avatar',
-    })
-    .select('propertyImages price priceType title category location');
+  const result = await Property.aggregate([
+    {
+      $lookup: {
+        from: 'users', // The name of the User collection
+        localField: 'createdBy', // Field in Property collection
+        foreignField: '_id', // Field in User collection
+        as: 'createdBy', // Name for the populated field
+      },
+    },
+    {
+      $unwind: {
+        path: '$createdBy',
+        preserveNullAndEmptyArrays: true, // Optional: Keep properties without a createdBy reference
+      },
+    },
+    {
+      $match: {
+        isApproved: true,
+        isBooked: false,
+        isHighlighted: true,
+        'createdBy.isSubscribed': true, // Creator must be subscribed
+        'createdBy.hasAccess': true, // Creator must have access
+      },
+    },
+    {
+      $project: {
+        propertyImages: 1,
+        price: 1,
+        priceType: 1,
+        title: 1,
+        category: 1,
+        location: 1,
+        createdBy: {
+          avatar: 1,
+        },
+      },
+    },
+  ]);
 
   return result;
 };
