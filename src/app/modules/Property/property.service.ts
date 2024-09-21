@@ -23,6 +23,7 @@ import { IPricingPlan } from '../PricingPlan/pricingPlan.interface';
 import { Booking } from '../Booking/booking.model';
 import { IQueryParams } from '../../interfaces/query.interface';
 import { Types } from 'mongoose';
+import { Facility } from '../Facility/facility.model';
 
 const createPropertyToDB = async (
   user: JwtPayload,
@@ -88,6 +89,20 @@ const createPropertyToDB = async (
   payload.isApproved = false;
   payload.isBooked = false;
   payload.isHighlighted = false;
+
+  // Validate facility IDs
+  if (payload?.facilities) {
+    const validFacilities = await Facility.find({
+      _id: { $in: payload?.facilities },
+    });
+
+    if (validFacilities?.length !== payload?.facilities?.length) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'One or more facility IDs are invalid.',
+      );
+    }
+  }
 
   // Initialize location if it doesn't exist
   if (!payload.location) {
@@ -521,6 +536,19 @@ const updatePropertyByIdToDB = async (
     );
   }
 
+  // Validate facility IDs
+  if (payload?.facilities) {
+    const validFacilities = await Facility.find({
+      _id: { $in: payload?.facilities },
+    });
+
+    if (validFacilities?.length !== payload?.facilities?.length) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'One or more facility IDs are invalid.',
+      );
+    }
+  }
   // Initialize updated lists
   let updatedPropertyImages = existingProperty?.propertyImages || [];
 
