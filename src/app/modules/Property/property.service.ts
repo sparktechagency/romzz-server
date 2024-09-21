@@ -258,6 +258,9 @@ const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
     },
     {
       $match: matchConditions, // Apply search conditions
+      // Add conditions to check if user has a subscription and access
+      'createdBy.isSubscribed': true,
+      'createdBy.hasAccess': true,
     },
     {
       $project: {
@@ -352,12 +355,11 @@ const getPropertyByUserIdFromDB = async (
   payload?: { type: 'all' },
 ) => {
   // Define the base query object
-  const findQuery: Record<string, unknown> = { createdBy: userId };
+  let findQuery: Record<string, unknown> = { createdBy: userId };
 
-  // If payload.type is not 'all', apply isApproved and isBooked filters
+  // If payload.type is not 'all', include isApproved and isBooked conditions
   if (payload?.type !== 'all') {
-    findQuery.isApproved = true;
-    findQuery.isBooked = false;
+    findQuery = { ...findQuery, isApproved: true, isBooked: false };
   }
 
   // Build the query using QueryBuilder with the given query parameters
