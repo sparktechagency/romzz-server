@@ -120,7 +120,7 @@ const getUsersFromDB = async (query: Record<string, unknown>) => {
     User.find({
       role: 'USER',
       isVerified: true,
-    }).select('avatar fullName email phoneNumber permanentAddress'),
+    }).select('avatar fullName email phoneNumber permanentLocation'),
     query,
   )
     .search(UserSearchableFields) // Apply search conditions based on searchable fields
@@ -254,7 +254,7 @@ const getUserBookedPropertiesFromDB = async (
     Booking.find({ userId: user.userId })
       .populate({
         path: 'propertyId',
-        select: 'propertyImages price priceType title category location',
+        select: 'propertyImages price priceType title category address',
         populate: {
           path: 'createdBy',
           select: 'avatar',
@@ -348,7 +348,7 @@ const updateUserProfileToDB = async (
 const getUserProfileByIdFromDB = async (userId: string) => {
   // Fetch user profile
   const existingUser = await User.findById(userId).select(
-    'avatar fullName email phoneNumber gender nidNumber ineNumber presentAddress permanentAddress rating status',
+    'avatar fullName email phoneNumber gender nidNumber ineNumber presentLocation permanentLocation rating status',
   ); // Adjust fields as necessary
 
   if (!existingUser) {
@@ -361,7 +361,7 @@ const getUserProfileByIdFromDB = async (userId: string) => {
 const getUserPartialProfileByIdFromDB = async (userId: string) => {
   // Fetch user profile
   const existingUser = await User.findById(userId).select(
-    'fullName avatar coverImage permanentAddress rating',
+    'fullName avatar coverImage permanentLocation rating',
   ); // Adjust fields as necessary
 
   if (!existingUser) {

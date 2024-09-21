@@ -9,6 +9,7 @@ export const propertyFieldsToExclude: (keyof IProperty)[] = [
   'ownerType',
   'ownerNumber',
   'ownershipImages',
+  'address',
   'location',
   'category',
   'price',

@@ -154,7 +154,7 @@ const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
       .select('status'),
     query,
   )
-    .search(['titlle', 'location.address']) // Apply search conditions based on searchable fields
+    .search(['titlle', 'address']) // Apply search conditions based on searchable fields
     .sort() // Apply sorting based on the query parameter
     .paginate(); // Apply pagination based on the query parameter
 
@@ -259,7 +259,7 @@ const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
   };
 
   // Apply search conditions
-  applySearch(['title', 'location.address']);
+  applySearch(['title', 'address']);
 
   // Apply filter conditions
   applyFilters();
@@ -311,7 +311,6 @@ const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
         priceType: 1,
         title: 1,
         address: 1,
-        location: 1,
         facilities: 1,
         createdBy: {
           avatar: 1,
@@ -395,7 +394,7 @@ const getHighlightedPropertiesFromDB = async () => {
         priceType: 1,
         title: 1,
         category: 1,
-        location: 1,
+        address: 1,
         createdBy: {
           avatar: 1,
         },
@@ -450,7 +449,7 @@ const getPropertyByUserIdFromDB = async (
         path: 'createdBy',
         select: 'avatar',
       })
-      .select('propertyImages price priceType title category location status'),
+      .select('propertyImages price priceType title category address status'),
     query,
   ).paginate(); // Apply pagination based on the query parameter
 
