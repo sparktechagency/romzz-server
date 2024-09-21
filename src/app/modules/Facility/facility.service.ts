@@ -6,6 +6,7 @@ import { IFacility } from './facility.interface';
 import { Facility } from './facility.model';
 import { unlinkFile } from '../../helpers/fileHandler';
 import getPathAfterUploads from '../../helpers/getPathAfterUploads';
+import { Property } from '../Property/property.model';
 
 const createFacilityToDB = async (payload: IFacility, file: any) => {
   if (file && file?.path) {
@@ -16,9 +17,28 @@ const createFacilityToDB = async (payload: IFacility, file: any) => {
   return result;
 };
 
-const getFacilitiesFromDB = async () => {
-  const result = await Facility.find();
-  return result;
+const getFacilitiesFromDB = async (payload: { propertyId: string }) => {
+  if (payload?.propertyId) {
+    const existingProperty = await Property.findById(payload.propertyId);
+
+    // Handle case where property is not found
+    if (!existingProperty) {
+      throw new ApiError(
+        httpStatus.NOT_FOUND,
+        `Property with ID: ${payload?.propertyId} not found!`,
+      );
+    }
+
+    const facilities = await Facility.find({
+      _id: { $in: existingProperty?.facilities },
+    });
+
+    return facilities; // Return fetched facilities
+  } else {
+    // If no propertyId is provided, fetch all facilities
+    const result = await Facility.find();
+    return result;
+  }
 };
 
 const updateFacilityByIdFromDB = async (

@@ -18,7 +18,7 @@ const createFacility = catchAsync(async (req, res) => {
 });
 
 const getFacilities = catchAsync(async (req, res) => {
-  const result = await FacilityServices.getFacilitiesFromDB();
+  const result = await FacilityServices.getFacilitiesFromDB(req?.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
