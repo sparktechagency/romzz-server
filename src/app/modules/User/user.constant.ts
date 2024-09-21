@@ -5,7 +5,8 @@ export const UserSearchableFields = [
   'fullName',
   'email',
   'phoneNumber',
-  'presentLocation.address',
+  'nidNumber',
+  'ineNumber',
 ];
 
 export const PROFILE_CRITERIA = {
