@@ -255,6 +255,10 @@ const getUserBookedPropertiesFromDB = async (
       .populate({
         path: 'propertyId',
         select: 'propertyImages price priceType title category location',
+        populate: {
+          path: 'createdBy',
+          select: 'avatar',
+        },
       })
       .select('propertyId'),
     query,
