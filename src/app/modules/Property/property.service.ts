@@ -349,10 +349,20 @@ const getPropertyByIdFromDB = async (propertyId: string) => {
 const getPropertyByUserIdFromDB = async (
   userId: string,
   query: Record<string, unknown>,
+  payload?: { type: 'all' },
 ) => {
+  // Define the base query object
+  const findQuery: Record<string, unknown> = { createdBy: userId };
+
+  // If payload.type is not 'all', apply isApproved and isBooked filters
+  if (payload?.type !== 'all') {
+    findQuery.isApproved = true;
+    findQuery.isBooked = false;
+  }
+
   // Build the query using QueryBuilder with the given query parameters
   const propertiesQuery = new QueryBuilder(
-    Property.find({ createdBy: userId })
+    Property.find(findQuery)
       .populate({
         path: 'createdBy',
         select: 'avatar',
