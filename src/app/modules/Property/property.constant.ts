@@ -2,6 +2,16 @@ import { IProperty } from './property.interface';
 
 export const MAX_PROPERTY_IMAGES = 11;
 
+// Fields that can be searched in property queries.
+export const PropertySearchableFields = [
+  'fullName',
+  'email',
+  'phoneNumber',
+  'nidNumber',
+  'ineNumber',
+  'presentLocation.address',
+];
+
 // Define fields that cannot be updated by the user
 export const propertyFieldsToExclude: (keyof IProperty)[] = [
   'createdBy',

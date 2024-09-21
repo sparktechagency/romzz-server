@@ -9,6 +9,7 @@ import httpStatus from 'http-status';
 import {
   MAX_PROPERTY_IMAGES,
   propertyFieldsToExclude,
+  PropertySearchableFields,
 } from './property.constant';
 import { Favourite } from '../Favourite/favourite.model';
 import { unlinkFile, unlinkFiles } from '../../helpers/fileHandler';
@@ -154,7 +155,7 @@ const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
       .select('status'),
     query,
   )
-    .search(['titlle', 'address']) // Apply search conditions based on searchable fields
+    .search(PropertySearchableFields) // Apply search conditions based on searchable fields
     .sort() // Apply sorting based on the query parameter
     .paginate(); // Apply pagination based on the query parameter
 
@@ -259,7 +260,7 @@ const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
   };
 
   // Apply search conditions
-  applySearch(['title', 'address']);
+  applySearch(PropertySearchableFields);
 
   // Apply filter conditions
   applyFilters();

@@ -66,12 +66,13 @@ const getPropertyByUserId = catchAsync(async (req, res) => {
   const result = await PropertyServices.getPropertyByUserIdFromDB(
     req?.params?.userId,
     req?.query,
+    req?.body,
   );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Property retrieved successfully!',
+    message: 'Properties retrieved successfully!',
     data: result,
   });
 });
