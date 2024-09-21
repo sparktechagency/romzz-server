@@ -18,11 +18,9 @@ export const propertyValidationSchema = z.object({
       invalid_type_error: 'Property title must be a string.',
     }),
 
-    location: z.object({
-      address: z.string({
-        required_error: 'Address is required.',
-        invalid_type_error: 'Address must be a string.',
-      }),
+    address: z.string({
+      required_error: 'Address is required.',
+      invalid_type_error: 'Address must be a string.',
     }),
 
     category: z.enum(['whole-unit', 'room-mate', 'flat-mate', 'house'], {

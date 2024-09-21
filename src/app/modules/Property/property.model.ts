@@ -70,17 +70,17 @@ const propertySchema = new Schema<IProperty>(
     propertyVideo: {
       type: String,
     },
+    address: {
+      type: String,
+      required: true,
+    },
     location: {
-      address: {
+      type: {
         type: String,
         required: true,
       },
-      latitude: {
-        type: Number,
-        required: true,
-      },
-      longitude: {
-        type: Number,
+      coordinates: {
+        type: [Number],
         required: true,
       },
     },
@@ -200,7 +200,7 @@ const propertySchema = new Schema<IProperty>(
   { timestamps: true },
 );
 
-// Add a 2dsphere index for location
+// Create a 2DSphere index on the virtual field
 propertySchema.index({ location: '2dsphere' });
 
 // Method to remove sensitive fields before returning property object as JSON

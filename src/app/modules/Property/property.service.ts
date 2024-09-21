@@ -88,15 +88,22 @@ const createPropertyToDB = async (
   payload.isBooked = false;
   payload.isHighlighted = false;
 
+  // Initialize location if it doesn't exist
+  if (!payload.location) {
+    payload.location = {
+      type: 'Point',
+      coordinates: [], // Initialize coordinates as an empty array
+    };
+  }
+
   // Convert address to latitude and longitude
-  if (payload?.location?.address) {
+  if (payload?.address) {
     const { address, latitude, longitude } = await getLatAndLngFromAddress(
-      payload?.location?.address,
+      payload?.address,
     );
 
-    payload.location.address = address;
-    payload.location.latitude = latitude;
-    payload.location.longitude = longitude;
+    payload.address = address;
+    payload.location.coordinates = [longitude, latitude];
   }
 
   // Extract and map the image file paths
@@ -187,7 +194,15 @@ const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
 
   const applyFilters = () => {
     const queryObj = { ...query };
-    const excludeFields = ['searchTerm', 'sort', 'limit', 'page'];
+    const excludeFields = [
+      'searchTerm',
+      'radius',
+      'lat',
+      'lng',
+      'sort',
+      'limit',
+      'page',
+    ];
 
     // Remove excluded fields
     excludeFields.forEach((el) => delete queryObj[el as keyof IQueryParams]);
@@ -209,13 +224,16 @@ const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
       else if (key === 'rating' && typeof value === 'string') {
         if (value.includes(',')) {
           // Handle specific ratings (e.g., '4,5')
-          const ratingValues = value.split(',').map(Number);
-          matchConditions['createdBy.rating'] = {
-            $in: ratingValues.map((rating) => ({
-              $gte: rating,
-              $lt: rating + 1, // Capture up to 4.99 for 4, etc.
+          const ratings = value.split(',').map(Number);
+
+          matchConditions.$or = (matchConditions.$or || []).concat(
+            ratings.map((rating) => ({
+              'createdBy.rating': {
+                $gte: rating,
+                $lt: rating + 1,
+              },
             })),
-          };
+          );
         } else {
           // Handle single value for ratings (e.g., '4')
           const rating = Number(value);
@@ -246,24 +264,24 @@ const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
   // Apply filter conditions
   applyFilters();
 
-  // Convert the radius from kilometers to meters (for MongoDB geospatial queries)
-  const radiusInKm = Number(query?.radius);
-  const radiusInMeters = radiusInKm * 1000; // Convert kilometers to meters
-
   // Start building the aggregation pipeline
   const aggregationPipeline = [];
 
-  // Apply geoNear stage if location (lat, lng) is provided
-  if (query?.lat && query?.lng) {
+  // Validate and convert latitude and longitude
+  if (query?.radius && query?.lng && query?.lat) {
+    const longitude = Number(query.lng);
+    const latitude = Number(query.lat);
+    const maxDistance = Number(query.radius) * 1000;
+
     aggregationPipeline.push({
       $geoNear: {
         near: {
           type: 'Point',
-          coordinates: [parseFloat(query?.lng), parseFloat(query?.lat)],
-        }, // User's location
-        distanceField: 'distance', // Field to store distance in the result
-        maxDistance: radiusInMeters, // Maximum distance in meters
-        spherical: true, // Use spherical distance calculation
+          coordinates: [longitude, latitude],
+        },
+        distanceField: 'distance',
+        maxDistance: maxDistance,
+        spherical: true,
       },
     });
   }
@@ -292,7 +310,7 @@ const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
         price: 1,
         priceType: 1,
         title: 1,
-        category: 1,
+        address: 1,
         location: 1,
         facilities: 1,
         createdBy: {
@@ -300,12 +318,14 @@ const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
           rating: 1,
           email: 1,
         },
+        distance: 1,
       },
     },
   );
 
   // Add sorting if provided
   const sort = (query.sort as string)?.split(',')?.join(' ') || '-createdAt';
+
   aggregationPipeline.push({
     $sort: sort
       .split(' ')

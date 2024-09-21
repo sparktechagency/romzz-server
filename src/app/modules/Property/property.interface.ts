@@ -11,7 +11,6 @@ import {
   PROPERTY_TYPE,
   STATUS,
 } from './property.constant';
-import { ILocation } from '../../interfaces/location.interface';
 
 export type TOwnerType = keyof typeof OWNER_TYPE;
 export type TCategory = keyof typeof CATEGORY;
@@ -34,7 +33,11 @@ export interface IProperty {
   title: string;
   propertyImages: string[];
   propertyVideo: string;
-  location: ILocation;
+  address: string;
+  location: {
+    type: string;
+    coordinates: number[];
+  };
   category: TCategory;
   price: number;
   priceType: TPriceType;
