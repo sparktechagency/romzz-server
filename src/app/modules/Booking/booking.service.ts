@@ -8,6 +8,7 @@ import { IBooking } from './booking.interface';
 import { UserSearchableFields } from '../User/user.constant';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { NotificationServices } from '../Notification/notification.service';
+import mongoose from 'mongoose';
 
 const confirmBookingToDB = async (
   user: JwtPayload,
@@ -51,36 +52,59 @@ const confirmBookingToDB = async (
     );
   }
 
-  // Calculate amounts in smallest currency unit (e.g., cents)
-  const totalAmount = paymentIntent.amount / 100;
-  const adminFee = totalAmount * 0.2; // 20% fee for admin
-  const payoutAmount = totalAmount - adminFee; // 80% payout to property creator
+  const session = await mongoose.startSession();
 
-  const booking = await Booking.create({
-    userId: user?.userId,
-    propertyId: existingProperty?._id,
-    totalAmount: totalAmount,
-    payoutAmount: payoutAmount,
-    adminFee: adminFee,
-    trxId: payload.trxId,
-    checkInDate: payload.checkInDate,
-    status: 'confirmed',
-  });
+  try {
+    session.startTransaction();
 
-  // Mark the property as booked
-  existingProperty.isBooked = true;
-  existingProperty.status = 'booked';
+    // Calculate amounts in smallest currency unit (e.g., cents)
+    const totalAmount = paymentIntent.amount / 100;
+    const adminFee = totalAmount * 0.2; // 20% fee for admin
+    const payoutAmount = totalAmount - adminFee; // 80% payout to property creator
 
-  await existingProperty.save();
+    const booking = await Booking.create(
+      [
+        {
+          userId: user?.userId,
+          propertyId: existingProperty?._id,
+          totalAmount: totalAmount,
+          payoutAmount: payoutAmount,
+          adminFee: adminFee,
+          trxId: payload.trxId,
+          checkInDate: payload.checkInDate,
+          status: 'confirmed',
+        },
+      ],
+      { session },
+    );
 
-  // Notify admins and superadmins of new property creation
-  await NotificationServices.notifyPropertyBookingFromDB(
-    existingProperty.createdBy.toString(), // ownerId
-    user?.userId, // bookingUserId
-    propertyId, // propertyId
-  );
+    // Mark the property as booked
+    existingProperty.isBooked = true;
+    existingProperty.status = 'booked';
 
-  return booking;
+    await existingProperty.save({ session });
+
+    // Notify admins and superadmins of new property creation
+    await NotificationServices.notifyPropertyBookingFromDB(
+      existingProperty.createdBy.toString(), // ownerId
+      user?.userId, // bookingUserId
+      propertyId, // propertyId
+      session, // session
+    );
+
+    // Commit the transaction
+    await session.commitTransaction();
+    await session.endSession();
+
+    return booking;
+  } catch (error) {
+    // Abort the transaction in case of an error
+    await session.abortTransaction();
+    await session.endSession();
+
+    // Re-throw the error to be handled by the caller
+    throw error;
+  }
 };
 
 const getBookingsHistoryFromDB = async (query: Record<string, unknown>) => {

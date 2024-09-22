@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { JwtPayload } from 'jsonwebtoken';
 import { User } from '../User/user.model'; // Assuming there's a user model
 import { Notification } from './notification.model';
@@ -60,14 +62,18 @@ const sendNotificationToUserFromDB = async (
   url: string | null,
   message: string,
   userId: string,
+  session: any,
 ) => {
-  const notification = await Notification.create({
-    url,
-    message,
-    userId,
-    isSeen: false,
-    isRead: false,
-  });
+  const notification = await Notification.create([
+    {
+      url,
+      message,
+      userId,
+      isSeen: false,
+      isRead: false,
+    },
+    { session },
+  ]);
 
   // Emit notification to a specific
   emitSocketEvent(userId, ChatEvents.NOTIFICATION_EVENT, {
@@ -110,6 +116,7 @@ const notifyPropertyBookingFromDB = async (
   ownerId: string, // User who listed the property (owner)
   bookingUserId: string, // User who booked the property
   propertyId: string, // Booked property ID
+  session: any, // Pass session for transaction
 ) => {
   // Construct a message and a URL for the property
   const url = `/property/${propertyId}`;
@@ -117,10 +124,15 @@ const notifyPropertyBookingFromDB = async (
   const bookingMessage = `You have successfully booked the property.`;
 
   // Notify the owner of the property
-  await sendNotificationToUserFromDB(url, message, ownerId);
+  await sendNotificationToUserFromDB(url, message, ownerId, session);
 
   // Optional: Notify the booking user as well
-  await sendNotificationToUserFromDB(url, bookingMessage, bookingUserId);
+  await sendNotificationToUserFromDB(
+    url,
+    bookingMessage,
+    bookingUserId,
+    session,
+  );
 };
 
 const getAllNotificationsByIdFromDB = async (
