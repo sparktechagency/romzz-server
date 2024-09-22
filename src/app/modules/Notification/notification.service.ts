@@ -1,13 +1,16 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { JwtPayload } from 'jsonwebtoken';
 import { User } from '../User/user.model'; // Assuming there's a user model
 import { Notification } from './notification.model';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { emitSocketEvent } from '../../socket';
 import { ChatEvents } from '../../constants/chat.constant';
+import { ClientSession } from 'mongoose';
 
-const sendNotificationToAdminsFromDB = async (url: string, message: string) => {
+const sendNotificationToAdminsFromDB = async (
+  url: string,
+  message: string,
+  session: ClientSession,
+) => {
   const adminsAndSuperAdmins = await User.find({
     role: { $in: ['ADMIN', 'SUPER-ADMIN'] },
     status: 'active',
@@ -20,7 +23,7 @@ const sendNotificationToAdminsFromDB = async (url: string, message: string) => {
     isSeen: false,
     isRead: false,
   }));
-  await Notification.insertMany(notifications);
+  await Notification.insertMany(notifications, { session });
 
   // Emit notification to all admins and super admins
   adminsAndSuperAdmins.forEach((user, index) => {
@@ -33,7 +36,8 @@ const sendNotificationToAdminsFromDB = async (url: string, message: string) => {
 const sendNotificationToUsersFromDB = async (
   url: string,
   message: string,
-  excludedUserId?: string,
+  excludedUserId: string,
+  session: ClientSession,
 ) => {
   const allUsers = await User.find({
     role: 'USER',
@@ -48,7 +52,8 @@ const sendNotificationToUsersFromDB = async (
     isSeen: false,
     isRead: false,
   }));
-  await Notification.insertMany(notifications);
+
+  await Notification.insertMany(notifications, { session });
 
   // Emit notification to all users
   allUsers.forEach((user, index) => {
@@ -62,18 +67,20 @@ const sendNotificationToUserFromDB = async (
   url: string | null,
   message: string,
   userId: string,
-  session: any,
+  session: ClientSession,
 ) => {
-  const notification = await Notification.create([
-    {
-      url,
-      message,
-      userId,
-      isSeen: false,
-      isRead: false,
-    },
+  const notification = await Notification.create(
+    [
+      {
+        url,
+        message,
+        userId,
+        isSeen: false,
+        isRead: false,
+      },
+    ],
     { session },
-  ]);
+  );
 
   // Emit notification to a specific
   emitSocketEvent(userId, ChatEvents.NOTIFICATION_EVENT, {
@@ -81,42 +88,49 @@ const sendNotificationToUserFromDB = async (
   });
 };
 
-const notifyPropertyCreationFromDB = async (propertyId: string) => {
+const notifyPropertyCreationFromDB = async (
+  propertyId: string,
+  session: ClientSession,
+) => {
   const message = 'A new property has been listed.';
   const url = `/properties/${propertyId}`; // URL to the property details page
 
   // Notify all admins and super admins
-  await sendNotificationToAdminsFromDB(url, message);
+  await sendNotificationToAdminsFromDB(url, message, session);
 };
 
 const notifyPropertyApprovalFromDB = async (
   userId: string,
   propertyId: string,
+  session: ClientSession,
 ) => {
   const approvalMessage = 'Your property has been approved.';
   const newPropertyMessage = 'A new property has been approved and listed.';
   const url = `/properties/${propertyId}`;
 
   // Notify the user who listed the property
-  await sendNotificationToUserFromDB(url, approvalMessage, userId);
+  await sendNotificationToUserFromDB(url, approvalMessage, userId, session);
 
   // Notify all users
-  await sendNotificationToUsersFromDB(url, newPropertyMessage, userId);
+  await sendNotificationToUsersFromDB(url, newPropertyMessage, userId, session);
 };
 
-const notifyPropertyRejectionFromDB = async (userId: string) => {
+const notifyPropertyRejectionFromDB = async (
+  userId: string,
+  session: ClientSession,
+) => {
   const url = null;
   const message = 'Your property has been rejected.';
 
   // Notify the user who listed the property
-  await sendNotificationToUserFromDB(url, message, userId);
+  await sendNotificationToUserFromDB(url, message, userId, session);
 };
 
 const notifyPropertyBookingFromDB = async (
   ownerId: string, // User who listed the property (owner)
   bookingUserId: string, // User who booked the property
   propertyId: string, // Booked property ID
-  session: any, // Pass session for transaction
+  session: ClientSession, // Pass session for transaction
 ) => {
   // Construct a message and a URL for the property
   const url = `/property/${propertyId}`;

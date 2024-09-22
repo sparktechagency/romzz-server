@@ -109,14 +109,7 @@ const createPropertyToDB = async (
     payload.isApproved = false;
     payload.isBooked = false;
     payload.isHighlighted = false;
-
-    // Initialize location if it doesn't exist
-    if (!payload.location) {
-      payload.location = {
-        type: 'Point',
-        coordinates: [], // Initialize coordinates as an empty array
-      };
-    }
+    payload.location = payload.location || { type: 'Point', coordinates: [] };
 
     // Convert address to latitude and longitude
     if (payload?.address) {
@@ -155,11 +148,12 @@ const createPropertyToDB = async (
     }
 
     // Create the property in the database
-    const result = await Property.create(payload);
+    const result = await Property.create([payload], { session });
 
     // Notify admins and superadmins of new property creation
     await NotificationServices.notifyPropertyCreationFromDB(
-      result?._id?.toString(),
+      result[0]?._id?.toString(),
+      session,
     );
 
     // Commit the transaction
@@ -639,10 +633,14 @@ const updatePropertyStatusToApproveToDB = async (propertyId: string) => {
     session.startTransaction();
 
     // Update the Property status to 'approve'
-    const result = await Property.findByIdAndUpdate(propertyId, {
-      status: 'approved',
-      isApproved: true,
-    });
+    const result = await Property.findByIdAndUpdate(
+      propertyId,
+      {
+        status: 'approved',
+        isApproved: true,
+      },
+      { new: true, session },
+    );
 
     // Handle case where no Property is found
     if (!result) {
@@ -656,6 +654,7 @@ const updatePropertyStatusToApproveToDB = async (propertyId: string) => {
     await NotificationServices.notifyPropertyApprovalFromDB(
       result?._id?.toString(),
       result?.createdBy?.toString(),
+      session,
     );
 
     // Commit the transaction
@@ -678,10 +677,14 @@ const updatePropertyStatusToRejectToDB = async (propertyId: string) => {
     session.startTransaction();
 
     // Update the Property status to 'reject'
-    const result = await Property.findByIdAndUpdate(propertyId, {
-      status: 'rejected',
-      isApproved: false,
-    });
+    const result = await Property.findByIdAndUpdate(
+      propertyId,
+      {
+        status: 'rejected',
+        isApproved: false,
+      },
+      { new: true, session },
+    );
 
     // Handle case where no Property is found
     if (!result) {
@@ -694,6 +697,7 @@ const updatePropertyStatusToRejectToDB = async (propertyId: string) => {
     // Notify the user about property rejection
     await NotificationServices.notifyPropertyRejectionFromDB(
       result?.createdBy?.toString(),
+      session,
     );
 
     // Commit the transaction
