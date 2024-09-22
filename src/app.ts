@@ -24,8 +24,8 @@ app.use(requestIp.mw());
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 1000,
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  standardHeaders: true,
+  legacyHeaders: false,
   keyGenerator: (req, res) => {
     if (!req.clientIp) {
       throw new ApiError(
@@ -38,7 +38,7 @@ const limiter = rateLimit({
   },
   handler: (req, res, next, options) => {
     throw new ApiError(
-      options?.statusCode || httpStatus.BAD_REQUEST,
+      options?.statusCode,
       `Rate limit exceeded. Try again in ${options.windowMs / 60000} minutes.`,
     );
   },
