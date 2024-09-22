@@ -22,7 +22,7 @@ import { endOfMonth, startOfMonth } from 'date-fns';
 import { IPricingPlan } from '../PricingPlan/pricingPlan.interface';
 import { Booking } from '../Booking/booking.model';
 import { IQueryParams } from '../../interfaces/query.interface';
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import { Facility } from '../Facility/facility.model';
 import { IUser } from './../User/user.interface';
 
@@ -31,6 +31,20 @@ const createPropertyToDB = async (
   payload: IProperty,
   files: any,
 ) => {
+  // Validate facility IDs
+  if (payload?.facilities) {
+    const validFacilities = await Facility.find({
+      _id: { $in: payload?.facilities },
+    });
+
+    if (validFacilities?.length !== payload?.facilities?.length) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'One or more facility IDs are invalid.',
+      );
+    }
+  }
+
   // Calculate the user's profile completion progress
   const { progress } = await UserServices.getUserProfileProgressFromDB(user);
 
@@ -81,83 +95,86 @@ const createPropertyToDB = async (
     );
   }
 
-  // Assign the user ID who is creating the property
-  payload.createdBy = user?.userId;
-  payload.subscriptionId = subscription._id;
+  const session = await mongoose.startSession();
 
-  // Set default values for new properties
-  payload.status = 'pending';
-  payload.isApproved = false;
-  payload.isBooked = false;
-  payload.isHighlighted = false;
+  try {
+    session.startTransaction();
 
-  // Validate facility IDs
-  if (payload?.facilities) {
-    const validFacilities = await Facility.find({
-      _id: { $in: payload?.facilities },
-    });
+    // Assign the user ID who is creating the property
+    payload.createdBy = user?.userId;
+    payload.subscriptionId = subscription._id;
 
-    if (validFacilities?.length !== payload?.facilities?.length) {
-      throw new ApiError(
-        httpStatus.BAD_REQUEST,
-        'One or more facility IDs are invalid.',
+    // Set default values for new properties
+    payload.status = 'pending';
+    payload.isApproved = false;
+    payload.isBooked = false;
+    payload.isHighlighted = false;
+
+    // Initialize location if it doesn't exist
+    if (!payload.location) {
+      payload.location = {
+        type: 'Point',
+        coordinates: [], // Initialize coordinates as an empty array
+      };
+    }
+
+    // Convert address to latitude and longitude
+    if (payload?.address) {
+      const { address, latitude, longitude } = await getLatAndLngFromAddress(
+        payload?.address,
+      );
+
+      payload.address = address;
+      payload.location.coordinates = [longitude, latitude];
+    }
+
+    // Extract and map the image file paths
+    if (files && files?.ownershipImages) {
+      payload.ownershipImages = files?.ownershipImages?.map((file: any) =>
+        getPathAfterUploads(file?.path),
       );
     }
-  }
 
-  // Initialize location if it doesn't exist
-  if (!payload.location) {
-    payload.location = {
-      type: 'Point',
-      coordinates: [], // Initialize coordinates as an empty array
-    };
-  }
+    // Extract and map the image file paths
+    if (files && files?.propertyImages) {
+      payload.propertyImages = files?.propertyImages?.map((file: any) =>
+        getPathAfterUploads(file?.path),
+      );
+    }
 
-  // Convert address to latitude and longitude
-  if (payload?.address) {
-    const { address, latitude, longitude } = await getLatAndLngFromAddress(
-      payload?.address,
+    // Extract and set the video file path
+    if (files && files?.propertyVideo) {
+      payload.propertyVideo = getPathAfterUploads(
+        files?.propertyVideo?.[0]?.path,
+      );
+    }
+
+    // Set the price to be 20% more than the actual price
+    if (payload.price) {
+      payload.price = payload.price * 1.2; // Increase the price by 20%
+    }
+
+    // Create the property in the database
+    const result = await Property.create(payload);
+
+    // Notify admins and superadmins of new property creation
+    await NotificationServices.notifyPropertyCreationFromDB(
+      result?._id?.toString(),
     );
 
-    payload.address = address;
-    payload.location.coordinates = [longitude, latitude];
+    // Commit the transaction
+    await session.commitTransaction();
+    await session.endSession();
+
+    return result;
+  } catch (error) {
+    // Abort the transaction in case of an error
+    await session.abortTransaction();
+    await session.endSession();
+
+    // Re-throw the error to be handled by the caller
+    throw error;
   }
-
-  // Extract and map the image file paths
-  if (files && files?.ownershipImages) {
-    payload.ownershipImages = files?.ownershipImages?.map((file: any) =>
-      getPathAfterUploads(file?.path),
-    );
-  }
-
-  // Extract and map the image file paths
-  if (files && files?.propertyImages) {
-    payload.propertyImages = files?.propertyImages?.map((file: any) =>
-      getPathAfterUploads(file?.path),
-    );
-  }
-
-  // Extract and set the video file path
-  if (files && files?.propertyVideo) {
-    payload.propertyVideo = getPathAfterUploads(
-      files?.propertyVideo?.[0]?.path,
-    );
-  }
-
-  // Set the price to be 20% more than the actual price
-  if (payload.price) {
-    payload.price = payload.price * 1.2; // Increase the price by 20%
-  }
-
-  // Create the property in the database
-  const result = await Property.create(payload);
-
-  // Notify admins and superadmins of new property creation
-  await NotificationServices.notifyPropertyCreationFromDB(
-    result?._id?.toString(),
-  );
-
-  return result;
 };
 
 const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
@@ -529,14 +546,6 @@ const updatePropertyByIdToDB = async (
     );
   }
 
-  // Ensure the user trying to update the property is the creator
-  if (existingProperty?.createdBy?.toString() !== user?.userId) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      'You do not have permission to update this property!',
-    );
-  }
-
   // Validate facility IDs
   if (payload?.facilities) {
     const validFacilities = await Facility.find({
@@ -550,6 +559,15 @@ const updatePropertyByIdToDB = async (
       );
     }
   }
+
+  // Ensure the user trying to update the property is the creator
+  if (existingProperty?.createdBy?.toString() !== user?.userId) {
+    throw new ApiError(
+      httpStatus.FORBIDDEN,
+      'You do not have permission to update this property!',
+    );
+  }
+
   // Initialize updated lists
   let updatedPropertyImages = existingProperty?.propertyImages || [];
 
@@ -615,46 +633,80 @@ const updatePropertyByIdToDB = async (
 };
 
 const updatePropertyStatusToApproveToDB = async (propertyId: string) => {
-  // Update the Property status to 'approve'
-  const result = await Property.findByIdAndUpdate(propertyId, {
-    status: 'approved',
-    isApproved: true,
-  });
+  const session = await mongoose.startSession();
 
-  // Handle case where no Property is found
-  if (!result) {
-    throw new ApiError(
-      httpStatus.NOT_FOUND,
-      `Property with ID: ${propertyId} not found!`,
+  try {
+    session.startTransaction();
+
+    // Update the Property status to 'approve'
+    const result = await Property.findByIdAndUpdate(propertyId, {
+      status: 'approved',
+      isApproved: true,
+    });
+
+    // Handle case where no Property is found
+    if (!result) {
+      throw new ApiError(
+        httpStatus.NOT_FOUND,
+        `Property with ID: ${propertyId} not found!`,
+      );
+    }
+
+    // Notify the user and all users about property approval
+    await NotificationServices.notifyPropertyApprovalFromDB(
+      result?._id?.toString(),
+      result?.createdBy?.toString(),
     );
-  }
 
-  // Notify the user and all users about property approval
-  await NotificationServices.notifyPropertyApprovalFromDB(
-    result?._id?.toString(),
-    result?.createdBy?.toString(),
-  );
+    // Commit the transaction
+    await session.commitTransaction();
+    await session.endSession();
+  } catch (error) {
+    // Abort the transaction in case of an error
+    await session.abortTransaction();
+    await session.endSession();
+
+    // Re-throw the error to be handled by the caller
+    throw error;
+  }
 };
 
 const updatePropertyStatusToRejectToDB = async (propertyId: string) => {
-  // Update the Property status to 'reject'
-  const result = await Property.findByIdAndUpdate(propertyId, {
-    status: 'rejected',
-    isApproved: false,
-  });
+  const session = await mongoose.startSession();
 
-  // Handle case where no Property is found
-  if (!result) {
-    throw new ApiError(
-      httpStatus.NOT_FOUND,
-      `Property with ID: ${propertyId} not found!`,
+  try {
+    session.startTransaction();
+
+    // Update the Property status to 'reject'
+    const result = await Property.findByIdAndUpdate(propertyId, {
+      status: 'rejected',
+      isApproved: false,
+    });
+
+    // Handle case where no Property is found
+    if (!result) {
+      throw new ApiError(
+        httpStatus.NOT_FOUND,
+        `Property with ID: ${propertyId} not found!`,
+      );
+    }
+
+    // Notify the user about property rejection
+    await NotificationServices.notifyPropertyRejectionFromDB(
+      result?.createdBy?.toString(),
     );
-  }
 
-  // Notify the user about property rejection
-  await NotificationServices.notifyPropertyRejectionFromDB(
-    result?.createdBy?.toString(),
-  );
+    // Commit the transaction
+    await session.commitTransaction();
+    await session.endSession();
+  } catch (error) {
+    // Abort the transaction in case of an error
+    await session.abortTransaction();
+    await session.endSession();
+
+    // Re-throw the error to be handled by the caller
+    throw error;
+  }
 };
 
 const toggleHighlightPropertyToDB = async (
