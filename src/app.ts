@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import express, { Request, Response } from 'express';
@@ -6,12 +8,41 @@ import globalErrorHandler from './app/middlewares/globalErrorHandler';
 import notFound from './app/middlewares/notFound';
 import requestLogger from './app/logger/morgan.logger';
 import handleStripeWebhook from './app/webhooks/handleStripeWebhook';
+import requestIp from 'request-ip';
+import rateLimit from 'express-rate-limit';
+import ApiError from './app/errors/ApiError';
+import httpStatus from 'http-status';
 
 const app = express();
 
-// middlewares
+// Middleware setup
 app.use(cors());
 app.use(cookieParser());
+app.use(requestIp.mw());
+
+// Rate limiter to prevent abuse (max 1000 requests per 15 minutes)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1000,
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  keyGenerator: (req, res) => {
+    if (!req.clientIp) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'Unable to determine client IP!',
+      );
+    }
+
+    return req.clientIp;
+  },
+  handler: (req, res, next, options) => {
+    throw new ApiError(
+      options?.statusCode || httpStatus.BAD_REQUEST,
+      `Rate limit exceeded. Try again in ${options.windowMs / 60000} minutes.`,
+    );
+  },
+});
 
 // Stripe webhook route
 app.use(
@@ -20,12 +51,18 @@ app.use(
   handleStripeWebhook,
 );
 
+// Apply rate limiter and setup body parsers
+app.use(limiter);
 app.use(express.json({ limit: '16kb' }));
 app.use(express.urlencoded({ extended: true, limit: '16kb' }));
+
+// Serve static files
 app.use(express.static('public'));
+
+// Request logging
 app.use(requestLogger);
 
-// Default route for the root URL
+// Root route - API status check
 app.get('/', (req: Request, res: Response) => {
   const serverStatus = {
     status: 'running',
@@ -47,7 +84,7 @@ app.get('/', (req: Request, res: Response) => {
   res.json(serverStatus);
 });
 
-// Application routes under the '/api/v1' path
+// API routes
 app.use('/api/v1', router);
 
 // Error-handling middlewares
