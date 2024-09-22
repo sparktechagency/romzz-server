@@ -24,6 +24,7 @@ import { Booking } from '../Booking/booking.model';
 import { IQueryParams } from '../../interfaces/query.interface';
 import { Types } from 'mongoose';
 import { Facility } from '../Facility/facility.model';
+import { IUser } from './../User/user.interface';
 
 const createPropertyToDB = async (
   user: JwtPayload,
@@ -481,20 +482,20 @@ const getPropertyByUserIdFromDB = async (
   // Find bookings for properties
   const bookings = await Booking.find({
     propertyId: { $in: propertyIds },
-  }).populate({
+  }).populate<{ userId: IUser }>({
     path: 'userId',
     select: 'avatar fullName',
   });
 
   // Map bookings to their respective properties
-  const propertiesWithBookings = properties.map((property) => {
+  const propertiesWithBookings = properties.map((property: any) => {
     // Find the booking for the current property
     const booking = bookings.find(
       (booking) => booking.propertyId.toString() === property._id.toString(),
     );
 
     return {
-      ...property.toObject(), // Convert property to plain object
+      ...property?.toObject(), // Convert property to plain object
       bookedInfo: booking
         ? {
             _id: booking.userId._id,

@@ -191,18 +191,17 @@ const getUserSubscriptionsFromDB = async (
 
   // Get the total count of matching documents and total pages for pagination
   const meta = await subscriptionsQuery.countTotal();
+
   // Execute the query to retrieve the subscriptions
   const subscriptions = await subscriptionsQuery.modelQuery;
 
   // Calculate dynamic values and remaining postings
   const result = await Promise.all(
     subscriptions?.map(async (subscription: any) => {
-      const { status, packageId } = subscription;
-
       // Retrieve package details
-      const packageDetails = await PricingPlan.findById(packageId).select(
-        'maxProperties maxHighlightedProperties',
-      );
+      const packageDetails = await PricingPlan.findById(
+        subscription?.packageId,
+      ).select('maxProperties maxHighlightedProperties');
 
       const { maxProperties = 0, maxHighlightedProperties = 0 } =
         packageDetails || {};
@@ -210,17 +209,17 @@ const getUserSubscriptionsFromDB = async (
       // Calculate dynamic values for properties posted
       const propertiesPosted = await Property.countDocuments({
         createdBy: user?.userId,
-        subscriptionId: subscriptions?._id,
+        subscriptionId: subscription?._id,
       });
 
       const highlightedPropertiesPosted = await Property.countDocuments({
         createdBy: user?.userId,
-        subscriptionId: subscriptions?._id,
+        subscriptionId: subscription?._id,
         isHighlighted: true,
       });
 
       // Show remaining postings only for active subscriptions; default to 0 otherwise
-      if (status === 'active') {
+      if (subscription?.status === 'active') {
         return {
           ...subscription.toObject(),
           remainingProperties: Math.max(
