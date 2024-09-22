@@ -12,6 +12,7 @@ import requestIp from 'request-ip';
 import rateLimit from 'express-rate-limit';
 import ApiError from './app/errors/ApiError';
 import httpStatus from 'http-status';
+import config from './app/config';
 
 const app = express();
 
@@ -70,6 +71,11 @@ app.get('/', (req: Request, res: Response) => {
     timestamp: new Date().toISOString(),
     version: 'v1.0.1',
     uptime: process.uptime(),
+    environment: config.nodeEnv,
+    databaseStatus: 'connected',
+    healthCheck: 'Healthy',
+    memoryUsage: process.memoryUsage(),
+    cpuUsage: process.cpuUsage(),
     author: {
       name: 'Ibrahim Khalil',
       email: 'iibrahiim.dev@gmail.com',

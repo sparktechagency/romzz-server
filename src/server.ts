@@ -18,8 +18,7 @@ async function main() {
     );
 
     // Seed data
-    seedSuperAdmin();
-    seedUsers();
+    await Promise.all([seedSuperAdmin(), seedUsers()]);
     // seedFacilities();
     // seedProperties();
 
