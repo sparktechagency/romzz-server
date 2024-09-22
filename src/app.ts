@@ -81,10 +81,6 @@ app.get('/', (req: Request, res: Response) => {
       email: 'iibrahiim.dev@gmail.com',
       website: 'https://iibrahim-dev.netlify.app/',
     },
-    contact: {
-      support: 'iibrahiim.dev@gmail.com',
-      website: 'https://iibrahim-dev.netlify.app/',
-    },
   };
 
   res.json(serverStatus);
