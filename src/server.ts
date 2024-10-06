@@ -4,7 +4,7 @@ import config from './app/config';
 import seedSuperAdmin from './app/DB';
 import logger from './app/logger/winston.logger';
 import colors from 'colors';
-import seedUsers from './app/seeds/user.seeds';
+import seedUsers from './app/Seeds/user.seeds';
 import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { initializeSocket } from './app/socket';
@@ -14,7 +14,7 @@ let server: HttpServer;
 async function main() {
   try {
     const connectionInstance = await mongoose.connect(
-      `${config.dbURL}/${config.collectionName}`,
+      `${config.dbURL}`,
     );
 
     // Seed data
@@ -40,7 +40,7 @@ async function main() {
     const io = new Server(server, {
       pingTimeout: 60000,
       cors: {
-        origin: config.corsOrigin,
+        origin: "*",
         credentials: true,
       },
     });

@@ -9,7 +9,6 @@ export default {
   nodeEnv: process.env.NODE_ENV,
   corsOrigin: process.env.CORS_ORIGIN,
   dbURL: process.env.DATABASE_URL,
-  collectionName: process.env.COLLECTION_NAME,
 
   bcryptSaltRounds: process.env.BCRYPT_SALT_ROUNDS,
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET,

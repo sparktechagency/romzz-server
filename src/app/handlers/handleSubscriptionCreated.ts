@@ -26,6 +26,8 @@ export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
   const trxId = invoice?.payment_intent;
   const amountPaid = invoice?.total / 100;
 
+  console.log(customer)
+
   if (customer?.email) {
     // Find the user by email
     const existingUser = await User.findOne({ email: customer?.email });
@@ -60,6 +62,8 @@ export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
         });
 
         await newSubscription.save();
+
+        console.log(newSubscription);
 
         // Update the user to reflect the active subscription
         await User.findByIdAndUpdate(

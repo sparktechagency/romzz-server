@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Schema, model } from 'mongoose';
 import { IUser, UserModel } from './user.interface';
 import bcrypt from 'bcrypt';
@@ -58,29 +59,23 @@ const userSchema = new Schema<IUser, UserModel>(
     permanentLocation: {
       address: {
         type: String,
-        required: true,
       },
       latitude: {
         type: Number,
-        required: true,
       },
       longitude: {
         type: Number,
-        required: true,
       },
     },
     presentLocation: {
       address: {
         type: String,
-        required: true,
       },
       latitude: {
         type: Number,
-        required: true,
       },
       longitude: {
         type: Number,
-        required: true,
       },
     },
     rating: {
@@ -169,7 +164,7 @@ userSchema.statics.isUserExistsByEmail = async function (email: string) {
 
 // Compare plain text password with hashed password
 userSchema.statics.isPasswordMatched = async function (
-  plainTextPassword,
+  plainTextPassword:any,
   hashedPassword,
 ) {
   return await bcrypt.compare(plainTextPassword, hashedPassword);
