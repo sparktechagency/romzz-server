@@ -17,11 +17,6 @@ router
   .post(
     validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
     upload.single('image'),
-    (req: Request, res: Response, next: NextFunction) => {
-      // Parse body data only if 'data' field exists
-      req.body = JSON.parse(req.body.data);
-      next();
-    },
     FeedbackControllers.createFeedback,
   );
 

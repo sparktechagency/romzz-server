@@ -69,6 +69,7 @@ export const PROPERTY_TYPE = {
 
 export const BED_TYPE = {
   sofa: 'sofa',
+  "sofa-dev": 'sofa-bed',
   'single-bed': 'single-bed',
   'double-bed': 'double-bed',
 } as const;

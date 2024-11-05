@@ -16,10 +16,7 @@ const createConversationToDB = async (
   });
 
   if (existingConversation) {
-    throw new ApiError(
-      httpStatus.CONFLICT,
-      'User already has an existing conversation!',
-    );
+    return existingConversation;
   }
 
   payload.createdBy = user?.userId;
@@ -86,7 +83,7 @@ const getConversationByIdFromDB = async (
       path: 'senderId',
       select: 'fullName avatar',
     })
-    .sort('-createdAt');
+    .sort('createdAt');
 
   return { messages };
 };

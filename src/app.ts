@@ -17,7 +17,10 @@ import config from './app/config';
 const app = express();
 
 // Middleware setup
-app.use(cors());
+app.use(cors({
+  origin: ['http://192.168.10.102:3000', 'http://192.168.10.102:3007'], // Replace with your frontend domain
+  credentials: true // Allow credentials to be sent
+}));
 app.use(cookieParser());
 app.use(requestIp.mw());
 

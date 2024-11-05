@@ -94,4 +94,6 @@ router.get(
   UserControllers.getUserFavouriteProperties,
 );
 
+router.get('/summary', UserControllers.summary);
+
 export const UserRoutes = router;

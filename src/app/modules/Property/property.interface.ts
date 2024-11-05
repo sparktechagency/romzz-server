@@ -28,8 +28,8 @@ export interface IProperty {
   createdBy: ObjectId;
   subscriptionId: ObjectId;
   ownerType: TOwnerType;
-  ownershipImages: string[];
-  ownerNumber: string;
+  ownershipImages?: string[];
+  ownerNumber?: string;
   title: string;
   propertyImages: string[];
   propertyVideo: string;
@@ -49,10 +49,8 @@ export interface IProperty {
   bedType: TBedType;
   bedrooms: number;
   bathrooms: number;
-  balcony: number;
   kitchen: number;
   dining: number;
-  drawing: number;
   moveOn: Date;
   unavailableDay: Date[];
   allowedGender: TAllowedGender;

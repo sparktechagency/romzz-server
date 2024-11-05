@@ -2,13 +2,22 @@ import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { FeedbackServices } from './feedback.service';
+import getPathAfterUploads from '../../helpers/getPathAfterUploads';
 
 const createFeedback = catchAsync(async (req, res) => {
-  const result = await FeedbackServices.createFeedbackToDB(
-    req?.user,
-    req?.body,
-    req?.file,
-  );
+  const user = req.user;
+
+  const payload = {
+    ...req?.body,
+    userId : user?.userId,
+    visibilityStatus : 'hide',
+  }
+
+  if (req?.file && req?.file?.path) {
+    payload.image = getPathAfterUploads(req?.file?.path); // If image file exists, set it
+  }
+
+  const result = await FeedbackServices.createFeedbackToDB(payload);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,

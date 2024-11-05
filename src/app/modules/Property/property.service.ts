@@ -8,7 +8,6 @@ import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
 import {
   MAX_PROPERTY_IMAGES,
-  propertyFieldsToExclude,
   PropertySearchableFields,
 } from './property.constant';
 import { Favourite } from '../Favourite/favourite.model';
@@ -21,8 +20,7 @@ import { Subscription } from '../Subscription/subscription.model';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { IPricingPlan } from '../PricingPlan/pricingPlan.interface';
 import { Booking } from '../Booking/booking.model';
-import { IQueryParams } from '../../interfaces/query.interface';
-import mongoose, { Types } from 'mongoose';
+import mongoose from 'mongoose';
 import { Facility } from '../Facility/facility.model';
 import { IUser } from './../User/user.interface';
 
@@ -195,199 +193,84 @@ const getAllPropertiesFromDB = async (query: Record<string, unknown>) => {
   return { meta, data };
 };
 
-const getApprovedPropertiesFromDB = async (query: IQueryParams) => {
-  // Default search term is an empty string
-  const searchTerm = query.searchTerm || '';
+const getApprovedPropertiesFromDB = async (query: any) => {
 
-  // Define the initial match conditions
-  const matchConditions: Record<string, any> = {
+  const {search, rating, page, limit, sort, ...filerData } = query;
+  const anyConditions = [];
+
+
+  anyConditions.push({
     isApproved: true, // Must be approved
     isBooked: false, // Must not be booked
-    isHighlighted: false, // Must not be highlighted
-    'createdBy.isSubscribed': true, // Creator must be subscribed
-    'createdBy.hasAccess': true, // Creator must have access
-  };
+    isHighlighted: false,
+  });
 
-  const applySearch = (searchableFields: string[]) => {
-    // If a search term is provided
-    if (searchTerm) {
-      // Create regex conditions for each field
-      const searchConditions = searchableFields.map((field) => ({
-        [field]: { $regex: searchTerm, $options: 'i' }, // Case-insensitive match
-      }));
-      // Combine conditions with OR logic
-      matchConditions.$or = searchConditions;
-    }
-  };
-
-  const applyFilters = () => {
-    const queryObj = { ...query };
-    const excludeFields = [
-      'searchTerm',
-      'radius',
-      'lat',
-      'lng',
-      'sort',
-      'limit',
-      'page',
-    ];
-
-    // Remove excluded fields
-    excludeFields.forEach((el) => delete queryObj[el as keyof IQueryParams]);
-
-    // Process query parameters
-    for (const key in queryObj) {
-      const value = queryObj[key as keyof IQueryParams];
-
-      // Handle facilities as either a single value or comma-separated IDs
-      if (key === 'facilities' && typeof value === 'string') {
-        const facilityIds = value.split(',');
-        matchConditions[key] =
-          facilityIds.length === 1
-            ? new Types.ObjectId(facilityIds[0])
-            : { $in: facilityIds.map((id) => new Types.ObjectId(id)) }; // Convert to ObjectId
-      }
-
-      // Handle ratings for specific values or comma-separated values inside createdBy
-      else if (key === 'rating' && typeof value === 'string') {
-        if (value.includes(',')) {
-          // Handle specific ratings (e.g., '4,5')
-          const ratings = value.split(',').map(Number);
-
-          matchConditions.$or = (matchConditions.$or || []).concat(
-            ratings.map((rating) => ({
-              'createdBy.rating': {
-                $gte: rating,
-                $lt: rating + 1,
-              },
-            })),
-          );
-        } else {
-          // Handle single value for ratings (e.g., '4')
-          const rating = Number(value);
-          matchConditions['createdBy.rating'] = {
-            $gte: rating,
-            $lt: rating + 1, // Capture up to 4.99 for 4
-          };
-        }
-      }
-
-      // Handle range values (e.g., '500-1500')
-      else if (typeof value === 'string' && value.includes('-')) {
-        const [min, max] = value.split('-').map(Number);
-        matchConditions[key] =
-          !isNaN(min) && !isNaN(max) ? { $gte: min, $lte: max } : value; // Range filter
-      }
-
-      // Default string assignment
-      else if (typeof value === 'string') {
-        matchConditions[key] = value; // Directly assign string values
-      }
-    }
-  };
-
-  // Apply search conditions
-  applySearch(PropertySearchableFields);
-
-  // Apply filter conditions
-  applyFilters();
-
-  // Start building the aggregation pipeline
-  const aggregationPipeline = [];
-
-  // Validate and convert latitude and longitude
-  if (query?.radius && query?.lng && query?.lat) {
-    const longitude = Number(query.lng);
-    const latitude = Number(query.lat);
-    const maxDistance = Number(query.radius) * 1000;
-
-    aggregationPipeline.push({
-      $geoNear: {
-        near: {
-          type: 'Point',
-          coordinates: [longitude, latitude],
-        },
-        distanceField: 'distance',
-        maxDistance: maxDistance,
-        spherical: true,
-      },
+  //artist search here
+  if (search) {
+    anyConditions.push({
+        $or: ["title", "address"].map((field) => ({
+            [field]: {
+                $regex: search,
+                $options: "i"
+            }
+        }))
     });
   }
 
-  aggregationPipeline.push(
-    {
-      $lookup: {
-        from: 'users', // The name of the User collection
-        localField: 'createdBy', // Field in Property collection
-        foreignField: '_id', // Field in User collection
-        as: 'createdBy', // Name for the populated field
-      },
-    },
-    {
-      $unwind: {
-        path: '$createdBy',
-        preserveNullAndEmptyArrays: true, // Keep properties without a createdBy reference
-      },
-    },
-    {
-      $match: matchConditions, // Apply search conditions
-    },
-    {
-      $project: {
-        propertyImages: 1,
-        price: 1,
-        priceType: 1,
-        title: 1,
-        address: 1,
-        facilities: 1,
-        createdBy: {
-          avatar: 1,
-          rating: 1,
-          email: 1,
+
+  // Set the sorting condition
+  let sortCondition = {}; // Default: no sorting
+  if (sort === "price") {
+    sortCondition = { price: 1 }; // Ascending order (low to high)
+  } else if (sort === "-price") {
+    sortCondition = { price: -1 }; // Descending order (high to low)
+  }
+
+  // property filter here
+  if(Object.keys(filerData).length){
+    anyConditions.push({
+        $and: Object.entries(filerData).map(([field, value])=>({
+            [field]: value
+        }))
+    })
+  }
+
+  //artist filter with price range
+  if (rating) {
+    anyConditions.push({
+        "createdBy.rating": {
+            $gte: rating,
+            $lt: rating + 1
         },
-        distance: 1,
-      },
-    },
-  );
+    });
+  }
 
-  // Add sorting if provided
-  const sort = (query.sort as string)?.split(',')?.join(' ') || '-createdAt';
+  const whereConditions = anyConditions.length > 0 ? { $and: anyConditions } : {};
 
-  aggregationPipeline.push({
-    $sort: sort
-      .split(' ')
-      .reduce((acc: Record<string, 1 | -1>, field: string) => {
-        acc[field.replace('-', '')] = field.startsWith('-') ? -1 : 1;
-        return acc;
-      }, {}),
-  } as any);
+  const pages = parseInt(page) || 1;
+  const size = parseInt(limit) || 10;
+  const skip = (pages - 1) * size;
 
-  // Execute the aggregation
-  const data = await Property.aggregate(aggregationPipeline);
+  const services = await Property.find(whereConditions)
+    .populate({
+      path: "createdBy",
+      select: "avatar fullName"
+    })
+    .sort(sortCondition) //sorting here
+    .skip(skip)
+    .limit(size);
 
-  // Count total properties based on match conditions (after applying lookup)
-  const totalCountPipeline = [
-    ...aggregationPipeline,
-    { $count: 'total' }, // Add count stage to the pipeline
-  ];
+  const count = await Property.countDocuments(whereConditions);
 
-  const totalDocuments = await Property.aggregate(totalCountPipeline);
-  const total = totalDocuments.length > 0 ? totalDocuments[0].total : 0;
+  const data:any =  {
+    data: services,
+    meta: {
+      page: pages,
+      total: count
+    }
+  }
+  return data;
 
-  // Pagination parameters
-  const page = Number(query?.page) || 1;
-  const limit = Number(query?.limit) || 10;
-  const totalPage = Math.ceil(total / limit);
-
-  // Prepare meta information
-  const meta = {
-    total,
-    page,
-    limit,
-    totalPage,
-  };
-
-  return { meta, data };
 };
 
 const getHighlightedPropertiesFromDB = async () => {
@@ -459,14 +342,13 @@ const getPropertyByIdFromDB = async (propertyId: string) => {
 
 const getPropertyByUserIdFromDB = async (
   userId: string,
-  query: Record<string, unknown>,
-  payload?: { type: 'all' },
+  query: Record<string, unknown>
 ) => {
   // Define the base query object
   let findQuery: Record<string, unknown> = { createdBy: userId };
 
   // If payload.type is not 'all', include isApproved and isBooked conditions
-  if (payload?.type !== 'all') {
+  if (query?.type !== 'all') {
     findQuery = { ...findQuery, isApproved: true, isBooked: false };
   }
 
@@ -476,8 +358,7 @@ const getPropertyByUserIdFromDB = async (
       .populate({
         path: 'createdBy',
         select: 'avatar',
-      })
-      .select('propertyImages price priceType title category address status'),
+      }),
     query,
   ).paginate(); // Apply pagination based on the query parameter
 
@@ -609,20 +490,22 @@ const updatePropertyByIdToDB = async (
     }
   }
 
+  
   // Exclude specific fields from being updated
-  propertyFieldsToExclude?.forEach((field) => delete payload[field]);
+  // propertyFieldsToExclude?.forEach((field) => delete payload[field]);
 
   // Set the status to 'pending' if requestApproval is true
   if (payload?.requestApproval) {
     payload.status = 'pending';
   }
+  
 
   // Save new data to the database
-  const result = await Property.findByIdAndUpdate(propertyId, payload, {
-    new: true,
-    runValidators: true,
-  });
-
+  const result = await Property.findByIdAndUpdate(
+    {_id: propertyId}, 
+    payload, 
+    { new: true }
+  );
   return result;
 };
 

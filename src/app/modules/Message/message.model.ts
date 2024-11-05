@@ -14,12 +14,10 @@ const messageSchema = new Schema<IMessage>(
       required: true,
     },
     content: {
-      type: String,
-      required: true,
+      type: String
     },
     attachments: {
       type: [String],
-      required: true,
     },
   },
   { timestamps: true },

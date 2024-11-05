@@ -26,6 +26,7 @@ import { Property } from '../Property/property.model';
 import getLatAndLngFromAddress from '../../helpers/getLatAndLngFromAddress';
 import { PricingPlan } from '../PricingPlan/pricingPlan.model';
 import { Booking } from '../Booking/booking.model';
+import { Feedback } from '../Feedback/feedback.model';
 
 const createUserToDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
@@ -476,6 +477,22 @@ const getUserFavouritePropertiesFromDB = async (user: JwtPayload) => {
   return result;
 };
 
+const summaryFromDB = async () => {
+  const roomerz = await User.countDocuments({isSubscribed: true});
+  const rents = await Property.countDocuments({status: "pending"})
+  const deals = await Booking.countDocuments({status: "confirmed"})
+  const reviews = await Feedback.countDocuments({visibilityStatus: "show"})
+
+  const data = {
+    rommerz: roomerz,
+    rents: rents,
+    deals: deals,
+    reviews: reviews
+  }
+  
+  return data;
+};
+
 // Schedule a cron job to delete expired, unverified users every 12 hours
 cron.schedule('0 */12 * * *', async () => {
   const now = new Date();
@@ -522,4 +539,5 @@ export const UserServices = {
   toggleUserStatusToDB,
   getUserProfileProgressFromDB,
   getUserFavouritePropertiesFromDB,
+  summaryFromDB
 };

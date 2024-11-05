@@ -20,6 +20,7 @@ const createConnectAccount = async (user: JwtPayload) => {
   // Create a Stripe connected account using the token
   const account = await stripe.accounts.create({
     type: 'express',
+    email: existingUser?.email,
   });
 
   // // Create an account link for onboarding
@@ -92,6 +93,10 @@ const createPaymentIntent = async (
       httpStatus.FORBIDDEN,
       `You cannot book your own property.`,
     );
+  }
+
+  if(!propertyCreator?.stripeAccountInfo?.accountId){
+    throw new ApiError(httpStatus.BAD_REQUEST,`You cannot book this property because host not added account yet`);
   }
 
   const amountInCents = Math.round(existingProperty?.price * 100);

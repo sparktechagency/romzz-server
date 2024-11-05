@@ -28,6 +28,7 @@ const getSubscribedUsersFromDB = async (query: Record<string, unknown>) => {
   return { meta, result };
 };
 
+
 export const SubscriptionServices = {
-  getSubscribedUsersFromDB,
+  getSubscribedUsersFromDB
 };

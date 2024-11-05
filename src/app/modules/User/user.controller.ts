@@ -168,6 +168,17 @@ const getUserFavouriteProperties = catchAsync(async (req, res) => {
   });
 });
 
+const summary = catchAsync(async (req, res) => {
+  const result = await UserServices?.summaryFromDB();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Summary Retrieved successfully!',
+    data: result,
+  });
+});
+
 export const UserControllers = {
   createUser,
   createAdmin,
@@ -182,4 +193,5 @@ export const UserControllers = {
   toggleUserStatus,
   getUserProfileProgress,
   getUserFavouriteProperties,
+  summary
 };

@@ -32,22 +32,10 @@ const propertySchema = new Schema<IProperty>(
       required: true,
     },
     ownershipImages: {
-      type: [String],
-      required: true,
-      validate: [
-        {
-          validator: nonEmptyArray,
-          message: 'At least one owenership image is required.',
-        },
-        {
-          validator: nonEmptyStrings,
-          message: 'Each image path must be a non-empty string.',
-        },
-      ],
+      type: [String]
     },
     ownerNumber: {
-      type: String,
-      required: true,
+      type: String
     },
     title: {
       type: String,
@@ -142,10 +130,6 @@ const propertySchema = new Schema<IProperty>(
       required: true,
     },
     dining: {
-      type: Number,
-      required: true,
-    },
-    drawing: {
       type: Number,
       required: true,
     },

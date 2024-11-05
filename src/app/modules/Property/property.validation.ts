@@ -8,11 +8,6 @@ export const propertyValidationSchema = z.object({
         'Owner type must be either "own-property" or "others-property".',
     }),
 
-    ownerNumber: z.string({
-      required_error: 'Owner number is required.',
-      invalid_type_error: 'Owner number must be a string.',
-    }),
-
     title: z.string({
       required_error: 'Property title is required.',
       invalid_type_error: 'Property title must be a string.',

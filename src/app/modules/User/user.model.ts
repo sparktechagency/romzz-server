@@ -22,10 +22,11 @@ const userSchema = new Schema<IUser, UserModel>(
     },
     avatar: {
       type: String,
-      default: 'https://i.ibb.co/z5YHLV9/profile.png',
+      default: 'https://i.pinimg.com/564x/b2/66/f7/b266f7c8ecb53960c5eaa19d2a40dc41.jpg',
     },
     coverImage: {
       type: String,
+      default: "https://www.investopedia.com/thmb/XPnvXjFTJnA8j8VBEtNc7DfduN4=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/INV_Real_Property_GettyImages-200478960-001-080ea7835ec1444881eddbe3b2a5a632.jpg"
     },
     phoneNumber: {
       type: String,

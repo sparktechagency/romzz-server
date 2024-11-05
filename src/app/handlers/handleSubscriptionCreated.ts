@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Stripe from 'stripe';
 import stripe from '../config/stripe';
 import { User } from '../modules/User/user.model';
@@ -26,8 +27,6 @@ export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
   const trxId = invoice?.payment_intent;
   const amountPaid = invoice?.total / 100;
 
-  console.log(customer)
-
   if (customer?.email) {
     // Find the user by email
     const existingUser = await User.findOne({ email: customer?.email });
@@ -38,42 +37,43 @@ export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
 
       if (pricingPlan) {
         // Find the current active subscription
-        const currentActiveSubscription = await Subscription.findOne({
+        const currentActiveSubscription:any = await Subscription.findOne({
           userId: existingUser._id,
           status: 'active',
         });
 
         if (currentActiveSubscription) {
-          // Active subscription already exists
-          throw new ApiError(
-            httpStatus.CONFLICT,
-            'User already has an active subscription.',
+
+          // Update the existing subscription with new package details
+          currentActiveSubscription.packageId = pricingPlan._id;
+          currentActiveSubscription.amountPaid = amountPaid;
+          currentActiveSubscription.trxId = trxId;
+
+          await currentActiveSubscription.save();
+          return;
+        } else{
+
+          // Create a new subscription record
+          const newSubscription = new Subscription({
+            userId: existingUser._id,
+            customerId: customer?.id,
+            packageId: pricingPlan._id,
+            status: 'active',
+            amountPaid,
+            trxId,
+          });
+
+          await newSubscription.save();
+          // Update the user to reflect the active subscription
+          await User.findByIdAndUpdate(
+            existingUser._id,
+            {
+              isSubscribed: true,
+              hasAccess: true,
+            },
+            { new: true },
           );
         }
-
-        // Create a new subscription record
-        const newSubscription = new Subscription({
-          userId: existingUser._id,
-          customerId: customer?.id,
-          packageId: pricingPlan._id,
-          status: 'active',
-          amountPaid,
-          trxId,
-        });
-
-        await newSubscription.save();
-
-        console.log(newSubscription);
-
-        // Update the user to reflect the active subscription
-        await User.findByIdAndUpdate(
-          existingUser._id,
-          {
-            isSubscribed: true,
-            hasAccess: true,
-          },
-          { new: true },
-        );
       } else {
         // Pricing plan not found
         throw new ApiError(

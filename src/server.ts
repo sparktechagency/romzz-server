@@ -4,7 +4,6 @@ import config from './app/config';
 import seedSuperAdmin from './app/DB';
 import logger from './app/logger/winston.logger';
 import colors from 'colors';
-import seedUsers from './app/Seeds/user.seeds';
 import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { initializeSocket } from './app/socket';
@@ -18,7 +17,7 @@ async function main() {
     );
 
     // Seed data
-    await Promise.all([seedSuperAdmin(), seedUsers()]);
+    await Promise.all([seedSuperAdmin()]);
     // seedFacilities();
     // seedProperties();
 

@@ -342,6 +342,7 @@ const resetPasswordToDB = async (
 };
 
 const issueNewAccessToken = async (token: string) => {
+  
   // Check if the token is provided
   if (!token) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Token is required!');

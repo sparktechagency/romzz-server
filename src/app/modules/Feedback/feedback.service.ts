@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-import { JwtPayload } from 'jsonwebtoken';
 import { IFeedback } from './feedback.interface';
 import { Feedback } from './feedback.model';
 import ApiError from '../../errors/ApiError';
@@ -8,15 +5,11 @@ import httpStatus from 'http-status';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { Property } from '../Property/property.model';
 import { User } from '../User/user.model';
-import getPathAfterUploads from '../../helpers/getPathAfterUploads';
 import mongoose from 'mongoose';
 import { Booking } from '../Booking/booking.model';
 
-const createFeedbackToDB = async (
-  user: JwtPayload,
-  payload: IFeedback,
-  file: any,
-) => {
+const createFeedbackToDB = async (payload:IFeedback): Promise<IFeedback> => {
+
   const session = await mongoose.startSession();
 
   // Check if the property with the provided propertyId exists
@@ -32,7 +25,7 @@ const createFeedbackToDB = async (
 
   // Check if the user has booked this property
   const userBooking = await Booking.findOne({
-    userId: user?.userId,
+    userId: payload?.userId,
     propertyId: payload?.propertyId,
     status: 'confirmed',
   });
@@ -45,13 +38,8 @@ const createFeedbackToDB = async (
   }
 
   try {
-    // Add userId from the JWT payload to the feedback
-    payload.userId = user?.userId;
-    payload.visibilityStatus = 'hide'; // Set default visibility status
 
-    if (file && file?.path) {
-      payload.image = getPathAfterUploads(file?.path); // If image file exists, set it
-    }
+    session.startTransaction();
 
     // Create the new feedback entry
     const feedback = await Feedback.create(payload);
@@ -84,15 +72,16 @@ const createFeedbackToDB = async (
     await User.findByIdAndUpdate(propertyOwnerId, {
       rating: averageRating,
     });
-
+    // Commit transaction
+    await session.commitTransaction();
     return feedback;
   } catch (error) {
-    // Abort the transaction in case of an error
+    // Abort transaction on error
     await session.abortTransaction();
-    await session.endSession();
-
-    // Re-throw the error to be handled by the caller
     throw error;
+  } finally {
+    // Ensure session ends regardless of success or failure
+    await session.endSession();
   }
 };
 
@@ -137,10 +126,15 @@ const getUserProfileFeedbacksFromDB = async (userId: string) => {
   // Find feedback for these properties and populate the property owner data
   const result = await Feedback.find({
     propertyId: { $in: propertyIds },
-  }).populate({
-    path: 'userId', // Populate the user who gave the feedback
-    select: 'fullName avatar', // Adjust the fields to select the user's details
-  });
+  }).populate([
+    {
+      path: 'userId', // Populate the user who gave the feedback
+      select: 'fullName avatar', // Adjust the fields to select the user's details
+    },
+    {
+      path: 'facilities',
+    }
+  ]);
 
   return result;
 };

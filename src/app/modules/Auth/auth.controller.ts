@@ -7,6 +7,8 @@ import config from '../../config';
 const verifyOtp = catchAsync(async (req, res) => {
   const result = await AuthServices.verifyOtpToDB(req?.body);
 
+
+
   // Determine the response message based on the requestType
   const message =
     req?.body?.requestType === 'passwordReset'

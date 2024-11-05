@@ -11,4 +11,9 @@ router.get(
   SubscriptionControllers.getSubscribedUsers,
 );
 
+router.post('/subscribe',
+  validateAuth(USER_ROLE.USER),
+  SubscriptionControllers.getSubscribedUsers,
+);
+
 export const SubscriptionRoutes = router;
