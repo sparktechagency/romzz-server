@@ -20,6 +20,8 @@ const validateAuth = (...requiredRoles: TUserRole[]) => {
     if (bearerToken && bearerToken.startsWith('Bearer')) {
       const token = bearerToken.split(' ')[1];
 
+      console.log(token)
+
       // checking if the given token is valid
       const decoded = verifyJwtToken(token, config.jwtAccessSecret as string);
 

@@ -18,7 +18,7 @@ const app = express();
 
 // Middleware setup
 app.use(cors({
-  origin: ['http://192.168.10.102:3000', 'http://192.168.10.102:3007'], // Replace with your frontend domain
+  origin: ['http://103.145.138.199:3000', "http://142.93.43.249:3000"], // Replace with your frontend domain
   credentials: true // Allow credentials to be sent
 }));
 app.use(cookieParser());

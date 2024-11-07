@@ -180,6 +180,7 @@ const loginUserToDB = async (payload: {
   );
 
   return {
+    existingUser,
     accessToken,
     refreshToken,
   };
