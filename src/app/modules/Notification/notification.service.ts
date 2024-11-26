@@ -184,6 +184,25 @@ const markAllNotificationsAsReadByIdFromDB = async (user: JwtPayload) => {
   );
 };
 
+const adminNotificationFromDB = async (query: Record<string, unknown> ) => {
+  const {page, limit} = query;
+  const pages = parseInt(page as string) || 1;
+  const size = parseInt(limit as string) || 10;
+  const skip = (pages - 1) * size;
+
+  const result = await Notification.find({type: "ADMIN"}).skip(skip).limit(size).lean();
+  const count = await Notification.countDocuments();
+
+  const data= {
+    result,
+    meta: {
+      page: pages,
+      total: count
+    }
+  }
+  return data;
+};
+
 export const NotificationServices = {
   sendNotificationToAdminsFromDB,
   sendNotificationToUsersFromDB,
@@ -194,4 +213,5 @@ export const NotificationServices = {
   getAllNotificationsByIdFromDB,
   markAllNotificationsAsSeenByIdFromDB,
   markAllNotificationsAsReadByIdFromDB,
+  adminNotificationFromDB
 };

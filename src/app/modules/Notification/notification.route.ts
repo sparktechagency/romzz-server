@@ -7,8 +7,14 @@ const router = Router();
 
 router.get(
   '/',
-  validateAuth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
+  validateAuth(USER_ROLE.USER),
   NotificationControllers.getAllNotificationsById,
+);
+
+router.get(
+  '/admin',
+  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
+  NotificationControllers.adminNotification
 );
 
 router.patch(

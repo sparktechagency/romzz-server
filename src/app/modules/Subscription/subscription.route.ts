@@ -16,4 +16,10 @@ router.post('/subscribe',
   SubscriptionControllers.getSubscribedUsers,
 );
 
+router.get(
+  '/:id',
+  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
+  SubscriptionControllers.subscriberDetails,
+);
+
 export const SubscriptionRoutes = router;

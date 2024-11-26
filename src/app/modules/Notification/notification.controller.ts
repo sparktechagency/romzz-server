@@ -41,8 +41,21 @@ const markAllNotificationsAsReadById = catchAsync(async (req, res) => {
   });
 });
 
+const adminNotification = catchAsync(async (req, res) => {
+  const result =
+    await NotificationServices.adminNotificationFromDB(req?.query);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'All notifications Retrieved successfully!',
+    data: result,
+  });
+});
+
 export const NotificationControllers = {
   getAllNotificationsById,
   markAllNotificationsAsSeenById,
   markAllNotificationsAsReadById,
+  adminNotification
 };

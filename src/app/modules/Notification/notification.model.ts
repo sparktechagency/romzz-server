@@ -6,7 +6,7 @@ const notificationSchema = new Schema<INotification>(
     userId: {
       type: Schema.Types.ObjectId, // MongoDB ObjectId type
       ref: 'User', // Reference to the 'User' model
-      required: true,
+      required: false,
     },
     message: {
       type: String,
@@ -23,6 +23,10 @@ const notificationSchema = new Schema<INotification>(
     isRead: {
       type: Boolean,
       default: false,
+    },
+    type: {
+      type: String,
+      required: false,
     },
   },
   { timestamps: true },

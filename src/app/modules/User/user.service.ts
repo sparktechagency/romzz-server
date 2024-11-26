@@ -27,6 +27,7 @@ import getLatAndLngFromAddress from '../../helpers/getLatAndLngFromAddress';
 import { PricingPlan } from '../PricingPlan/pricingPlan.model';
 import { Booking } from '../Booking/booking.model';
 import { Feedback } from '../Feedback/feedback.model';
+import { sendNotifications } from '../../helpers/notificationHelper';
 
 const createUserToDB = async (payload: IUser) => {
   // Check if a user with the provided email already exists
@@ -90,7 +91,20 @@ const createUserToDB = async (payload: IUser) => {
   await sendEmail(emailOptions);
 
   // Create the new user in the database
-  await User.create(payload);
+  const newUser = await User.create(payload);
+
+  if(newUser?._id){
+    const notificationData= {
+      message: 'A new User register',
+      url: `/user/${newUser?._id}`,
+      type: "ADMIN",
+      isSeen: false,
+      isRead: false
+    };
+    await sendNotifications(notificationData);
+  }
+
+  
 };
 
 const createAdminToDB = async (payload: IUser) => {
@@ -111,8 +125,9 @@ const createAdminToDB = async (payload: IUser) => {
   payload.isSubscribed = false;
   payload.hasAccess = false;
 
+  const newUser = await User.create(payload);
   // Create the new admin in the database
-  await User.create(payload);
+  return newUser;
 };
 
 const getUsersFromDB = async (query: Record<string, unknown>) => {
@@ -478,10 +493,10 @@ const getUserFavouritePropertiesFromDB = async (user: JwtPayload) => {
 };
 
 const summaryFromDB = async () => {
-  const roomerz = await User.countDocuments({isSubscribed: true});
-  const rents = await Property.countDocuments({status: "pending"})
-  const deals = await Booking.countDocuments({status: "confirmed"})
-  const reviews = await Feedback.countDocuments({visibilityStatus: "show"})
+  const roomerz = await User.countDocuments({ isSubscribed: true });
+  const rents = await Property.countDocuments({ status: "pending" })
+  const deals = await Booking.countDocuments({ status: "confirmed" })
+  const reviews = await Feedback.countDocuments({ visibilityStatus: "show" })
 
   const data = {
     rommerz: roomerz,
@@ -489,7 +504,7 @@ const summaryFromDB = async () => {
     deals: deals,
     reviews: reviews
   }
-  
+
   return data;
 };
 

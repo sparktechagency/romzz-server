@@ -1,19 +1,16 @@
 import { Subscription } from './subscription.model';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { UserSearchableFields } from '../User/user.constant';
+import mongoose from 'mongoose';
+import ApiError from '../../errors/ApiError';
+import httpStatus from 'http-status';
 
 const getSubscribedUsersFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
   const usersQuery = new QueryBuilder(
     Subscription.find()
-      .populate({
-        path: 'userId',
-        select: 'avatar fullName',
-      })
-      .populate({
-        path: 'packageId',
-        select: 'title price',
-      }),
+      .populate("userId")
+      .populate("packageId"),
     query,
   )
     .search(UserSearchableFields) // Apply search conditions based on searchable fields
@@ -28,7 +25,22 @@ const getSubscribedUsersFromDB = async (query: Record<string, unknown>) => {
   return { meta, result };
 };
 
+const subscriberDetailsFromDB = async (id: string) => {
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Invalid ID");
+  }
+
+  const result = Subscription.findById(id)
+    .populate("userId")
+    .populate("packageId");
+
+  return result;
+};
+
 
 export const SubscriptionServices = {
-  getSubscribedUsersFromDB
+  getSubscribedUsersFromDB,
+  subscriberDetailsFromDB
+
 };

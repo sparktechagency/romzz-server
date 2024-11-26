@@ -16,6 +16,18 @@ const getSubscribedUsers = catchAsync(async (req, res) => {
   });
 });
 
+const subscriberDetails = catchAsync(async (req, res) => {
+  const result = await SubscriptionServices.subscriberDetailsFromDB(req?.params.id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Subscriber Details retrieved successfully!',
+    data: result,
+  });
+});
+
 export const SubscriptionControllers = {
   getSubscribedUsers,
+  subscriberDetails
 };

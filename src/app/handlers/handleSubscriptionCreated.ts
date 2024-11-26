@@ -6,6 +6,7 @@ import { PricingPlan } from '../modules/PricingPlan/pricingPlan.model';
 import { Subscription } from '../modules/Subscription/subscription.model';
 import ApiError from '../errors/ApiError';
 import httpStatus from 'http-status';
+import { sendNotifications } from '../helpers/notificationHelper';
 
 export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
   // Retrieve the subscription from Stripe
@@ -50,6 +51,18 @@ export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
           currentActiveSubscription.trxId = trxId;
 
           await currentActiveSubscription.save();
+
+          if(existingUser._id){
+            const notificationData= {
+              message: 'A User update Subscription plan',
+              url: `/subscribers?id=${existingUser._id}`,
+              isSeen: false,
+              isRead: false,
+              type: "ADMIN"
+            };
+            await sendNotifications(notificationData);
+          }
+
           return;
         } else{
 
@@ -73,6 +86,17 @@ export const handleSubscriptionCreated = async (data: Stripe.Subscription) => {
             },
             { new: true },
           );
+
+          if(existingUser._id){
+            const notificationData= {
+              message: 'A User Subscribe a plan',
+              url: `/subscribers?id=${existingUser._id}`,
+              isSeen: false,
+              isRead: false,
+              type: "ADMIN"
+            };
+            await sendNotifications(notificationData);
+          }
         }
       } else {
         // Pricing plan not found
