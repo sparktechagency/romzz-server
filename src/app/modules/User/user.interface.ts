@@ -21,7 +21,6 @@ export interface IUser {
   coverImage: string;
   phoneNumber: string;
   nidNumber: number;
-  ineNumber: number;
   gender: TGender;
   password: string;
   passwordChangedAt: Date;

@@ -6,7 +6,6 @@ export const UserSearchableFields = [
   'email',
   'phoneNumber',
   'nidNumber',
-  'ineNumber',
 ];
 
 export const PROFILE_CRITERIA = {
@@ -15,7 +14,6 @@ export const PROFILE_CRITERIA = {
   email: 'Email',
   phoneNumber: 'Phone Number',
   nidNumber: 'NID Number',
-  ineNumber: 'INE Number',
   permanentLocation: 'Permanent Location',
   presentLocation: 'Present Location',
   stripeAccountInfo: 'Stripe Account Info',

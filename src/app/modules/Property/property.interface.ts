@@ -51,7 +51,6 @@ export interface IProperty {
   bathrooms: number;
   kitchen: number;
   dining: number;
-  moveOn: Date;
   unavailableDay: Date[];
   allowedGender: TAllowedGender;
   guestType: TGuestType;

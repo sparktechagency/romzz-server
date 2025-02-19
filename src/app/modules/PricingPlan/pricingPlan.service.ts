@@ -3,75 +3,92 @@ import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
 import { IPricingPlan } from './pricingPlan.interface';
 import { PricingPlan } from './pricingPlan.model';
+import { createStripeProductCatalog } from '../../helpers/createStripeProductCatalog';
+import mongoose from 'mongoose';
+import { updateStripeProductCatalog } from '../../helpers/updateStripeProductCatalog';
 
-const createPricingPlanToDB = async (
-  user: JwtPayload,
-  payload: IPricingPlan,
-) => {
-  // Check the total number of monthly and yearly pricing plans in the database
-  const monthlyPlanCount = await PricingPlan.countDocuments({
-    billingCycle: 'monthly',
-  });
-  const yearlyPlanCount = await PricingPlan.countDocuments({
-    billingCycle: 'yearly',
-  });
+const createPricingPlanToDB = async (user: JwtPayload, payload: IPricingPlan) => {
 
-  // Allow only 3 monthly and 3 yearly plans
-  if (payload.billingCycle === 'monthly' && monthlyPlanCount >= 3) {
-    throw new ApiError(
-      httpStatus.CONFLICT,
-      'Monthly Pricing Plan creation limit reached!',
-    );
+
+  const productPayload = {
+    title: payload.title,
+    duration: payload.duration,
+    price: Number(payload.price),
+  }
+  const product = await createStripeProductCatalog(productPayload);
+
+
+  if (!product) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Failed to create subscription product")
   }
 
-  if (payload.billingCycle === 'yearly' && yearlyPlanCount >= 3) {
-    throw new ApiError(
-      httpStatus.CONFLICT,
-      'Yearly Pricing Plan creation limit reached!',
-    );
+  if (product) {
+    payload.paymentLink = product.paymentLink
+    payload.productId = product.productId
   }
 
-  // Set the createdBy field to the ID of the user who is creating the Pricing Plan
-  payload.createdBy = user?.userId;
-
-  // Create the new Pricing Plan entry in the database
   const result = await PricingPlan.create(payload);
+  if (!result) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Failed to created Package")
+  }
+
   return result;
 };
+
+
 
 const getPricingPlansFromDB = async () => {
   // Fetch all our stories entries from the database
   const result = await PricingPlan.find().sort('price');
-  
+
   return result;
 };
 
 const updatePricingPlanByIdFromDB = async (
   pricingPlanId: string,
-  payload: Partial<IPricingPlan>,
+  payload: IPricingPlan,
 ) => {
-  // Prevent modification of the createdBy field to maintain integrity
-  delete payload.createdBy;
-  delete payload.billingCycle;
 
-  // Fetch the existing our stories entry from the database by its ID
-  const existingPricingPlan = await PricingPlan.findById(pricingPlanId);
+  if (!mongoose.Types.ObjectId.isValid(pricingPlanId)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Invalid ID")
+  }
+  const isExistProduct: IPricingPlan | null = await PricingPlan.findById(pricingPlanId).lean();
 
-  // If the Pricing Plan entry does not exist, throw an error
-  if (!existingPricingPlan) {
-    throw new ApiError(
-      httpStatus.NOT_FOUND,
-      `Pricing Plan with ID: ${pricingPlanId} not found!`,
-    );
+  if (!isExistProduct) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Package not found")
   }
 
-  // Update the Pricing Plan entry in the database with the new data
-  const result = await PricingPlan.findByIdAndUpdate(pricingPlanId, payload, {
-    new: true, // Return the updated document
-    runValidators: true,
-  });
+  if (isExistProduct?.price < payload?.price) {
+    const payloadData: any = {
+      duration: payload.duration,
+      price: Number(payload.price)
+    };
 
-  return result;
+    Object.keys(payload).forEach((key) => {
+      const typedKey = key as keyof IPricingPlan;
+      if (typedKey !== "price" && typedKey !== "duration" && isExistProduct[typedKey] !== payload[typedKey]) {
+        payloadData[typedKey] = payload[typedKey];
+      }
+    });
+
+    const updatedProduct = await updateStripeProductCatalog(isExistProduct.productId as string, payloadData);
+    if (!updatedProduct) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Failed to update subscription product")
+    }
+    payload.paymentLink = updatedProduct
+  }
+
+  const result = await PricingPlan.findByIdAndUpdate(
+    { _id: pricingPlanId },
+    payload,
+    { new: true }
+  );
+
+  if (!result) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Failed to Update Package")
+  }
+
+  return null;
 };
 
 const deletePricingPlanByIdFromDB = async (pricingPlanId: string) => {

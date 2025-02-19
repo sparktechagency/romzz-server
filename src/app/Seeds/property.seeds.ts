@@ -65,7 +65,6 @@ const generateFakeProperty = (userId: string, facilityIds: string[]) => ({
   kitchen: faker.number.int({ min: 1, max: 2 }), // Random number of kitchens
   dining: faker.number.int({ min: 1, max: 2 }), // Random number of dining areas
   drawing: faker.number.int({ min: 1, max: 2 }), // Random number of drawing rooms
-  moveOn: faker.date.future().toISOString(),
   unavailableDay: [faker.date.future().toISOString()],
   facilities: getRandomElements(facilityIds, 5, 8),
   status: 'approved',

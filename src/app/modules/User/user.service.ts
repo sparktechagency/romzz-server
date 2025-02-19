@@ -363,7 +363,7 @@ const updateUserProfileToDB = async (
 const getUserProfileByIdFromDB = async (userId: string) => {
   // Fetch user profile
   const existingUser = await User.findById(userId).select(
-    'avatar fullName email phoneNumber gender nidNumber ineNumber presentLocation permanentLocation rating status',
+    'avatar fullName email phoneNumber gender nidNumber presentLocation permanentLocation rating status',
   ); // Adjust fields as necessary
 
   if (!existingUser) {

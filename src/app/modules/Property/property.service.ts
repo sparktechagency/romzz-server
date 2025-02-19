@@ -83,7 +83,7 @@ const createPropertyToDB = async (
   });
 
   // Retrieve the property listing limit from the user's subscription plan
-  const monthlyLimit = subscription?.packageId?.maxProperties;
+  const monthlyLimit = subscription?.packageId?.limitation;
 
   // Check if the user has exceeded their monthly listing limit (unless it's unlimited)
   if (monthlyLimit !== 'infinity' && userPropertyCount >= monthlyLimit) {
@@ -636,7 +636,7 @@ const toggleHighlightPropertyToDB = async (
   }
 
   const maxHighlightedProperties =
-    subscription?.packageId?.maxHighlightedProperties;
+    subscription?.packageId?.highlight;
 
   // Handle case where no highlighting is allowed (maxHighlightedProperties is 0 or undefined)
   if (!maxHighlightedProperties || maxHighlightedProperties <= 0) {

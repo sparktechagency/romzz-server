@@ -30,4 +30,5 @@ export default {
 
   stripeSecretKey: process.env.STRIPE_SECRET_KEY,
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+  stripeSuccessURL: process.env.STRIPE_SUCCESS_URL
 };

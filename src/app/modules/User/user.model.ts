@@ -34,9 +34,6 @@ const userSchema = new Schema<IUser, UserModel>(
     nidNumber: {
       type: Number,
     },
-    ineNumber: {
-      type: Number,
-    },
     gender: {
       type: String,
       enum: Object.values(GENDER),

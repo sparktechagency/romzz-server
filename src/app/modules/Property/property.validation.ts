@@ -120,11 +120,6 @@ export const propertyValidationSchema = z.object({
       .int()
       .min(0, 'Number of drawing rooms cannot be negative.'),
 
-    moveOn: z.string({
-      required_error: 'Move-on date is required.',
-      invalid_type_error: 'Move-on date must be a valid date.',
-    }),
-
     facilities: z.array(z.string(), {
       required_error: 'Facilities are required.',
       invalid_type_error: 'Facilities must be an array of strings.',

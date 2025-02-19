@@ -121,20 +121,12 @@ const propertySchema = new Schema<IProperty>(
       type: Number,
       required: true,
     },
-    balcony: {
-      type: Number,
-      required: true,
-    },
     kitchen: {
       type: Number,
       required: true,
     },
     dining: {
       type: Number,
-      required: true,
-    },
-    moveOn: {
-      type: Date,
       required: true,
     },
     unavailableDay: {

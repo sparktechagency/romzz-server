@@ -8,7 +8,6 @@ export const PropertySearchableFields = [
   'email',
   'phoneNumber',
   'nidNumber',
-  'ineNumber',
   'presentLocation.address',
 ];
 
@@ -82,10 +81,9 @@ export const ALLOWED_GENDER = {
 } as const;
 
 export const GUEST_TYPE = {
-  any: 'any',
-  single: 'single',
-  couple: 'couple',
-  family: 'family',
+  male: 'Male',
+  female: 'Female',
+  all: 'All',
 } as const;
 
 export const OCCUPATION = {
