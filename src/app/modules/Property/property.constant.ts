@@ -14,7 +14,6 @@ export const PropertySearchableFields = [
 // Define fields that cannot be updated by the user
 export const propertyFieldsToExclude: (keyof IProperty)[] = [
   'createdBy',
-  'subscriptionId',
   'ownerType',
   'ownerNumber',
   'ownershipImages',

@@ -13,6 +13,15 @@ export const updateStripeProductCatalog = async ( productId: string, payload: Pa
     let interval: 'month' | 'year' = 'month'; 
     let intervalCount = 1;
 
+    // 1️⃣ Retrieve the existing active price for the product
+    const existingPrices = await stripe.prices.list({ product: productId, active: true });  
+
+    console.log(existingPrices)
+
+    if (existingPrices.data.length === 0) {
+        throw new ApiError(httpStatus.BAD_REQUEST, "No active price found for this product in Stripe.");
+    }
+
     // map duration to interval_count
     switch (payload.duration) {
         case '1 month':
@@ -49,13 +58,13 @@ export const updateStripeProductCatalog = async ( productId: string, payload: Pa
         throw new ApiError(httpStatus.BAD_REQUEST, "Failed to create new price in Stripe");
     }
 
-    // retrieved current prices;
+    /* // retrieved current prices;
     const oldPrices = await stripe.prices.list({ product: productId, active: true });
 
     // deactivate current prices
-    for (const oldPrice of oldPrices.data) {
-        await stripe.prices.update(oldPrice.id, { active: false });
-    }
+    for (const price of oldPrices.data) {
+        await stripe.prices.update(price.id, { active: false });
+    } */
 
     // Create a new payment link
     const paymentLink = await stripe.paymentLinks.create({

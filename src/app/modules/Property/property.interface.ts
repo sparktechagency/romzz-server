@@ -26,7 +26,6 @@ export type TStatus = keyof typeof STATUS;
 export interface IProperty {
   _id: ObjectId;
   createdBy: ObjectId;
-  subscriptionId: ObjectId;
   ownerType: TOwnerType;
   ownershipImages?: string[];
   ownerNumber?: string;

@@ -1,63 +1,69 @@
-import httpStatus from 'http-status';
-import catchAsync from '../../utils/catchAsync';
-import sendResponse from '../../utils/sendResponse';
-import { PricingPlanServices } from './pricingPlan.service';
+import { Request, Response } from "express";
+import httpStatus from "http-status";
+import sendResponse from "../../utils/sendResponse";
+import catchAsync from "../../utils/catchAsync";
+import { PricingPlanService } from "./pricingPlan.service";
 
-const createPricingPlan = catchAsync(async (req, res) => {
-  const result = await PricingPlanServices.createPricingPlanToDB(
-    req?.user,
-    req?.body,
-  );
+const createPackage = catchAsync(async(req: Request, res: Response)=>{
+    const result = await PricingPlanService.createPackageToDB(req.body);
 
-  sendResponse(res, {
-    statusCode: httpStatus.CREATED,
-    success: true,
-    message: 'Pricing Plan created successfully!',
-    data: result,
-  });
-});
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Package created Successfully",
+        data: result
+    })
+})
 
-const getPricingPlans = catchAsync(async (req, res) => {
-  const result = await PricingPlanServices.getPricingPlansFromDB();
+const updatePackage = catchAsync(async(req: Request, res: Response)=>{
+    const result = await PricingPlanService.updatePackageToDB(req.params.id, req.body);
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Pricing Plans retrieved successfully!',
-    data: result,
-  });
-});
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Package updated Successfully",
+        data: result
+    })
+})
 
-const updatePricingPlanById = catchAsync(async (req, res) => {
-  const result = await PricingPlanServices.updatePricingPlanByIdFromDB(
-    req?.params?.id,
-    req?.body,
-  );
+const getPackage = catchAsync(async(req: Request, res: Response)=>{
+    const result = await PricingPlanService.getPackageFromDB();
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Pricing Plan updated successfully!',
-    data: result,
-  });
-});
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Package Retrieved Successfully",
+        data: result
+    })
+})
 
-const deletePricingPlanById = catchAsync(async (req, res) => {
-  const result = await PricingPlanServices.deletePricingPlanByIdFromDB(
-    req?.params?.id,
-  );
+const packageDetails = catchAsync(async(req: Request, res: Response)=>{
+    const result = await PricingPlanService.getPackageDetailsFromDB(req.params.id);
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Pricing Plan deleted successfully!',
-    data: result,
-  });
-});
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Package Details Retrieved Successfully",
+        data: result
+    })
+})
 
-export const PricingPlanControllers = {
-  createPricingPlan,
-  getPricingPlans,
-  updatePricingPlanById,
-  deletePricingPlanById,
-};
+
+const deletePackage = catchAsync(async(req: Request, res: Response)=>{
+    const result = await PricingPlanService.deletePackageToDB(req.params.id);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Package Deleted Successfully",
+        data: result
+    })
+})
+
+export const PricingPlanController = {
+    createPackage,
+    updatePackage,
+    getPackage,
+    packageDetails,
+    deletePackage
+}

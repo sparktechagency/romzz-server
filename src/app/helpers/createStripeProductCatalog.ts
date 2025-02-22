@@ -9,7 +9,7 @@ export const createStripeProductCatalog = async ( payload: Partial<IPricingPlan>
     // Create Product in Stripe
     const product = await stripe.products.create({
         name: payload.title as string,
-        description: "",
+        description: "This is a subscription package",
     });
 
     let interval: 'month' | 'year' = 'month'; // Default to 'month'
