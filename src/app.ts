@@ -16,9 +16,24 @@ import config from './app/config';
 
 const app = express();
 
+// Stripe webhook route
+app.use(
+  '/api/stripe/webhook',
+  express.raw({ type: 'application/json' }),
+  handleStripeWebhook,
+);
+
 // Middleware setup
 app.use(cors({
-  origin: ['http://10.0.70.92:3000', "http://10.0.70.92:3001", "http://10.0.70.92:3006", 'http://localhost:3000', "http://142.93.43.249:4173", "http://142.93.43.249:3000"], // Replace with your frontend domain
+  origin: [
+    'http://10.0.70.92:3000',
+    "http://10.0.70.92:3001",
+    "http://10.0.70.92:3006",
+    'http://localhost:3000',
+    'https://nadir3000.binarybards.online',
+    "http://146.190.126.8:4173",
+    "http://146.190.126.8:3000"
+  ], // Replace with your frontend domain
   credentials: true // Allow credentials to be sent
 }));
 app.use(cookieParser());
@@ -48,12 +63,7 @@ const limiter = rateLimit({
   },
 });
 
-// Stripe webhook route
-app.use(
-  '/api/stripe/webhook',
-  express.raw({ type: 'application/json' }),
-  handleStripeWebhook,
-);
+
 
 // Apply rate limiter and setup body parsers
 app.use(limiter);

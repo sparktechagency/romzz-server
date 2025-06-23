@@ -21,11 +21,6 @@ const propertySchema = new Schema<IProperty>(
       ref: 'User', // Reference to the 'User' model
       required: true,
     },
-    subscriptionId: {
-      type: Schema.Types.ObjectId, // MongoDB ObjectId type
-      ref: 'Subscription', // Reference to the 'User' model
-      required: true,
-    },
     ownerType: {
       type: String,
       enum: Object.values(OWNER_TYPE),
@@ -114,19 +109,19 @@ const propertySchema = new Schema<IProperty>(
       required: true,
     },
     bedrooms: {
-      type: Number,
+      type: String,
       required: true,
     },
     bathrooms: {
-      type: Number,
+      type: String,
       required: true,
     },
     kitchen: {
-      type: Number,
+      type: String,
       required: true,
     },
     dining: {
-      type: Number,
+      type: String,
       required: true,
     },
     unavailableDay: {

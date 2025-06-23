@@ -46,10 +46,10 @@ export interface IProperty {
   flore: number;
   propertyType: TPropertyType;
   bedType: TBedType;
-  bedrooms: number;
-  bathrooms: number;
-  kitchen: number;
-  dining: number;
+  bedrooms: string;
+  bathrooms: string;
+  kitchen: string;
+  dining: string;
   unavailableDay: Date[];
   allowedGender: TAllowedGender;
   guestType: TGuestType;

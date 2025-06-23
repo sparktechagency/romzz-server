@@ -9,7 +9,7 @@ router
   .route('/')
 
   // GET request to fetch all "Pricing Plan" entries
-  .get(PricingPlanController.createPackage)
+  .get(PricingPlanController.getPackage)
 
   // POST request to create a new "Pricing Plan" entry
   .post(

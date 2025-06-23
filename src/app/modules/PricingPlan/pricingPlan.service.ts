@@ -83,8 +83,9 @@ const updatePackageToDB = async (id: string, payload: IPricingPlan): Promise<IPr
 
 
 const getPackageFromDB = async (): Promise<IPricingPlan[]> => {
-  const result = await PricingPlan.find({ status: "Active" }).select("-__v -createdAt -updatedAt -status -productId");
+  const result = await PricingPlan.find({})
   return result;
+  
 }
 
 const getPackageDetailsFromDB = async (id: string): Promise<IPricingPlan | null> => {

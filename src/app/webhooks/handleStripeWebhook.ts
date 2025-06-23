@@ -9,8 +9,6 @@ import colors from 'colors';
 import {
   handleAccountUpdatedEvent,
   handleSubscriptionCreated,
-  handleSubscriptionDeleted,
-  handleSubscriptionUpdated,
 } from '../handlers';
 
 const handleStripeWebhook = async (req: Request, res: Response) => {
@@ -46,14 +44,6 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
     switch (eventType) {
       case 'customer.subscription.created':
         await handleSubscriptionCreated(data as Stripe.Subscription);
-        break;
-
-      case 'customer.subscription.updated':
-        await handleSubscriptionUpdated(data as Stripe.Subscription);
-        break;
-
-      case 'customer.subscription.deleted':
-        await handleSubscriptionDeleted(data as Stripe.Subscription);
         break;
 
       case 'account.updated':

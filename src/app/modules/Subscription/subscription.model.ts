@@ -22,9 +22,10 @@ const subscriptionSchema = new Schema<ISubscription>(
       type: Number,
       required: true,
     },
-    trxId: {
-      type: String,
-    },
+    trxId: { type: String },
+    currentPeriodStart: { type: String },
+    currentPeriodEnd: { type: String },
+    subscriptionId: { type: String },
     status: {
       type: String,
       enum: Object.values(SUBSCRIPTION_STATUS),

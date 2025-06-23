@@ -58,37 +58,35 @@ export const DECORATION_TYPE = {
 } as const;
 
 export const PROPERTY_TYPE = {
-  'family-house': 'family-house',
-  apartment: 'apartment',
-  lodge: 'lodge',
+  flat: 'flat',
+  house: 'house',
   villa: 'villa',
-  cottage: 'cottage',
+  hostel: 'hostel',
 } as const;
 
 export const BED_TYPE = {
   sofa: 'sofa',
-  "sofa-dev": 'sofa-bed',
+  "sofa-deb": 'sofa-bed',
   'single-bed': 'single-bed',
   'double-bed': 'double-bed',
 } as const;
 
 export const ALLOWED_GENDER = {
-  any: 'any',
   male: 'male',
   female: 'female',
   others: 'others',
 } as const;
 
 export const GUEST_TYPE = {
-  male: 'Male',
-  female: 'Female',
-  all: 'All',
+  male: 'male',
+  female: 'female',
+  others: 'others',
 } as const;
 
 export const OCCUPATION = {
-  any: 'any',
   student: 'student',
   professional: 'professional',
+  others: 'others',
 } as const;
 
 export const STATUS = {

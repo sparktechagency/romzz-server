@@ -16,10 +16,15 @@ router.post('/subscribe',
   SubscriptionControllers.getSubscribedUsers,
 );
 
-router.get(
-  '/:id',
-  validateAuth(USER_ROLE.ADMIN, USER_ROLE['SUPER-ADMIN']),
+router.get('/details',
+  validateAuth(USER_ROLE.USER),
   SubscriptionControllers.subscriberDetails,
+);
+
+
+router.get('/retrieve',
+  validateAuth(USER_ROLE.USER),
+  SubscriptionControllers.retrievedDetails,
 );
 
 export const SubscriptionRoutes = router;

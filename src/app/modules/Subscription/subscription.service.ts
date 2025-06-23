@@ -1,9 +1,7 @@
 import { Subscription } from './subscription.model';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { UserSearchableFields } from '../User/user.constant';
-import mongoose from 'mongoose';
-import ApiError from '../../errors/ApiError';
-import httpStatus from 'http-status';
+import { JwtPayload } from 'jsonwebtoken';
 
 const getSubscribedUsersFromDB = async (query: Record<string, unknown>) => {
   // Build the query using QueryBuilder with the given query parameters
@@ -25,22 +23,25 @@ const getSubscribedUsersFromDB = async (query: Record<string, unknown>) => {
   return { meta, result };
 };
 
-const subscriberDetailsFromDB = async (id: string) => {
+const subscriberDetailsFromDB = async (user: JwtPayload) => {
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Invalid ID");
-  }
-
-  const result = Subscription.findById(id)
-    .populate("userId")
+  const result = await Subscription.find({userId: user?.userId})
     .populate("packageId");
+  return result;
+};
 
+const retrievedDetailsFromDB = async (user: JwtPayload) => {
+
+  const result = await Subscription.findOne({userId: user?.userId})
+    .populate("packageId");
   return result;
 };
 
 
+
 export const SubscriptionServices = {
   getSubscribedUsersFromDB,
-  subscriberDetailsFromDB
+  subscriberDetailsFromDB,
+  retrievedDetailsFromDB
 
 };

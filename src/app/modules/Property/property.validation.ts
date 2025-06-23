@@ -59,11 +59,11 @@ export const propertyValidationSchema = z.object({
       .int(),
 
     propertyType: z.enum(
-      ['family-house', 'apartment', 'lodge', 'villa', 'cottage'],
+      ['flat', 'house', 'villa', 'hostel'],
       {
         required_error: 'Property type is required.',
         invalid_type_error:
-          'Property type must be one of the following: "family-house", "apartment", "lodge", "villa", or "cottage".',
+          'Property type must be one of the following: "flat", "house", "villa", "hostel".',
       },
     ),
 
@@ -73,52 +73,28 @@ export const propertyValidationSchema = z.object({
     }),
 
     bedrooms: z
-      .number({
+      .string({
         required_error: 'Number of bedrooms is required.',
         invalid_type_error: 'Number of bedrooms must be a number.',
-      })
-      .int()
-      .min(0, 'Number of bedrooms cannot be negative.'),
+      }),
 
     bathrooms: z
-      .number({
+      .string({
         required_error: 'Number of bathrooms is required.',
         invalid_type_error: 'Number of bathrooms must be a number.',
-      })
-      .int()
-      .min(0, 'Number of bathrooms cannot be negative.'),
-
-    balcony: z
-      .number({
-        required_error: 'Number of balconies is required.',
-        invalid_type_error: 'Number of balconies must be a number.',
-      })
-      .int()
-      .min(0, 'Number of balconies cannot be negative.'),
+      }),
 
     kitchen: z
-      .number({
+      .string({
         required_error: 'Number of kitchens is required.',
         invalid_type_error: 'Number of kitchens must be a number.',
-      })
-      .int()
-      .min(0, 'Number of kitchens cannot be negative.'),
+      }),
 
     dining: z
-      .number({
+      .string({
         required_error: 'Number of dining areas is required.',
         invalid_type_error: 'Number of dining areas must be a number.',
-      })
-      .int()
-      .min(0, 'Number of dining areas cannot be negative.'),
-
-    drawing: z
-      .number({
-        required_error: 'Number of drawing rooms is required.',
-        invalid_type_error: 'Number of drawing rooms must be a number.',
-      })
-      .int()
-      .min(0, 'Number of drawing rooms cannot be negative.'),
+      }),
 
     facilities: z.array(z.string(), {
       required_error: 'Facilities are required.',

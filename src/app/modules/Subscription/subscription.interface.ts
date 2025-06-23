@@ -10,6 +10,9 @@ export interface ISubscription {
   packageId: ObjectId;
   amountPaid: number;
   trxId: string;
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  subscriptionId: string;
   status: TSubscriptionStatus;
   createdAt: Date;
 }

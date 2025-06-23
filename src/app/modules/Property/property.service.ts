@@ -60,30 +60,14 @@ const createPropertyToDB = async (
     status: 'active',
   }).populate<{ packageId: IPricingPlan }>('packageId');
 
-  // If no subscription exists, prevent the user from listing properties
-  if (!subscription) {
-    throw new ApiError(
-      httpStatus.FORBIDDEN,
-      'No subscription found. Please subscribe to list properties.',
-    );
-  }
-
-  // Determine the start and end of the subscription period
-  const subscriptionStartDate = subscription.createdAt;
-  const startOfSubscriptionPeriod = startOfMonth(subscriptionStartDate);
-  const endOfSubscriptionPeriod = endOfMonth(subscriptionStartDate);
 
   // Count the properties the user has listed this month
   const userPropertyCount = await Property.countDocuments({
-    createdBy: user?.userId,
-    createdAt: {
-      $gte: startOfSubscriptionPeriod,
-      $lte: endOfSubscriptionPeriod,
-    },
+    createdBy: user?.userId
   });
 
   // Retrieve the property listing limit from the user's subscription plan
-  const monthlyLimit = subscription?.packageId?.limitation;
+  const monthlyLimit = subscription?.packageId?.limitation as number |  "infinity";
 
   // Check if the user has exceeded their monthly listing limit (unless it's unlimited)
   if (monthlyLimit !== 'infinity' && userPropertyCount >= monthlyLimit) {
@@ -100,7 +84,6 @@ const createPropertyToDB = async (
 
     // Assign the user ID who is creating the property
     payload.createdBy = user?.userId;
-    payload.subscriptionId = subscription._id;
 
     // Set default values for new properties
     payload.status = 'pending';
