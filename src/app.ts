@@ -31,7 +31,7 @@ app.use(cors({
     "http://10.0.70.92:3006",
     'http://localhost:3000',
     'https://nadir3000.binarybards.online',
-    "http://146.190.126.8:4173",
+    "http://146.190.126.8:4174",
     "http://146.190.126.8:3000"
   ], // Replace with your frontend domain
   credentials: true // Allow credentials to be sent
